@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.template.dao.TemplateItemMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.item_id != null">
+			and item_id = #{pd.item_id}
+		</if>
+		<if test="pd.template_id != null">
+			and template_id = #{pd.template_id}
+		</if>
+		<if test="pd.item_name != null">
+			and item_name = #{pd.item_name}
+		</if>
+		<if test="pd.item_icon != null">
+			and item_icon = #{pd.item_icon}
+		</if>
+		<if test="pd.item_img != null">
+			and item_img = #{pd.item_img}
+		</if>
+		<if test="pd.item_open_type != null">
+			and item_open_type = #{pd.item_open_type}
+		</if>
+		<if test="pd.item_view_code != null">
+			and item_view_code = #{pd.item_view_code}
+		</if>
+		<if test="pd.item_parameters != null">
+			and item_parameters = #{pd.item_parameters}
+		</if>
+		<if test="pd.item_open_url != null">
+			and item_open_url = #{pd.item_open_url}
+		</if>
+		<if test="pd.is_enable != null">
+			and is_enable = #{pd.is_enable}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_template_item where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_template_item where 1=1
+			<include refid="condition"></include>
+	</select>
+	
+	<select id="selectItemList" resultType="pd"  parameterType="pd">
+		SELECT item.item_name,item.item_icon,item.item_img,item.item_open_type,item.item_open_url,item.item_view_code,item.item_parameters from t_template_item item where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_template_item where item_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_template_item (template_id,item_name,item_icon,item_img,item_open_type,item_view_code,item_parameters,item_open_url,is_enable,creator,create_time)
+		values (#{template_id},#{item_name},#{item_icon},#{item_img},#{item_open_type},#{item_view_code},#{item_parameters},#{item_open_url},#{is_enable},#{creator},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_template_item <set>
+		<if test="template_id != null">
+			template_id = #{template_id},
+		</if>
+		<if test="item_name != null">
+			item_name = #{item_name},
+		</if>
+		<if test="item_icon != null">
+			item_icon = #{item_icon},
+		</if>
+		<if test="item_img != null">
+			item_img = #{item_img},
+		</if>
+		<if test="item_open_type != null">
+			item_open_type = #{item_open_type},
+		</if>
+		<if test="item_view_code != null">
+			item_view_code = #{item_view_code},
+		</if>
+		<if test="item_parameters != null">
+			item_parameters = #{item_parameters},
+		</if>
+		<if test="item_open_url != null">
+			item_open_url = #{item_open_url},
+		</if>
+		<if test="is_enable != null">
+			is_enable = #{is_enable},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		</set>
+		where item_id = #{item_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_template_item where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

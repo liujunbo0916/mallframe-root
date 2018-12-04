@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.TeacherLibMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.teacher_real_name != null">
+			and teacher_real_name = #{pd.teacher_real_name}
+		</if>
+		<if test="pd.teacher_level != null">
+			and teacher_level = #{pd.teacher_level}
+		</if>
+		<if test="pd.teacher_idcard != null">
+			and teacher_idcard = #{pd.teacher_idcard}
+		</if>
+		<if test="pd.teacher_phone != null">
+			and teacher_phone like concat('%',#{pd.teacher_phone},'%')
+		</if>
+		<if test="pd.teacher_address != null">
+			and teacher_address = #{pd.teacher_address}
+		</if>
+		<if test="pd.teacher_auditing != null">
+			and teacher_auditing = #{pd.teacher_auditing}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_teacher_lib where 1=1
+		<include refid="condition"></include>
+		<if test="pd.tea_recommend !=null and pd.tea_recommend !='' and pd.tea_recommend==0">
+		order by teacher_recommend 
+		</if>
+		<if test="pd.tea_recommend !=null and pd.tea_recommend !='' and pd.tea_recommend==1">
+		order by teacher_recommend desc
+		</if>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_teacher_lib where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectTeaListsPage" resultType="pd" parameterType="page">
+		SELECT
+		tt.*, (
+		SELECT
+		course_price
+		FROM
+		t_ythd_course
+		WHERE
+		teacher_id =
+		tt.user_id
+		AND course_examine = 1
+		AND course_audition = 0
+		ORDER BY
+		course_price
+		LIMIT 1
+		) AS teacher_minprice,
+		(
+		SELECT
+		course_price
+		FROM
+		t_ythd_course
+		WHERE
+		teacher_id = tt.user_id
+		AND course_examine = 1
+		AND
+		course_audition = 0
+		ORDER BY
+		course_price DESC
+		LIMIT 1
+		) AS
+		teacher_maxprice,
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		t_ythd_teacher_comment
+		WHERE
+		tea_id
+		= tt.user_id
+		) AS teacher_comment,(
+		SELECT
+		ROUND(AVG(comment_star))
+		FROM
+		t_ythd_teacher_comment
+		WHERE
+		tea_id = tt.user_id
+		)as comment_star
+		FROM
+		t_ythd_teacher_lib tt
+		where tt.teacher_auditing=1
+		<if test="pd.id != null and pd.id!=''">
+			and tt.id = #{pd.id}
+		</if>
+		ORDER BY 
+		<if
+			test="pd.comment_star != null and pd.comment_star != '' and pd.comment_star == 1">
+			comment_star DESC,
+		</if>
+		<if
+			test="pd.comment_star != null and pd.comment_star != '' and pd.comment_star == 0">
+			comment_star ASC,
+		</if>
+		<if
+			test="pd.teacher_minprice != null and pd.teacher_minprice != '' and pd.teacher_minprice == 0">
+			teacher_minprice ASC,
+		</if>
+		<if
+			test="pd.teacher_minprice != null and pd.teacher_minprice != '' and pd.teacher_minprice == 1">
+			teacher_minprice DESC,
+		</if>
+		teacher_recommend DESC
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_teacher_lib where id = #{id}
+	</select>
+	<select id="selectByUserId" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_teacher_lib where user_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_teacher_lib
+		(user_id,teacher_real_name,teacher_idcard,
+		teacher_phone,teacher_qualification,teacher_idcard_face,
+		teacher_idcard_reverse,teacher_seniority,teacher_education,
+		teacher_diploma,teacher_self_introduction,teacher_place_of_origin,
+		teacher_address,
+		teacher_sex,teacher_idcard_address,teacher_age,
+		create_date,teacher_introduce_photo,teacher_introduction,teacher_idcard_hand,teacher_auditing,teacher_auditing_failmsg,teacher_level,teacher_recommend)
+		values (
+		#{user_id},#{teacher_real_name},#{teacher_idcard},
+		#{teacher_phone},#{teacher_qualification},#{teacher_idcard_face},
+		#{teacher_idcard_reverse},#{teacher_seniority},#{teacher_education},#{teacher_diploma},
+		#{teacher_self_introduction},#{teacher_place_of_origin},#{teacher_address},
+		#{teacher_sex},#{teacher_idcard_address},#{teacher_age},#{create_date},#{teacher_introduce_photo}
+		,#{teacher_introduction},#{teacher_idcard_hand},#{teacher_auditing},#{teacher_auditing_failmsg},#{teacher_level},#{teacher_recommend}
+		)
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_teacher_lib
+		<set>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="teacher_real_name != null">
+				teacher_real_name = #{teacher_real_name},
+			</if>
+			<if test="teacher_idcard != null">
+				teacher_idcard = #{teacher_idcard},
+			</if>
+			<if test="teacher_phone != null">
+				teacher_phone = #{teacher_phone},
+			</if>
+			<if test="teacher_qualification != null">
+				teacher_qualification = #{teacher_qualification},
+			</if>
+			<if test="teacher_idcard_face != null">
+				teacher_idcard_face = #{teacher_idcard_face},
+			</if>
+			<if test="teacher_idcard_reverse != null">
+				teacher_idcard_reverse = #{teacher_idcard_reverse},
+			</if>
+			<if test="teacher_seniority != null">
+				teacher_seniority = #{teacher_seniority},
+			</if>
+			<if test="teacher_education != null">
+				teacher_education = #{teacher_education},
+			</if>
+			<if test="teacher_diploma != null">
+				teacher_diploma = #{teacher_diploma},
+			</if>
+			<if test="teacher_idcard_hand != null">
+				teacher_idcard_hand = #{teacher_idcard_hand},
+			</if>
+			<if test="teacher_self_introduction != null">
+				teacher_self_introduction = #{teacher_self_introduction},
+			</if>
+			<if test="teacher_place_of_origin != null">
+				teacher_place_of_origin = #{teacher_place_of_origin},
+			</if>
+			<if test="teacher_address != null">
+				teacher_address = #{teacher_address},
+			</if>
+			<if test="teacher_sex != null">
+				teacher_sex = #{teacher_sex},
+			</if>
+			<if test="teacher_idcard_address != null">
+				teacher_idcard_address = #{teacher_idcard_address},
+			</if>
+			<if test="teacher_age != null">
+				teacher_age = #{teacher_age},
+			</if>
+			<if test="teacher_isEducation != null">
+				teacher_isEducation = #{teacher_isEducation},
+			</if>
+			<if test="teacher_introduction != null">
+				teacher_introduction = #{teacher_introduction},
+			</if>
+			<if test="teacher_isZL != null">
+				teacher_isZL = #{teacher_isZL},
+			</if>
+			<if test="teacher_isRealName != null">
+				teacher_isRealName = #{teacher_isRealName},
+			</if>
+			<if test="teacher_introduce_photo != null">
+				teacher_introduce_photo = #{teacher_introduce_photo},
+			</if>
+			<if test="teacher_auditing != null">
+				teacher_auditing = #{teacher_auditing},
+			</if>
+			<if test="teacher_auditing_failmsg != null">
+				teacher_auditing_failmsg = #{teacher_auditing_failmsg},
+			</if>
+			<if test="teacher_level != null">
+				teacher_level = #{teacher_level},
+			</if>
+			<if test="teacher_recommend != null">
+				teacher_recommend = #{teacher_recommend},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from t_ythd_teacher_lib
+		where id = #{pd.id}
+	</delete>
+
+	<select id="selectTeacherCollect" parameterType="pd" resultType="pd">
+		select
+		t2.*
+		from t_ythd_teacher_collect t1
+		LEFT JOIN (SELECT
+		tt.*, (
+		SELECT
+		course_price
+		FROM
+		t_ythd_course
+		WHERE
+		teacher_id = tt.user_id
+		AND
+		course_examine = 1
+		AND course_audition = 0
+		ORDER BY
+		course_price
+		LIMIT 1
+		)
+		AS teacher_minprice,
+		(
+		SELECT
+		course_price
+		FROM
+		t_ythd_course
+		WHERE
+		teacher_id = tt.user_id
+		AND course_examine = 1
+		AND course_audition = 0
+		ORDER BY
+		course_price DESC
+		LIMIT 1
+		) AS teacher_maxprice,
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		t_ythd_teacher_comment
+		WHERE
+		tea_id = tt.user_id
+		) AS
+		teacher_comment,(
+		SELECT
+		AVG(comment_star)
+		FROM
+		t_ythd_teacher_comment
+		WHERE
+		tea_id = tt.user_id
+		)as comment_star
+		FROM
+		t_ythd_teacher_lib tt
+		where tt.teacher_auditing=1 ) t2 ON
+		t1.teacher_id=t2.id where
+		t1.user_id
+		= #{user_id}
+		<if test="teacher_id != null and teacher_id != ''">
+			and t1.teacher_id = #{teacher_id}
+		</if>
+		order by
+		create_time
+		desc
+	</select>
+	<insert id="insertTeacherCollect" parameterType="pd">
+		insert into
+		t_ythd_teacher_collect (user_id,teacher_id,create_time)
+		value(#{user_id},#{teacher_id},#{create_time})
+	</insert>
+
+	<delete id="deleteTeacherCollect" parameterType="pd">
+		delete from
+		t_ythd_teacher_collect
+		where teacher_id = #{teacher_id}
+		and
+		user_id=#{user_id}
+	</delete>
+</mapper>

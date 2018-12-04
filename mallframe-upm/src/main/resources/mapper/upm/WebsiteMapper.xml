@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.WebsiteMapper">
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.website_title != null and pd.website_title!=''">
+			and website_title = #{pd.website_title}
+		</if>
+		<if test="pd.website_abstract != null">
+			and website_abstract = #{pd.website_abstract}
+		</if>
+		<if test="pd.remark_1 != null">
+			and remark_1 = #{pd.remark_1}
+		</if>
+		<if test="pd.remark_2 != null">
+			and remark_2 = #{pd.remark_2}
+		</if>
+		<if test="pd.remark_3 != null">
+			and remark_3 = #{pd.remark_3}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_website
+		(website_title,website_abstract,remark_1,remark_2,remark_3,create_time)
+		values(#{website_title},#{website_abstract},#{remark_1},#{remark_2},#{remark_3},#{create_time})
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_website where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select * from t_website where 1=1
+		<include refid="condition"></include>
+	</select>
+	
+	<select id="selectById" resultType="pd" parameterType="java.lang.Integer">
+		select *
+		from t_website where 1=1 and id=#{id}
+	</select>
+
+	<update id="update" parameterType="pd">
+		update t_website
+		<set>
+			<if test="website_title != null and website_title != ''">
+				website_title = #{website_title},
+			</if>
+			<if test="website_abstract != ''">
+				website_abstract = #{website_abstract},
+			</if>
+			<if test="remark_1 != ''">
+				remark_1 = #{remark_1},
+			</if>
+			<if test="remark_2 != ''">
+				remark_2 = #{remark_2},
+			</if>
+			<if test="remark_3 != ''">
+				remark_3 = #{remark_3},
+			</if>
+			<if test="create_time != null ">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from t_website where
+		id=#{pd.id}
+	</delete>
+
+</mapper>

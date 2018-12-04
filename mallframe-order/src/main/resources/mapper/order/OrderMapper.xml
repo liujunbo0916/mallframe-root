@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.OrderMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.order_id!= null">
+			and order_id = #{pd.order_id}
+		</if>
+		<if test="pd.order_sn != null">
+			and order_sn = #{pd.order_sn}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.user_name != null">
+			and user_name = #{pd.user_name}
+		</if>
+		<if test="pd.received_money != null">
+			and received_money = #{pd.received_money}
+		</if>
+		<if test="pd.order_money != null">
+			and order_money = #{pd.order_money}
+		</if>
+		<if test="pd.goods_money != null">
+			and goods_money = #{pd.goods_money}
+		</if>
+		<if test="pd.rebate_money != null">
+			and rebate_money = #{pd.rebate_money}
+		</if>
+		<if test="pd.shipping_money != null">
+			and shipping_money = #{pd.shipping_money}
+		</if>
+		<if test="pd.shipping_fee != null">
+			and shipping_fee = #{pd.shipping_fee}
+		</if>
+		<if test="pd.pay_fee != null">
+			and pay_fee = #{pd.pay_fee}
+		</if>
+		<if test="pd.order_status != null">
+			and order_status = #{pd.order_status}
+		</if>
+		<if test="pd.shipping_status != null">
+			and shipping_status = #{pd.shipping_status}
+		</if>
+		<if test="pd.shipping_type != null">
+			and shipping_type = #{pd.shipping_type}
+		</if>
+		<if test="pd.pay_status != null">
+			and pay_status = #{pd.pay_status}
+		</if>
+		<if test="pd.pay_type != null">
+			and pay_type = #{pd.pay_type}
+		</if>
+		<if test="pd.user_pay_points != null">
+			and user_pay_points = #{pd.user_pay_points}
+		</if>
+		<if test="pd.pay_by_points != null">
+			and pay_by_points = #{pd.pay_by_points}
+		</if>
+		<if test="pd.pay_by_money != null">
+			and pay_by_money = #{pd.pay_by_money}
+		</if>
+		<if test="pd.rebate_status != null">
+			and rebate_status = #{pd.rebate_status}
+		</if>
+		<if test="pd.give_points != null">
+			and give_points = #{pd.give_points}
+		</if>
+		<if test="pd.contact_name != null">
+			and contact_name = #{pd.contact_name}
+		</if>
+		<if test="pd.contact_phone != null">
+			and contact_phone = #{pd.contact_phone}
+		</if>
+		<if test="pd.province_id != null">
+			and province_id = #{pd.province_id}
+		</if>
+		<if test="pd.province != null">
+			and province = #{pd.province}
+		</if>
+		<if test="pd.city_id != null">
+			and city_id = #{pd.city_id}
+		</if>
+		<if test="pd.city != null">
+			and city = #{pd.city}
+		</if>
+		<if test="pd.area_id != null">
+			and area_id = #{pd.area_id}
+		</if>
+		<if test="pd.area != null">
+			and area = #{pd.area}
+		</if>
+		<if test="pd.address != null">
+			and address = #{pd.address}
+		</if>
+		<if test="pd.user_note != null">
+			and user_note = #{pd.user_note}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.cash_id!= null">
+			and cash_id = #{pd.cash_id}
+		</if>
+		<if test="pd.cash_money!= null">
+			and cash_money = #{pd.cash_money}
+		</if>
+		<if test="pd.is_delete != null"> and is_delete = 0</if>
+	</sql>
+
+	<sql id="conditions">
+		<if test="pd.order_id!= null">
+			and orders.order_id = #{pd.order_id}
+		</if>
+		<if test="pd.order_sn != null">
+			and orders.order_sn = #{pd.order_sn}
+		</if>
+		<if test="pd.user_id != null">
+			and orders.user_id = #{pd.user_id}
+		</if>
+		<if test="pd.received_money != null">
+			and orders.received_money = #{pd.received_money}
+		</if>
+		<if test="pd.order_money != null">
+			and orders.order_money = #{pd.order_money}
+		</if>
+		<if test="pd.goods_money != null">
+			and orders.goods_money = #{pd.goods_money}
+		</if>
+		<if test="pd.rebate_money != null">
+			and orders.rebate_money = #{pd.rebate_money}
+		</if>
+		<if test="pd.shipping_money != null">
+			and orders.shipping_money = #{pd.shipping_money}
+		</if>
+		<if test="pd.shipping_fee != null">
+			and orders.shipping_fee = #{pd.shipping_fee}
+		</if>
+		<if test="pd.pay_fee != null">
+			and orders.pay_fee = #{pd.pay_fee}
+		</if>
+		<if
+			test="pd.order_status != null and pd.order_status != '' and pd.order_status== 6">
+			and orders.order_status = #{pd.order_status}
+		</if>
+		<if
+			test="pd.order_status != null and pd.order_status != '' and pd.order_status== 4">
+		<![CDATA[and orders.order_status >3 and orders.order_status <=5]]>
+		</if>
+		<if
+			test="pd.order_status != null and pd.order_status != '' and pd.order_status== 3">
+		<![CDATA[and orders.order_status >0 and orders.order_status <=3]]>
+		</if>
+		<if
+			test="pd.order_status != null and pd.order_status != '' and pd.order_status== 1">
+		<![CDATA[and orders.order_status > 0 and orders.order_status < 6]]>
+		</if>
+		<if
+			test="pd.order_status != null and pd.order_status != '' and pd.order_status== 0">
+			and orders.order_status = #{pd.order_status}
+		</if>
+		<!--发布圈子关联订单-->
+		<if
+		test="pd.order_status != null and pd.order_status != '' and pd.order_status== 99">
+			and orders.order_status in (6,8,9)
+		</if>
+		<if test="pd.shipping_status != null">
+			and orders.shipping_status = #{pd.shipping_status}
+		</if>
+		<if test="pd.shipping_type != null">
+			and orders.shipping_type = #{pd.shipping_type}
+		</if>
+		<if test="pd.pay_status != null">
+			and orders.pay_status = #{pd.pay_status}
+		</if>
+		<if test="pd.pay_type != null">
+			and orders.pay_type = #{pd.pay_type}
+		</if>
+		<if test="pd.user_pay_points != null">
+			and orders.user_pay_points = #{pd.user_pay_points}
+		</if>
+		<if test="pd.pay_by_points != null">
+			and orders.pay_by_points = #{pd.pay_by_points}
+		</if>
+		<if test="pd.pay_by_money != null">
+			and orders.pay_by_money = #{pd.pay_by_money}
+		</if>
+		<if test="pd.rebate_status != null">
+			and orders.rebate_status = #{pd.rebate_status}
+		</if>
+		<if test="pd.give_points != null">
+			and orders.give_points = #{pd.give_points}
+		</if>
+		<if test="pd.contact_name != null">
+			and orders.contact_name = #{pd.contact_name}
+		</if>
+		<if test="pd.contact_phone != null">
+			and orders.contact_phone = #{pd.contact_phone}
+		</if>
+		<if test="pd.province_id != null">
+			and orders.province_id = #{pd.province_id}
+		</if>
+		<if test="pd.province != null">
+			and orders.province = #{pd.province}
+		</if>
+		<if test="pd.city_id != null">
+			and orders.city_id = #{pd.city_id}
+		</if>
+		<if test="pd.city != null">
+			and orders.city = #{pd.city}
+		</if>
+		<if test="pd.area_id != null">
+			and orders.area_id = #{pd.area_id}
+		</if>
+		<if test="pd.area != null">
+			and orders.area = #{pd.area}
+		</if>
+		<if test="pd.address != null">
+			and orders.address = #{pd.address}
+		</if>
+		<if test="pd.user_note != null">
+			and orders.user_note = #{pd.user_note}
+		</if>
+		<if test="pd.create_time != null">
+			and orders.create_time = #{pd.create_time}
+		</if>
+		<if test="pd.cash_id!= null">
+			and orders.cash_id = #{pd.cash_id}
+		</if>
+		<if test="pd.cash_money !=null">
+			and orders.cash_money = #{pd.cash_money}
+		</if>
+		<if test="pd.is_delete != null"> and orders.is_delete = 0</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_orders where 1=1
+		<if test="pd.order_sn != null  and pd.order_sn != ''"> and order_sn like CONCAT('%',#{pd.order_sn},'%') </if>
+		<if test="pd.user_name != null and pd.user_name != ''"> and user_name like
+			CONCAT('%',#{pd.user_name},'%')  </if>
+		<if test="pd.contact_name!= null and pd.contact_name!= ''"> and contact_name like CONCAT('%',#{pd.contact_name},'%')
+		</if>
+		<if test="pd.order_status != null and pd.order_status!= ''"> and order_status = #{pd.order_status} </if>
+		<choose>
+			<when test="pd.start_create_time != null and pd.start_create_time != ''">
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		               and  (date_format(create_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		                    and date_format(create_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		               )
+		             ]]>
+					</when>
+					<otherwise>
+		             <![CDATA[
+		              and date_format(create_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		             ]]>
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		                    and date_format(create_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		             ]]>
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+		<if test="pd.is_delete != null"> and is_delete = 0</if>
+		order by order_status,create_time desc
+	</select>
+	<!-- app分页 -->
+	<select id="selectAppByPage" resultType="pd" parameterType="page">
+		SELECT
+		orders.order_id,
+		orders.order_sn,
+		orders.shipping_money,
+		orders.order_money,
+		orders.pay_by_points,
+		orders.user_pay_points,
+		orders.pay_by_money,
+		orders.goods_money,
+		orders.cash_money,
+		orders.give_points,
+		orders.order_status,
+		orders.create_time,
+		orders.is_refund_money,
+		orders.refund_result,
+		orders.apply_reason,
+		orders.fail_reason,
+		orders.addtype
+		FROM
+		t_orders
+		orders
+		where 1 = 1
+		<include refid="conditions"></include>
+		Order By orders.create_time Desc
+	</select>
+	<select id="selectOrderCounts" resultType="pd" parameterType="pd">
+		SELECT
+		orders.order_id,
+		orders.order_sn,
+		orders.shipping_money,
+		orders.order_money,
+		orders.pay_by_points,
+		orders.user_pay_points,
+		orders.pay_by_money,
+		orders.goods_money,
+		orders.cash_money,
+		orders.give_points,
+		orders.order_status,
+		orders.create_time
+		FROM
+		t_orders
+		orders
+		where 1=1
+		<if test="user_id != null">
+			and orders.user_id = #{user_id}
+		</if>
+		<if test="order_status != null and order_status != '' and order_status== 0">
+			and orders.order_status = #{order_status}
+		</if>
+		<if test="order_status != null and order_status != '' and order_status== 1">
+		<![CDATA[and orders.order_status >0 and orders.order_status <6]]>
+		</if>
+		<if test="order_status != null and order_status != '' and order_status== 6">
+			and orders.order_status = #{order_status}
+		</if>
+		<if test="is_delete != null"> and orders.is_delete = 0</if>
+	</select>
+	<!-- 分销订单查询分页 -->
+	<select id="selectRebateOrderByPage" resultType="pd"
+		parameterType="page">
+		select
+		orders.order_id,orders.order_sn,orders.order_money,orders.user_pay_points
+		,orders.order_status,orders.create_time,tro.rebate_1 as
+		rebateself_money,tro.rebate_2 as rebatetwo_money,tro.rebate_3 as
+		rebatethr_money from t_orders
+		orders
+		LEFT JOIN t_rebate_order tro ON
+		orders.order_id=tro.order_id
+		where 1=1
+		and orders.order_id in
+		(${pd.order_id})
+		and orders.is_delete = #{pd.is_delete}
+		<if test="pd.rec_user_id != null and pd.rec_user_id != ''">
+			and tro.user_1 = #{pd.rec_user_id}
+		</if>
+		<if test="pd.rebate_status != null and pd.rebate_status != ''">
+			and tro.rebate_status = #{pd.rebate_status}
+		</if>
+		Order By orders.create_time Desc
+	</select>
+	<!-- 分销订单查询分页 -->
+	<select id="selectRebateOrder" resultType="pd" parameterType="pd">
+		select
+		orders.order_id,orders.order_sn,orders.order_money,orders.user_pay_points
+		,orders.order_status,orders.create_time,tro.rebate_1 as rebate_money
+		from t_orders
+		orders
+		LEFT JOIN t_rebate_order tro ON
+		orders.order_id=tro.order_id
+		where 1=1
+		and orders.is_delete = 0
+		<if test="rec_user_id != null and rec_user_id != ''">
+			and tro.user_1 = #{rec_user_id}
+		</if>
+		Order By orders.create_time Desc
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select orders.order_id,orders.order_sn,
+		orders.order_money,orders.user_pay_points
+		,orders.order_status,orders.create_time from t_orders orders
+		where 1=1
+		<include refid="condition"></include>
+		Order By orders.create_time Desc
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_orders where order_id = #{id}
+	</select>
+
+	<select id="selectByOrderSn" resultType="pd" parameterType="java.lang.String">
+		SELECT
+		tos.*, tog.goods_name,
+		tog.goods_attr
+		FROM
+		t_orders tos
+		LEFT JOIN
+		t_orders_goods tog ON tos.order_id = tog.order_id
+		where tos.order_sn =
+		#{order_sn}
+	</select>
+	
+	
+	<select id="selectOneByOrderSn" resultType="pd" parameterType="java.lang.String">
+	    SELECT
+		*
+		FROM
+		t_orders 
+		where order_sn =
+		#{order_sn}
+	</select>
+	
+
+	<insert id="insert" parameterType="pd">
+		insert into t_orders
+		(order_sn,user_id,user_name,received_money,order_money,goods_money,rebate_money,shipping_money,shipping_fee,pay_fee,order_status,shipping_status,shipping_type,pay_status,pay_type,user_pay_points,pay_by_points,pay_by_money,rebate_status,give_points,contact_name,contact_phone,province_id,city_id,area_id,province,city,area,address,user_note,create_time,is_mer,mer_title,mer_invoice,is_delete,cash_id,cash_money,recommend_user,create_type,addtype,mer_no,mer_type)
+		values
+		(#{order_sn},#{user_id},#{user_name},#{received_money},#{order_money},#{goods_money},#{rebate_money},#{shipping_money},#{shipping_fee},#{pay_fee},#{order_status},#{shipping_status},#{shipping_type},#{pay_status},#{pay_type},#{user_pay_points},#{pay_by_points},#{pay_by_money},#{rebate_status},#{give_points},#{contact_name},#{contact_phone},#{province_id},#{city_id},#{area_id},#{province},#{city},#{area},#{address},#{user_note},#{create_time},#{is_mer},#{mer_title},#{mer_invoice},#{is_delete},#{cash_id},#{cash_money},#{recommend_user},#{create_type},#{addtype},#{mer_no},#{mer_type})
+		<selectKey resultType="java.lang.Integer" keyProperty="order_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="deleteOrder" parameterType="Integer">
+		update t_orders set
+		is_delete = 1 where order_id = #{order_id}
+	</update>
+
+	<update id="update" parameterType="pd">
+		update t_orders
+		<set>
+			<if test="received_money != null">
+				received_money = #{received_money},
+			</if>
+			<if test="order_money != null">
+				order_money = #{order_money},
+			</if>
+			<if test="goods_money != null">
+				goods_money = #{goods_money},
+			</if>
+			<if test="rebate_money != null">
+				rebate_money = #{rebate_money},
+			</if>
+			<if test="shipping_money != null">
+				shipping_money = #{shipping_money},
+			</if>
+			<if test="shipping_fee != null">
+				shipping_fee = #{shipping_fee},
+			</if>
+			<if test="pay_fee != null">
+				pay_fee = #{pay_fee},
+			</if>
+			<if test="order_status != null">
+				order_status = #{order_status},
+			</if>
+			<if test="user_pay_points != null">
+				user_pay_points = #{user_pay_points},
+			</if>
+			<if test="shipping_status != null">
+				shipping_status = #{shipping_status},
+			</if>
+			<if test="shipping_type != null">
+				shipping_type = #{shipping_type},
+			</if>
+			<if test="order_sn != null and order_sn != ''">
+				order_sn = #{order_sn},
+			</if>
+			<if test="pay_status != null">
+				pay_status = #{pay_status},
+			</if>
+			<if test="pay_type != null">
+				pay_type = #{pay_type},
+			</if>
+			<if test="pay_by_points != null">
+				pay_by_points = #{pay_by_points},
+			</if>
+			<if test="pay_by_money != null">
+				pay_by_money = #{pay_by_money},
+			</if>
+			<if test="rebate_status != null">
+				rebate_status = #{rebate_status},
+			</if>
+			<if test="give_points != null">
+				give_points = #{give_points},
+			</if>
+			<if test="contact_name != null">
+				contact_name = #{contact_name},
+			</if>
+			<if test="contact_phone != null">
+				contact_phone = #{contact_phone},
+			</if>
+			<if test="province_id != null">
+				province_id = #{province_id},
+			</if>
+			<if test="city_id != null">
+				city_id = #{city_id},
+			</if>
+			<if test="area_id != null">
+				area_id = #{area_id},
+			</if>
+			<if test="province != null">
+				province = #{province},
+			</if>
+			<if test="city != null">
+				city = #{city},
+			</if>
+			<if test="area != null">
+				area = #{area},
+			</if>
+			<if test="address != null">
+				address = #{address},
+			</if>
+			<if test="user_note != null">
+				user_note = #{user_note},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+			<if test="is_mer != null">
+				is_mer = #{is_mer},
+			</if>
+			<if test="mer_title != null">
+				mer_title = #{mer_title},
+			</if>
+			<if test="mer_invoice != null">
+				mer_invoice = #{mer_invoice},
+			</if>
+			<if test="cash_money != null">
+				cash_money = #{cash_money},
+			</if>
+			<if test="cash_id!= null">
+				cash_id = #{cash_id},
+			</if>
+	        <if test="refund_result !=  null and  refund_result != ''">
+				refund_result = #{refund_result},
+			</if>
+			  <if test="is_refund_money !=  null and  is_refund_money != ''">
+				is_refund_money = #{is_refund_money},
+			</if>
+			<if test="apply_reason !=  null and  apply_reason != ''">
+				apply_reason = #{apply_reason},
+			</if>
+		</set>
+		where order_id = #{order_id}
+		<if test="user_id!= null">
+			and user_id = #{user_id}
+		</if>
+	</update>
+
+	<!-- 修改订单地址 -->
+	<update id="updateOrderAdress" parameterType="pd">
+		update t_orders
+		<set>
+			<if test="city_id != null">
+				city_id = #{city_id},
+			</if>
+			<if test="area_id != null">
+				area_id = #{area_id},
+			</if>
+			<if test="city != null">
+				city = #{city},
+			</if>
+			<if test="area != null">
+				area = #{area},
+			</if>
+			<if test="address != null">
+				address = #{address},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where order_id = #{order_id}
+		<if test="user_id!= null">
+			and user_id = #{user_id}
+		</if>
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_orders where 1=1
+		<include refid="condition"></include>
+	</delete>
+
+	<select id="selectOrderGoods" resultType="pd" parameterType="pd">
+		SELECT
+		good.goods_id,
+		good.goods_name,
+		good.list_img,
+		ordergood.order_goods_id,
+		ordergood.goods_count,
+		ordergood.goods_attr,
+		ordergood.goods_sku_id,
+		ordergood.goods_price as shop_price,
+		ordergood.is_refund
+		FROM
+		t_orders orders
+		INNER JOIN t_orders_goods
+		ordergood ON orders.order_id = ordergood.order_id
+		INNER JOIN t_goods
+		good ON good.goods_id = ordergood.goods_id
+		where orders.order_id =
+		#{order_id}
+	</select>
+
+	<select id="selectDetails" resultType="pd" parameterType="pd">
+		SELECT
+		orders.order_id,
+		good.goods_id,
+		good.goods_name,
+		good.list_img,
+		ordergood.goods_count,
+		orders.order_sn,
+		orders.order_status,
+		ordergood.goods_attr,
+		orders.contact_name,
+		orders.contact_phone,
+		orders.province,
+		orders.city,
+		orders.area,
+		orders.address,
+		orders.shipping_money,
+		orders.order_money,
+		orders.pay_by_points,
+		orders.pay_by_money,
+		orders.user_pay_points,
+		ordergood.goods_sku_id,
+		ordergood.order_goods_id,
+		ordergood.goods_price AS shop_price,
+		orders.create_time,
+		orders.shipping_type,
+		orders.pay_type,
+		orders.pay_status,
+		ship.bill_no,
+		orders.cash_money,
+		orders.give_points
+		FROM
+		t_orders orders
+		LEFT JOIN t_orders_goods ordergood ON
+		orders.order_id = ordergood.order_id
+		INNER JOIN t_goods good ON
+		good.goods_id = ordergood.goods_id
+		LEFT JOIN t_orders_shipping ship ON
+		orders.order_id = ship.order_id
+		where
+		orders.user_id = #{user_id} and
+		orders.order_id = #{order_id}
+	</select>
+
+	<select id="selectOrderDetails" resultType="pd" parameterType="pd">
+		SELECT
+		orders.order_id,
+		orders.order_sn,
+		orders.order_status,
+		orders.contact_name,
+		orders.contact_phone,
+		orders.province,
+		orders.province_id,
+		orders.city,
+		orders.city_id,
+		orders.area,
+		orders.area_id,
+		orders.address,
+		orders.shipping_money,
+		orders.order_money,
+		orders.pay_by_points,
+		orders.user_pay_points,
+		orders.create_time,
+		orders.shipping_type,
+		orders.pay_type,
+		orders.pay_status,
+		ship.bill_no,
+		orders.pay_by_money,
+		orders.goods_money,
+		orders.cash_money,
+		orders.give_points,
+		orders.user_id,
+		orders.is_refund_money,
+		orders.refund_result,
+		orders.apply_reason,
+		orders.fail_reason
+		FROM
+		t_orders
+		orders
+		LEFT JOIN t_orders_shipping ship
+		ON orders.order_id
+		=
+		ship.order_id
+		where
+		1=1
+		<if test="user_id!=null and user_id!=''">
+			and orders.user_id =#{user_id}
+		</if>
+		<if test="order_id!=null and order_id!=''">
+			and orders.order_id =#{order_id}
+		</if>
+		<if test="order_sn!=null and order_sn!=''">
+			and orders.order_sn=#{order_sn}
+		</if>
+	</select>
+	<select id="selectDetailsGoodslist" resultType="pd"
+		parameterType="pd">
+		SELECT
+		good.goods_id,
+		good.goods_name,
+		good.list_img,
+		ordergood.order_goods_id,
+		ordergood.goods_count,
+		ordergood.goods_attr,
+		ordergood.goods_sku_id,
+		ordergood.goods_price as shop_price,
+		ordergood.is_refund
+		FROM
+		t_orders orders
+		LEFT JOIN t_orders_goods
+		ordergood ON orders.order_id =
+		ordergood.order_id
+		INNER JOIN t_goods
+		good ON good.goods_id =
+		ordergood.goods_id
+		where
+		1=1
+		<if test="user_id!=null and user_id!=''">
+			and orders.user_id = #{user_id}
+		</if>
+		<if test="order_id!=null and order_id!=''">
+			and orders.order_id =#{order_id}
+		</if>
+		<if test="order_sn!=null and order_sn!=''">
+			and orders.order_sn=#{order_sn}
+		</if>
+	</select>
+</mapper>

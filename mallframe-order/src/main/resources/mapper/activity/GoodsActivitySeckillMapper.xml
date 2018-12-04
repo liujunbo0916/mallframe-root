@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.GoodsActivitySeckillMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<resultMap type="com.easaa.order.entity.Seckill" id="secKillList">
+		<id column="id" property="skId" />
+		<result column="kill_logo" property="skLogo" />
+		<result column="kill_name" property="skName" />
+		<result column="kill_desc" property="skDesc" />
+		<result column="kill_limit_b" property="skLimitB" />
+		<result column="kill_start_time" property="skStartTime" />
+		<result column="kill_end_time" property="skEndTime" />
+	</resultMap>
+
+	<resultMap type="com.easaa.order.entity.SecKillGoodsList" id="secKillGoodsList">
+		<collection property="secKill" ofType="com.easaa.order.entity.Seckill">
+			<id column="id" property="skId" />
+			<result column="kill_logo" property="skLogo" />
+			<result column="kill_name" property="skName" />
+			<result column="kill_desc" property="skDesc" />
+			<result column="kill_limit_b" property="skLimitB" />
+			<result column="kill_start_time" property="skStartTime" />
+			<result column="kill_end_time" property="skEndTime" />
+		</collection>
+		<collection property="pros" ofType="com.easaa.order.entity.SeckillPro">
+			<id column="proId" property="spId" />
+			<result column="goods_name" property="goodsName" />
+			<result column="sku_id" property="skuId" />
+			<result column="goods_price" property="goodsPrice" />
+			<result column="discount_price" property="discountPrice" />
+			<result column="id" property="skId" />
+			<result column="goods_id" property="goodsId" />
+			<result column="bs_id" property="bsId" />
+			<result column="stock" property="killStock" />
+			<result column="status" property="killStatus" />
+			<result column="create_time" property="createTime" />
+			<result column="list_img" property="goodsImg" />
+			<result column="attr_json" property="goodsAttr" />
+		</collection>
+	</resultMap>
+
+	<select id="selectAppByPage" resultMap="secKillList"
+		parameterType="pd">
+		select * from t_goods_activity_seckill
+		where
+		kill_start_time > #{now}
+	</select>
+
+	<select id="selectByProId" resultType="pd" parameterType="pd">
+		SELECT
+		t1.*,
+		t2.kill_limit_b,t4.goods_id,t4.goods_freight,t4.goods_name,t4.goods_sn
+		FROM
+		t_goods_activity_seckill_pro t1
+		LEFT JOIN t_goods_activity_seckill t2 ON t1.kill_id = t2.id
+		LEFT JOIN t_goods_sku t3 ON t1.kp_sku_id=t3.sku_id
+		LEFT JOIN t_goods t4 on t4.goods_id =t3.goods_id
+		where t2.kill_end_time >
+		#{now} and #{now} > t2.kill_start_time and t1.id=#{id}
+	</select>
+
+	<select id="selectDetail" resultMap="secKillGoodsList"
+		parameterType="pd">
+		select t2.*,t1.id as 'proId',t4.goods_name as
+		goods_name,t1.kp_sku_id as
+		'sku_id',
+		t1.goods_price
+		,t1.discount_price,t1.stock,t1.status,t1.create_time,t1.bs_id,
+		t3.attr_json,t4.list_img
+		from (select * from
+		t_goods_activity_seckill_pro where kill_id =
+		#{kill_id} and bs_id =
+		#{bs_id}) t1
+		left join t_goods_activity_seckill t2 on t1.kill_id =
+		t2.id
+		left join t_goods_sku t3 on t1.kp_sku_id = t3.sku_id
+		left join
+		t_goods t4 on t3.goods_id = t4.goods_id
+	</select>
+
+	<insert id="insertPro" parameterType="pd">
+		insert into
+		t_goods_activity_seckill_pro
+		(bs_id,kp_sku_id,goods_price,discount_price,kill_id,stock,status,create_time)
+		values(#{bs_id},#{sku_id},#{goods_price},#{discount_price},#{kill_id},#{stock},1,#{create_time})
+	</insert>
+	<select id="selectProByCondition" parameterType="pd" resultType="pd">
+		select * from t_goods_activity_seckill_pro where kp_sku_id = #{sku_id}
+		and bs_id = #{bs_id} and kill_id = #{kill_id}
+	</select>
+	<update id="update" parameterType="pd">
+		update t_goods_activity_seckill_pro
+		<set>
+			<if test="stock != null">
+				stock = #{stock},
+			</if>
+			<if test="buy_num != null">
+				buy_num = #{buy_num},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+
+	<delete id="deleteProById" parameterType="pd">
+		delete from
+		t_goods_activity_seckill_pro
+		where id = #{id}
+	</delete>
+
+
+
+
+
+	<!-- 秒杀商品列表 -->
+	<select id="selectProByPage" parameterType="page" resultMap="secKillGoodsList">
+		select
+		t1.kill_logo,t1.kill_start_time,t1.kill_end_time,t1.kill_name,t1.kill_desc,
+		t2.id as 'proId',t2.discount_price,t3.attr_json,t3.price as
+		'goods_price',t3.sku_id,t3.stock as 'real_stock',t2.stock,t2.status,
+		t4.list_img,t4.goods_id,t4.goods_name
+		from (select * from
+		t_goods_activity_seckill where kill_end_time >
+		#{pd.now} and #{pd.now}
+		> kill_start_time limit 1) t1
+		left join t_goods_activity_seckill_pro t2
+		on t1.id = t2.kill_id
+		left join t_goods_sku t3 on t2.kp_sku_id =
+		t3.sku_id
+		left join t_goods t4 on t3.goods_id = t4.goods_id
+		where
+		t2.status = 2
+	</select>
+	<!-- 商品下架调用 -->
+	<select id="selectProByGoodsId" parameterType="pd" resultMap="secKillGoodsList">
+		select
+		t1.kill_logo,t1.kill_start_time,t1.kill_end_time,t1.kill_name,t1.kill_desc,
+		t2.id as 'proId',t2.discount_price,t3.attr_json,t3.price as
+		'goods_price',t3.sku_id,t3.stock as 'real_stock',t2.stock,t2.status,
+		t4.list_img,t4.goods_id,t4.goods_name
+		from (select * from
+		t_goods_activity_seckill where kill_end_time > #{now}
+		and #{pd.now} >
+		kill_start_time ) t1
+		left join t_goods_activity_seckill_pro t2
+		on t1.id
+		= t2.kill_id
+		left join t_goods_sku t3 on t2.kp_sku_id = t3.sku_id
+		left
+		join t_goods t4 on t3.goods_id = t4.goods_id
+		where t2.status = 2
+		and
+		t3.goods_id =#{goods_id}
+	</select>
+
+</mapper>

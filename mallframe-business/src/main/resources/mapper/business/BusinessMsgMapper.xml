@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessMsgMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<!-- 消息 -->
+	<sql id="condition_msg">
+		<if test="pd.bsm_id!= null">
+			and bsm_id = #{pd.bsm_id}
+		</if>
+		<if test="pd.bsmt_code != null">
+			and bsmt_code = #{pd.bsmt_code}
+		</if>
+		<if test="pd.bs_id != null">
+			and bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.bsm_content != null">
+			and bsm_content = #{pd.bsm_content}
+		</if>
+		<if test="pd.bsm_addtime != null">
+			and bsm_addtime = #{pd.bsm_addtime}
+		</if>
+		<if test="pd.bsm_readid != null">
+			and bsm_readid = #{pd.bsm_readid}
+		</if>
+	</sql>
+	
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select * from t_business_msg where 1=1 
+		<include refid="condition_msg"></include>
+		order by bsm_addtime desc
+	</select>
+	
+	<select id="selectByMap" parameterType="pd" resultType="pd">
+		select * from t_business_msg where 1=1 
+		<include refid="condition_msg"></include>
+		order by bsm_addtime desc
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select * from t_business_msg where bsm_id=#{bsm_id}
+	</select>
+	
+	<insert id="insert" parameterType="pd">
+		insert into t_business_msg
+		(bsmt_code,bs_id,bsm_content,bsm_addtime,bsm_readid)
+		values(#{bsmt_code},#{bs_id},#{bsm_content},#{bsm_addtime},#{bsm_readid})
+	</insert>
+	
+	<update id="update" parameterType="pd">
+		update t_business_msg
+		<set>
+			<if test="bsmt_code != null">
+				bsmt_code = #{bsmt_code},
+			</if>
+			<if test="bs_id != null">
+				bs_id = #{bs_id},
+			</if>
+			<if test="bsm_content != null">
+				bsm_content = #{bsm_content},
+			</if>
+			<if test="bsm_addtime != null">
+				bsm_addtime = #{bsm_addtime},
+			</if>
+			<if test="bsm_readid != null">
+				bsm_readid = #{bsm_readid},
+			</if>
+		</set>
+		where bsm_id = #{bsm_id}
+	</update>
+	
+	<delete id="delete" parameterType="page">
+		delete from t_business_msg where bsm_id = #{pd.bsm_id}
+	</delete>
+</mapper>

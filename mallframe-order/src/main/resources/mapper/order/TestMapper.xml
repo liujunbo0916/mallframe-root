@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.TestMapper">
+	<!-- 悦读/新闻栏目列表 -->
+	<select id="getById" parameterType="pd" resultType="pd">
+		select * from  t_goods_brand where brand_id = 1
+	</select>
+	<select id="getPage" parameterType="page" resultType="pd">
+	     select * from t_goods_brand
+	     <!-- 条件     如果参数是page取参数的时候需加   pd.参数名-->
+	</select>
+	<insert id="save" parameterType="pd">
+	   insert into t_goods_brand (brand_name,brand_url) values(#{brand_name},#{brand_url})
+	</insert>
+	<update id="update" parameterType="pd">
+	   update t_goods_brand set brand_name= #{brand_name}
+	   where brand_id = 1
+	</update>
+	
+</mapper>

@@ -1,0 +1,1192 @@
+package com.easaa.goods.service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.easaa.core.model.dao.EADao;
+import com.easaa.core.model.service.impl.EABaseService;
+import com.easaa.core.util.EADate;
+import com.easaa.core.util.EAString;
+import com.easaa.core.util.EATools;
+import com.easaa.core.util.EAUtil;
+import com.easaa.core.util.FtpUtil;
+import com.easaa.core.util.Tools;
+import com.easaa.course.dao.DeviceMapper;
+import com.easaa.entity.ImageFormat;
+import com.easaa.entity.Page;
+import com.easaa.entity.PageData;
+import com.easaa.goods.dao.GoodsAlbumMapper;
+import com.easaa.goods.dao.GoodsAttrMapper;
+import com.easaa.goods.dao.GoodsCartMapper;
+import com.easaa.goods.dao.GoodsCategoryMapper;
+import com.easaa.goods.dao.GoodsLookMapper;
+import com.easaa.goods.dao.GoodsMapper;
+import com.easaa.goods.dao.GoodsRebateMapper;
+import com.easaa.goods.dao.GoodsTypeAttrMapper;
+import com.easaa.goods.entity.GoodsAttr;
+import com.easaa.goods.entity.GoodsAttrList;
+import com.easaa.goods.entity.Stock;
+import com.easaa.goods.entity.StockList;
+import com.easaa.goods.entity.data.PageExtend;
+import com.easaa.goods.entity.data.ProductData;
+import com.easaa.util.properties.PropertiesFactory;
+import com.easaa.util.properties.PropertiesFile;
+import com.easaa.util.properties.PropertiesHelper;
+
+/**
+ * 商品服务
+ * 
+ * @author ryy
+ */
+@Service
+public class GoodsService extends EABaseService {
+
+	@Autowired
+	private GoodsMapper goodsMapper;
+	@Autowired
+	private GoodsRebateMapper goodsRebateMapper;
+	@Autowired
+	private GoodsAttrMapper goodsAttrMapper;
+	@Autowired
+	private GoodsTypeAttrMapper goodsTypeAttrMapper;
+	@Autowired
+	private GoodsAlbumMapper goodsAlbumMapper;
+	@Autowired
+	private GoodsCategoryMapper goodscategoryMapper;
+	@Autowired
+	private static List<PageData> resetting;
+	@Autowired
+	private DeviceMapper deviceMapper;
+	@Autowired
+	private GoodsCartMapper goodsCartMapper;
+	@Autowired
+	private GoodsLookMapper goodsLookMapper;
+	private static final PropertiesHelper PROPERTIESHELPER = PropertiesFactory.getPropertiesHelper(PropertiesFile.SYS);
+	
+	public List<PageData> selectByIds(PageData pd) {
+		return goodsMapper.selectByIds(pd);
+	}
+
+	public List<PageData> selectByBandId(Integer pd) {
+		return goodsMapper.selectByBandId(pd);
+	}
+
+	/**
+	 * 商品列表
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public List<PageData> selectGoodsList(Page page) {
+		return goodsMapper.selectGoodsPage(page);
+	}
+
+	/**
+	 * 店铺商品 BY ID
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public PageData selectSellerById(Integer integer) {
+		return goodsMapper.selectSellerById(integer);
+	}
+
+	/**
+	 * 商品今日优惠
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public List<PageData> goodsDiscounts(Page page) {
+		List<Integer> category_ids = (List<Integer>) page.getPd().get("category_ids");
+		if (category_ids == null || category_ids.size() == 0) {
+			page.getPd().put("category_ids", null);
+		}
+		return goodsMapper.goodsDiscounts(page);
+	}
+
+	/**
+	 * 课程关联商品
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public List<PageData> goodsRelationCourse(PageData pd) {
+		return goodsMapper.goodsRelationCourse(pd);
+	}
+
+	/**
+	 * 商品分类列表
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public List<PageData> categoryGoodsList(Page page) {
+		return goodsMapper.categoryGoodsList(page);
+	}
+
+	
+	/**
+	 * 人气推荐
+	 * 按虚拟销量排序
+	 * 
+	 */
+	public List<PageData> selectGoodsHeat(PageData pd){
+		Page page = new Page();
+		page.setPd(pd);
+		return goodsMapper.selectGoodsHeat(page);
+	}
+	/**
+	 * 国士风商城首页
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public PageData goodsHomePage(PageData pd) throws Exception {
+		PageData data = new PageData();
+		Page pg = new Page();
+		pd.put("is_delete", "0"); // 是否删除
+		pd.put("is_on_sale", "1"); // 是否上架
+		pd.put("limit", 6);
+		pg.setPd(pd);
+		// 商品类目（显示取前3，其他隐藏）
+		data.put("categroylist", goodscategoryMapper.selectHeatList());
+		// 人气推荐
+		List<PageData> heatgoods = goodsMapper.selectGoodsHeat(pg);
+		for (PageData pageData : heatgoods) {
+			if(EAUtil.isNotEmpty(pageData) && !pageData.getAsString("list_img").isEmpty() && !pageData.getAsString("list_img").startsWith("http")){
+				pageData.put("list_img", PROPERTIESHELPER.getValue("imageShowPath")+pageData.getAsString("list_img"));
+			}
+		}
+		data.put("heatgoods", heatgoods);
+		// 猜你喜欢  登陆返回
+		List<PageData> likegoods=null;
+		
+		if (EAUtil.isNotEmpty(pd.getAsString("user_id"))) {
+			likegoods= goodsMapper.selectGoodsLikes(pg);
+			if(EAUtil.isNotEmpty(likegoods)){
+				// 猜你喜欢登录无数据   返回随机数据
+				pg = new Page();
+				pd.remove("user_id");
+				pg.setPd(pd);
+				likegoods=goodsMapper.selectGoodsLikeNo(pg);
+			}
+		} else {
+			// 猜你喜欢 未登录返回数据
+			pg = new Page();
+			pd.remove("user_id");
+			pg.setPd(pd);
+			likegoods=goodsMapper.selectGoodsLikeNo(pg);
+		}
+		for (PageData pageData : likegoods) {
+			if(EAUtil.isNotEmpty(pageData) && !pageData.getAsString("list_img").isEmpty() && !pageData.getAsString("list_img").startsWith("http")){
+				pageData.put("list_img", PROPERTIESHELPER.getValue("imageShowPath")+pageData.getAsString("list_img"));
+			}
+		}
+		data.put("likegoods", likegoods);
+		// 广告
+		return data;
+	}
+	/**
+	 * 都匀商城首页
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public PageData goodsDuyunHomePage(PageData pd) throws Exception {
+		PageData data = new PageData();
+		Page pg = new Page();
+		pd.put("is_delete", "0"); // 是否删除
+		pd.put("is_on_sale", "1"); // 是否上架
+		pd.put("limit", 6);
+		pg.setPd(pd);
+		// 人气推荐
+		data.put("heatgoods", goodsMapper.selectGoodsHeat(pg));
+		// 猜你喜欢
+		// 登陆返回
+		if (EAUtil.isNotEmpty(pd.getAsString("user_id")) && !"-2".equals(pd.getAsString("user_id"))) {
+			data.put("likegoods", goodsMapper.selectGoodsLikes(pg));
+		} else {
+			// 未登录返回数据
+			pg = new Page();
+			pd.remove("user_id");
+			pg.setPd(pd);
+			List<PageData> list=goodsMapper.selectGoodsLikeNo(pg);
+			if(EAUtil.isEmpty(list) && list.size()==0){
+				list=goodsMapper.selectByMap(pg);
+			}
+			data.put("likegoods", list);
+		}
+		return data;
+	}
+	/**
+	 * 新增商品
+	 * @param data
+	 * @param file
+	 *  列表图片
+	 * @throws Exception
+	 */
+	public void insert(PageData data, MultipartFile file, GoodsAttrList goodsAttr) throws Exception {
+		// 上传商品图片 将图片压缩成多个不同规格的缩略图
+		String savePath = FtpUtil.upload(file, "mallframe", "product");
+		try {
+			// 保证缩放的图片的名字和原图片名字一样
+			String fileName = savePath.substring(savePath.lastIndexOf("/"), savePath.lastIndexOf(".") + 1);
+			ImageFormat[] imageFormats = new ImageFormat[] { new ImageFormat(750, 601, "detail", fileName),
+					new ImageFormat(226, 226, "list", fileName), new ImageFormat(328, 328, "listbig", fileName),
+					new ImageFormat(238, 238, "listmiddle", fileName),
+					new ImageFormat(175, 175, "listsmall", fileName) }; // 网站图片规格
+			EATools.dealWithImgs(file, imageFormats);
+			for (ImageFormat tif : imageFormats) {
+				FtpUtil.upload(tif, "mallframe", "product");
+				if (tif.getFile().exists()) {
+					tif.getFile().delete();
+				}
+				;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		data.put("is_delete", "0");
+		data.put("is_on_sale", "0");
+		data.put("list_img", savePath);
+		Tools.replaceEmpty(data); // 将空字符串替换成null
+		goodsMapper.insert(data); // 基本信息入库
+		// 查询最新一条数据 、 摄入设备表
+	/*	PageData devpd = new PageData();
+		PageData newdata = goodsMapper.goodsIdCId(devpd);
+		devpd.put("dv_device_id", newdata.getAsString("goods_id"));
+		Page page = new Page();
+		page.setPd(devpd);
+		List<PageData> dvdata = deviceMapper.selectByMap(page);
+		if (EAUtil.isNotEmpty(newdata.getAsInt("is_device")) && newdata.getAsInt("is_device") == 1
+				&& EAUtil.isEmpty(dvdata) && dvdata.size() == 0) {
+			devpd.put("dv_device_id", newdata.getAsString("goods_id"));
+			devpd.put("dv_category_id", newdata.getAsString("category_id"));
+			devpd.put("dv_venue_id", "0");
+			devpd.put("dv_status", "0");
+			devpd.put("dv_time", EADate.getCurrentTime());
+			deviceMapper.insert(devpd);
+		}*/
+		data.put("goods_id", data.get("goods_id")); // selectKey,主表id
+		// 关联设计师
+		/*
+		 * if(data.getAsInt("designer_id") !=0 ){
+		 * designerGoodsMapper.insert(data); }
+		 */
+		// 分销
+		if (data.getAsInt("rebate_type") == 1) { // 自定义分销
+			goodsRebateMapper.insert(data); // 分销入库
+		}
+
+		// 获得销售属性
+		List<GoodsAttr> importantAttrs = new ArrayList<GoodsAttr>();
+		// 当没有选择销售属性或者没有销售属性
+		if (EAUtil.isNotEmpty(goodsAttr.getGoodsAttr())) {
+			List<GoodsAttr> attrs = goodsAttr.getGoodsAttr();
+			for (GoodsAttr gs : attrs) {
+				if (StringUtils.isNotEmpty(gs.getAttr_id())) {
+					if (StringUtils.isNotEmpty(gs.getAttr_value())) {
+						if (gs.getIs_sale().equals("1")) {
+							importantAttrs.add(new GoodsAttr("", data.getAsString("goods_id"), gs.getAttr_id(),
+									gs.getAttr_name(), gs.getAttr_value(), "", gs.getIs_sale()));
+						}
+						// 如果是重要属性 其值不能为空
+						gs.setGoods_id(data.getAsString("goods_id"));
+						goodsAttrMapper.insertGoodsAttr(gs);
+					}
+				}
+			}
+			/**
+			 * 保存重要属性排列组合拼接的库存 尺寸:10|材质:24K
+			 */
+			List<Stock> stockPd = new ArrayList<Stock>();
+			if (importantAttrs.size() > 0) {
+				for (GoodsAttr ga : importantAttrs) {
+					if ("1".equals(ga.getIs_sale())) {
+						stockPd = setInitStoc(stockPd, ga);
+					}
+				}
+			}
+			// 初始化库存
+			if (stockPd.size() > 0) {
+				for (Stock ts : stockPd) {
+					// 对stock_value进行排序
+					List<String> stockValueList = Arrays.asList(ts.getAttr_json().trim().split("\\|"));
+					Collections.sort(stockValueList, new Comparator<String>() {
+						@Override
+						public int compare(String o1, String o2) {
+							return o1.compareTo(o2);
+						}
+					});
+					StringBuffer sb = new StringBuffer();
+					for (String s : stockValueList) {
+						if (StringUtils.isNotEmpty(s)) {
+							sb.append(s + "|");
+						}
+					}
+					ts.setAttr_json(sb.substring(0, sb.length() - 1));
+					// dao.save("GoodsMapper.initStockByProductId", ts);
+					goodsMapper.initStockByProductId(ts);
+				}
+			}
+
+		}
+		// 插入默认库存
+		Stock defaultStock = new Stock();
+		defaultStock.setGoods_id(data.getAsString("goods_id"));
+		defaultStock.setPrice(data.getAsString("shop_price"));
+		defaultStock.setMarket_price(data.getAsString("market_price"));
+		defaultStock.setStock(data.getAsString("goods_stock"));
+		defaultStock.setAttr_json("-1");
+		goodsMapper.initStockByProductId(defaultStock);
+		// 商品相册
+		/*
+		 * String[] original_img = data.getAsString("original_img").split(",");
+		 * if (!EAString.isNullStr(data.getAsString("original_img"))) { for (int
+		 * j = 0; j < original_img.length; j++) { if
+		 * (StringUtils.isNotEmpty(original_img[j])) { data.put("original_img",
+		 * original_img[j]); data.put("create_time", EADate.getCurrentTime());
+		 * goodsAlbumMapper.insert(data); } } }
+		 */
+	}
+
+	/**
+	 * 编辑商品信息
+	 * 
+	 * @param data
+	 * @param file
+	 * @throws Exception
+	 */
+	public void update(PageData data, MultipartFile file, GoodsAttrList goodsAttr) throws Exception {
+		// 列表图片
+		if (!file.isEmpty() && file.getSize()>0) {
+			String savePath = FtpUtil.upload(file, "mallframe", "product");
+			data.put("list_img", savePath);
+			try {
+				String fileName = savePath.substring(savePath.lastIndexOf("/") + 1, savePath.lastIndexOf("."));
+				ImageFormat[] imageFormats = new ImageFormat[] { new ImageFormat(750, 601, "detail", fileName),
+						new ImageFormat(226, 226, "list", fileName), new ImageFormat(328, 328, "listbig", fileName),
+						new ImageFormat(238, 238, "listmiddle", fileName),
+						new ImageFormat(175, 175, "listsmall", fileName) }; // 网站图片规格
+				EATools.dealWithImgs(file, imageFormats);
+				for (ImageFormat tif : imageFormats) {
+					FtpUtil.upload(tif, "mallframe", "product");
+					if (tif.getFile().exists()) {
+						tif.getFile().delete();
+					}
+					;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		// 获取之前的商品类型id
+		PageData goodsModel = goodsMapper.selectById(data.getAsInt("goods_id"));
+		// 更新基本信息
+		System.out.println(data.getAsString("category1_id"));
+		System.out.println(data.getAsString("category2_id"));
+		System.out.println(data.getAsString("category3_id"));
+		goodsMapper.update(data);
+		// 修改设备表
+		/*PageData devpd = new PageData();
+		Page page = new Page();
+		devpd.put("dv_device_id", data.getAsString("goods_id"));
+		page.setPd(devpd);
+		List<PageData> dvdatalisyt = deviceMapper.selectByMap(page);
+		if (data.getAsInt("is_device") == 0) {// 不是设备删除
+			if (EAUtil.isNotEmpty(dvdatalisyt)) {
+				PageData dvdata = dvdatalisyt.get(0);
+				if (EAUtil.isNotEmpty(dvdata.getAsString("dv_status")) && !dvdata.getAsString("dv_status").equals("3")
+						|| !dvdata.getAsString("dv_status").equals("1")) {
+					page.setPd(dvdata);
+					deviceMapper.delete(page);
+				} else {
+					// 该商品设备被调用或被出售，不能更改为非设备！
+					throw new Exception("DV0001");
+				}
+			}
+		} else if (data.getAsInt("is_device") == 1 && EAUtil.isEmpty(dvdatalisyt)) {
+			devpd = new PageData();
+			devpd.put("dv_device_id", data.getAsString("goods_id"));
+			devpd.put("dv_venue_id", "0");
+			devpd.put("dv_category_id", data.getAsString("category_id"));
+			devpd.put("dv_status", "0");
+			devpd.put("dv_time", EADate.getCurrentTime());
+			deviceMapper.insert(devpd);
+		}*/
+
+		// 更新默认库存价格
+		PageData defaultStock = new PageData();
+		defaultStock.put("market_price", data.getAsString("market_price"));
+		defaultStock.put("goods_id", data.getAsString("goods_id"));
+		defaultStock.put("price", data.getAsString("shop_price"));
+		defaultStock.put("stock", data.getAsString("goods_stock"));
+		goodsMapper.updateDefaultStore(defaultStock);
+		// 关联设计师
+		/*
+		 * if(EAUtil.isEmpty(designerGoodsMapper.getByGoodsId(data.getAsInt(
+		 * "goods_id")))){ designerGoodsMapper.insert(data); }else{
+		 * designerGoodsMapper.update(data); }
+		 */
+		// 分销
+		if (data.getAsInt("rebate_type") == 1) {
+			if (!EAString.isNullStr(data.getAsString("rebate_id"))) {
+				goodsRebateMapper.update(data);
+			} else {
+				goodsRebateMapper.insert(data);
+			}
+		}
+		List<GoodsAttr> importantAttrs = new ArrayList<GoodsAttr>();
+		List<GoodsAttr> attrs = goodsAttr.getGoodsAttr();
+		// 更新商品属性
+		// 如果改变商品类型需要先清除之前的商品属性
+		if (goodsModel.getAsString("goods_type_id").equals(data.getAsString("goods_type_id"))) {
+			// 获取之前的销售属性
+			data.put("is_sale", 1);
+			List<GoodsAttr> saleAttrs = goodsAttrMapper.selectByGoodsId(data);
+			data.put("is_sale", "0");
+			List<GoodsAttr> nosaleAttrs = goodsAttrMapper.selectByGoodsId(data);
+			// 获得销售属性
+			if ((EAUtil.isNotEmpty(saleAttrs) || EAUtil.isNotEmpty(nosaleAttrs)) && EAUtil.isNotEmpty(attrs)) {
+				for (GoodsAttr gs : attrs) {
+					if (StringUtils.isNotEmpty(gs.getAttr_id())) {
+						if (StringUtils.isNotEmpty(gs.getAttr_value())) {
+							if (gs.getIs_sale().equals("1")) {
+								importantAttrs.add(new GoodsAttr("", data.getAsString("goods_id"), gs.getAttr_id(),
+										gs.getAttr_name(), gs.getAttr_value(), "", gs.getIs_sale()));
+							}
+							// 如果是重要属性 其值不能为空
+							gs.setGoods_id(data.getAsString("goods_id"));
+							PageData arrdata = goodsAttrMapper.selectGoodsAttr(gs);
+							if (EAUtil.isEmpty(arrdata)) {
+								goodsAttrMapper.insertGoodsAttr(gs);
+							} else {
+								goodsAttrMapper.updateGoodsAttr(gs);
+							}
+						} else {
+							gs.setGoods_id(data.getAsString("goods_id"));
+							goodsAttrMapper.deleteGoodsAttr(gs);
+						}
+					}
+				}
+			} else if (EAUtil.isEmpty(saleAttrs) && EAUtil.isEmpty(nosaleAttrs) && EAUtil.isNotEmpty(attrs)) {
+				for (GoodsAttr gs : attrs) {
+					if (StringUtils.isNotEmpty(gs.getAttr_id())) {
+						if (StringUtils.isNotEmpty(gs.getAttr_value())) {
+							if (gs.getIs_sale().equals("1")) {
+								importantAttrs.add(new GoodsAttr("", data.getAsString("goods_id"), gs.getAttr_id(),
+										gs.getAttr_name(), gs.getAttr_value(), "", gs.getIs_sale()));
+							}
+							// 如果是重要属性 其值不能为空
+							gs.setGoods_id(data.getAsString("goods_id"));
+							goodsAttrMapper.insertGoodsAttr(gs);
+						}
+					}
+				}
+			}
+			// 如果销售属性没有变更
+			if (!saleAttrs.isEmpty() && compare(saleAttrs, importantAttrs)) {
+				// 没变更
+				importantAttrs.clear();
+			} else {
+				// 清除库存信息
+				goodsMapper.clearStockByGoodsId(data);
+				// 清除该商品的所有购物车
+				Page cartpage = new Page();
+				PageData cartpd = new PageData();
+				cartpd.put("goods_id", data.getAsString("goods_id"));
+				cartpage.setPd(cartpd);
+				goodsCartMapper.delete(cartpage);
+			}
+		} else {
+			// 清除库存信息
+			goodsMapper.clearStockByGoodsId(data);
+			// 清除之前的商品属性
+			goodsAttrMapper.delete(data);
+			if (attrs != null) {
+				for (GoodsAttr gs : attrs) {
+					if (StringUtils.isNotEmpty(gs.getAttr_id())) {
+						if (StringUtils.isNotEmpty(gs.getAttr_value())) {
+							if (gs.getIs_sale().equals("1")) {
+								importantAttrs.add(new GoodsAttr("", data.getAsString("goods_id"), gs.getAttr_id(),
+										gs.getAttr_name(), gs.getAttr_value(), "", gs.getIs_sale()));
+							}
+							// 如果是重要属性 其值不能为空
+							gs.setGoods_id(data.getAsString("goods_id"));
+							goodsAttrMapper.insertGoodsAttr(gs);
+						}
+					}
+				}
+			}
+
+			// 清除该商品的所有购物车
+			Page cartpage = new Page();
+			PageData cartpd = new PageData();
+			cartpd.put("goods_id", data.getAsString("goods_id"));
+			cartpage.setPd(cartpd);
+			goodsCartMapper.delete(cartpage);
+		}
+		/**
+		 * 保存重要属性排列组合拼接的库存 尺寸:10|材质:24K
+		 */
+		List<Stock> stockPd = new ArrayList<Stock>();
+		if (importantAttrs.size() > 0) {
+			for (GoodsAttr ga : importantAttrs) {
+				if ("1".equals(ga.getIs_sale())) {
+					stockPd = setInitStoc(stockPd, ga);
+				}
+			}
+		}
+		// 初始化库存
+		if (stockPd.size() > 0) {
+			for (Stock ts : stockPd) {
+				// 对stock_value进行排序
+				List<String> stockValueList = Arrays.asList(ts.getAttr_json().trim().split("\\|"));
+				Collections.sort(stockValueList, new Comparator<String>() {
+					@Override
+					public int compare(String o1, String o2) {
+						return o1.compareTo(o2);
+					}
+				});
+				StringBuffer sb = new StringBuffer();
+				for (String s : stockValueList) {
+					if (StringUtils.isNotEmpty(s)) {
+						sb.append(s + "|");
+					}
+				}
+				ts.setAttr_json(sb.substring(0, sb.length() - 1));
+				goodsMapper.initStockByProductId(ts);
+			}
+		}
+		/*
+		 * // 商品相册 String[] original_img =
+		 * data.getAsString("original_img").split(","); if
+		 * (!EAString.isNullStr(data.getAsString("original_img"))) { for (int j
+		 * = 0; j < original_img.length; j++) { if
+		 * (StringUtils.isNotEmpty(original_img[j])) { data.put("original_img",
+		 * original_img[j]); goodsAlbumMapper.insert(data); } } }
+		 */
+	}
+
+	/**
+	 * 新增店铺商品
+	 * 
+	 * @param data
+	 * @param file
+	 *            列表图片
+	 * @throws Exception
+	 */
+	public PageData insertSellerGoods(PageData data, MultipartFile file, StockList stocks, GoodsAttrList goodsAttr)
+			throws Exception {
+		// 上传商品图片 将图片压缩成多个不同规格的缩略图
+		String savePath = FtpUtil.upload(file, "mallframe", "sellerproduct");
+		try {
+			// 保证缩放的图片的名字和原图片名字一样
+			String fileName = savePath.substring(savePath.lastIndexOf("/"), savePath.lastIndexOf(".") + 1);
+			ImageFormat[] imageFormats = new ImageFormat[] { new ImageFormat(750, 601, "detail", fileName),
+					new ImageFormat(226, 226, "list", fileName), new ImageFormat(328, 328, "listbig", fileName),
+					new ImageFormat(238, 238, "listmiddle", fileName),
+					new ImageFormat(175, 175, "listsmall", fileName) }; // 网站图片规格
+			EATools.dealWithImgs(file, imageFormats);
+			for (ImageFormat tif : imageFormats) {
+				FtpUtil.upload(tif, "mallframe", "sellerproduct");
+				if (tif.getFile().exists()) {
+					tif.getFile().delete();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		data.put("is_delete", "0");
+		data.put("is_delete", "0");
+		data.put("is_on_sale", "0");
+		data.put("rebate_type", "2");
+		// 是否免运费
+		if (data.getAsBigDecimal("goods_freight").compareTo(new BigDecimal(0)) == 1) {
+			data.put("is_free_shipping", "0");
+		} else {
+			data.put("is_free_shipping", "1");
+		}
+		data.put("list_img", savePath);
+		goodsMapper.insert(data); // 基本信息入库
+		data.put("goods_id", data.get("goods_id")); // selectKey,主表id
+		if (EAUtil.isEmpty(stocks.getStocks())) {
+			// 插入默认库存
+			Stock defaultStock = new Stock();
+			defaultStock.setGoods_id(data.getAsString("goods_id"));
+			defaultStock.setPrice(data.getAsString("shop_price"));
+			defaultStock.setMarket_price(data.getAsString("market_price"));
+			defaultStock.setStock(data.getAsString("goods_stock"));
+			defaultStock.setAttr_json("-1");
+			goodsMapper.initStockByProductId(defaultStock);
+		} else {
+			// 商品入库
+			List<Stock> stocklist = ((StockList) stocks).getStocks();
+			for (Stock stock : stocklist) {
+				stock.setGoods_id(data.getAsString("goods_id"));
+				goodsMapper.initStockByProductId(stock);
+			}
+			// 插入商品属性表
+			List<GoodsAttr> goodsAttrlist = goodsAttr.getGoodsAttr();
+			for (GoodsAttr gs : goodsAttrlist) {
+				gs.setGoods_id(data.getAsString("goods_id"));
+				gs.setIs_sale("1");
+				goodsAttrMapper.insertGoodsAttr(gs);
+				PageData attrdata = goodsTypeAttrMapper.selectById(Integer.valueOf(gs.getAttr_id()));
+				if (EAUtil.isNotEmpty(attrdata) && !attrdata.getAsString("attr_name").equals(gs.getAttr_name())) {
+					attrdata.put("attr_name", gs.getAttr_name());
+					goodsTypeAttrMapper.update(attrdata);
+				}
+			}
+		}
+		return data;
+	}
+
+	/**
+	 * 修改店铺商品
+	 * 
+	 * @param data
+	 * @param file
+	 *            列表图片
+	 * @throws Exception
+	 */
+	public void updateSellerGoods(PageData data, MultipartFile file, StockList stocks, GoodsAttrList goodsAttr)
+			throws Exception {
+		// 列表图片
+		if (!file.isEmpty() && file.getSize()>0) {
+			// 上传商品图片 将图片压缩成多个不同规格的缩略图
+			String savePath = FtpUtil.upload(file, "mallframe", "sellerproduct");
+			data.put("list_img", savePath);
+			try {
+				// 保证缩放的图片的名字和原图片名字一样     
+				String fileName = savePath.substring(savePath.lastIndexOf("/"), savePath.lastIndexOf(".") + 1);
+				ImageFormat[] imageFormats = new ImageFormat[] { new ImageFormat(750, 601, "detail", fileName),
+						new ImageFormat(226, 226, "list", fileName), new ImageFormat(328, 328, "listbig", fileName),
+						new ImageFormat(238, 238, "listmiddle", fileName),
+						new ImageFormat(175, 175, "listsmall", fileName) }; // 网站图片规格
+				EATools.dealWithImgs(file, imageFormats);
+				for (ImageFormat tif : imageFormats) {
+					FtpUtil.upload(tif, "mallframe", "sellerproduct");
+					if (tif.getFile().exists()) {
+						tif.getFile().delete();
+					};
+					;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		data.put("is_delete", "0");
+		data.put("rebate_type", "2");
+		// 是否免运费
+		if (data.getAsBigDecimal("goods_freight").compareTo(new BigDecimal(0)) == 1) {
+			data.put("is_free_shipping", "0");
+		} else {
+			data.put("is_free_shipping", "1");
+		}
+		//插入商品总库存
+		Integer stocknum=0;
+		List<Stock> stocklist = ((StockList) stocks).getStocks();
+		for (Stock stock : stocklist) {
+			stocknum+=Integer.valueOf(stock.getStock());
+		}
+		data.put("goods_stock", stocknum);
+		// 获取之前的商品类型id
+		PageData goodsModel = goodsMapper.selectByGoodsId(data.getAsInt("goods_id"));
+		goodsMapper.update(data); // 基本信息入库
+		data.put("goods_id", data.get("goods_id")); // selectKey,主表id
+
+		if (EAUtil.isEmpty(stocks)) {
+			// 删除所有的库存信息
+			goodsMapper.clearStockByGoodsId(data);
+			// 清除该商品的所有购物车
+			Page cartpage = new Page();
+			PageData cartpd = new PageData();
+			cartpd.put("goods_id", data.getAsString("goods_id"));
+			cartpage.setPd(cartpd);
+			goodsCartMapper.delete(cartpage);
+			// 清除之前的商品属性
+			goodsAttrMapper.delete(data);
+			// 插入默认库存
+			Stock defaultStock = new Stock();
+			defaultStock.setGoods_id(data.getAsString("goods_id"));
+			defaultStock.setPrice(data.getAsString("shop_price"));
+			defaultStock.setMarket_price(data.getAsString("market_price"));
+			defaultStock.setStock(data.getAsString("goods_stock"));
+			defaultStock.setAttr_json("-1");
+			goodsMapper.initStockByProductId(defaultStock);
+		} else {
+			//查询之前的销售属性
+			data.put("is_sale", 1);
+			List<GoodsAttr> saleAttrs = goodsAttrMapper.selectByGoodsId(data);
+			List<GoodsAttr> goodsAttrlist = goodsAttr.getGoodsAttr();
+			if (goodsModel.getAsString("category_id").equals(data.getAsString("category_id")) && EAUtil.isNotEmpty(saleAttrs)) {
+				if(!compare(saleAttrs,goodsAttrlist)){
+					// 删除所有的库存信息
+					goodsMapper.clearStockByGoodsId(data);
+					// 清除该商品的所有购物车
+					Page cartpage = new Page();
+					PageData cartpd = new PageData();
+					cartpd.put("goods_id", data.getAsString("goods_id"));
+					cartpage.setPd(cartpd);
+					goodsCartMapper.delete(cartpage);
+					// 清除之前的商品属性
+					goodsAttrMapper.delete(data);
+					
+					// 商品入库
+					for (Stock stock : stocklist) {
+						stock.setGoods_id(data.getAsString("goods_id"));
+						goodsMapper.initStockByProductId(stock);
+					}
+					for (GoodsAttr gs : goodsAttrlist) {
+						gs.setGoods_id(data.getAsString("goods_id"));
+						gs.setIs_sale("1");
+						goodsAttrMapper.insertGoodsAttr(gs);
+						PageData attrdata = goodsTypeAttrMapper.selectById(Integer.valueOf(gs.getAttr_id()));
+						if (EAUtil.isNotEmpty(attrdata) && !attrdata.getAsString("attr_name").equals(gs.getAttr_name())) {
+							attrdata.put("attr_name", gs.getAttr_name());
+							goodsTypeAttrMapper.update(attrdata);
+						}
+					}
+				}else{
+					// 修改商品属性表
+					for (GoodsAttr gs : goodsAttrlist) {
+						gs.setGoods_id(data.getAsString("goods_id"));
+						if (EAUtil.isEmpty(gs.getGoods_attr_id())) {
+							gs.setIs_sale("1");
+							goodsAttrMapper.insertGoodsAttr(gs);
+						} else {
+							goodsAttrMapper.updateGoodsAttr(gs);
+						}
+						//修改类型属性值
+						PageData attrdata = goodsTypeAttrMapper.selectById(Integer.valueOf(gs.getAttr_id()));
+						if (EAUtil.isNotEmpty(attrdata) && !attrdata.getAsString("attr_name").equals(gs.getAttr_name())) {
+							attrdata.put("attr_name", gs.getAttr_name());
+							goodsTypeAttrMapper.update(attrdata);
+						}
+					}
+					// 商品入库更新
+					for (Stock stock : stocklist) {
+						stock.setGoods_id(data.getAsString("goods_id"));
+						if (EAUtil.isNotEmpty(stock.getSku_id())) {
+							goodsMapper.updateStockByPid(stock);
+						} else {
+							goodsMapper.initStockByProductId(stock);
+						}
+					}
+				}
+				
+			}else{
+				// 删除所有的库存信息
+				goodsMapper.clearStockByGoodsId(data);
+				// 清除该商品的所有购物车
+				Page cartpage = new Page();
+				PageData cartpd = new PageData();
+				cartpd.put("goods_id", data.getAsString("goods_id"));
+				cartpage.setPd(cartpd);
+				goodsCartMapper.delete(cartpage);
+				// 清除之前的商品属性
+				goodsAttrMapper.delete(data);
+				
+				// 商品入库
+				for (Stock stock : stocklist) {
+					stock.setGoods_id(data.getAsString("goods_id"));
+					goodsMapper.initStockByProductId(stock);
+				}
+				for (GoodsAttr gs : goodsAttrlist) {
+					gs.setGoods_id(data.getAsString("goods_id"));
+					gs.setIs_sale("1");
+					goodsAttrMapper.insertGoodsAttr(gs);
+					PageData attrdata = goodsTypeAttrMapper.selectById(Integer.valueOf(gs.getAttr_id()));
+					if (EAUtil.isNotEmpty(attrdata) && !attrdata.getAsString("attr_name").equals(gs.getAttr_name())) {
+						attrdata.put("attr_name", gs.getAttr_name());
+						goodsTypeAttrMapper.update(attrdata);
+					}
+				}
+			}
+
+		}
+	}
+
+	/**
+	 * 比较两个集合是否相等
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static <T extends Comparable<T>> boolean compare(List<GoodsAttr> a, List<GoodsAttr> b) {
+		if (a.size() != b.size())
+			return false;
+		// Collections.sort(a);
+		// Collections.sort(b);
+		for (int i = 0; i < a.size(); i++) {
+			if (!a.get(i).getAttr_value().equals(b.get(i).getAttr_value()))
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 获取一个商品的完整信息,包含分销信息 此处是一个错误的方法设计,需优化
+	 * 
+	 * @param goodsId
+	 * @return
+	 */
+	public PageData getGoodsAllInfo(int goodsId, PageData rebateConfig) {
+		PageData goods = getDao().selectById(goodsId);
+		if (goods.getAsInt("rebate_type") == 2) {// 不参与分销
+		} else if (goods.getAsInt("rebate_type") == 1) {// 自定义分销
+			rebateConfig = goodsRebateMapper.selectById(goodsId);
+		} else {// 继承系统的分销
+
+		}
+		goods.put("rebate_1", rebateConfig.get("rebate_1"));
+		goods.put("rebate_2", rebateConfig.get("rebate_2"));
+		goods.put("rebate_3", rebateConfig.get("rebate_3"));
+		goods.put("points_1", rebateConfig.get("points_1"));
+		goods.put("points_2", rebateConfig.get("points_2"));
+		goods.put("points_3", rebateConfig.get("points_3"));
+		return goods;
+	}
+
+	private List<Stock> setInitStoc(List<Stock> stockList, GoodsAttr goodsAttr) {
+		List<Stock> result = new ArrayList<Stock>(); // 返回的结果集
+		if (stockList.size() == 0) {
+			Stock stock = new Stock();
+			stockList.add(stock);
+		}
+		for (int i = 0; i < stockList.size(); i++) {
+			Stock stock = stockList.get(i);
+			// 如果 属性 是选择的类型 则需要重新拼接
+			// 选择性属性 分割商品属性值 循环变量
+			// 把每一个属性值 遍历设置一个库存对象中 放在到结果集中
+			String values[] = StringUtils.isEmpty(goodsAttr.getAttr_value()) ? "".split(",")
+					: goodsAttr.getAttr_value().split("\\,");
+			for (String value : values) {
+				Stock s = new Stock();
+				// 需判断库存对象中的属性是否为空
+				if (StringUtils.isNotEmpty(stock.getAttr_json())) {
+					s.setAttr_json(stock.getAttr_json() + "|" + goodsAttr.getAttr_name() + ":" + value);
+				} else {
+					s.setAttr_json(goodsAttr.getAttr_name() + ":" + value);
+				}
+				s.setGoods_id(goodsAttr.getGoods_id());
+				result.add(s);
+			}
+			/*
+			 * // 非选择属性 属性名及属性值 放到库存对象中 Stock s= new Stock(); // 需判断库存对象中的属性是否为空
+			 * if(stock.getStockValue()!=null) {
+			 * s.setStockValue(stock.getStockValue()+"|"+
+			 * goodsAttr.getAttrName() + ":" +goodsAttr.getAttrValues()); }else
+			 * { s.setStockValue(goodsAttr.getAttrName() + ":"
+			 * +goodsAttr.getAttrValues()); } s.setGoods(goodsAttr.getGoods());
+			 * result.add(s);
+			 */
+		}
+		return result;
+	}
+
+	/**
+	 * 查询库存
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public List<Stock> findStockByProductId(PageData pd) {
+		return goodsMapper.findStockByProductId(pd);
+	}
+
+	/**
+	 * 查询非默认库存
+	 */
+	public List<Stock> findStockNoDefault(PageData pd) {
+		return goodsMapper.findStockNoDefault(pd);
+	}
+
+	/**
+	 * 查询商品属性库存
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public Stock findStockByAttr(PageData pd) throws Exception {
+		// 请求数据校验
+		if (EAUtil.isEmpty(pd.getAsString("goods_id"))) {
+			throw new Exception("商品id不能为空");
+		}
+		if (EAUtil.isEmpty(pd.getAsString("attr_json"))) {
+			// 尺寸:12|颜色:银色
+			throw new Exception("库存选择不能为空");
+		}
+		String ts = resultstock(pd.getAsString("attr_json"));
+		pd.put("attr_json", ts);
+		return goodsMapper.findStockByAttr(pd);
+	}
+
+	/**
+	 * 库存排序
+	 * @param attr_json
+	 * @return
+	 */
+	public String resultstock(String attr_json) {
+		List<String> stockValueList = Arrays.asList(attr_json.trim().split("\\|"));
+		Collections.sort(stockValueList, new Comparator<String>() {
+			@Override
+			public int compare(String o1, String o2) {
+				return o1.compareTo(o2);
+			}
+		});
+		StringBuffer sb = new StringBuffer();
+		for (String s : stockValueList) {
+			if (StringUtils.isNotEmpty(s)) {
+				sb.append(s + "|");
+			}
+		}
+		String ts = sb.substring(0, sb.length() - 1);
+		return ts;
+	}
+
+	/**
+	 * 查询库存不为空的
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public List<Stock> queryStockByGoodsId(PageData pd) {
+		return goodsMapper.queryStockByGoodsId(pd);
+	}
+
+	/**
+	 * 查询销售属性
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public Stock queryStockBySkuId(PageData pd) {
+		return goodsMapper.queryStockBySkuId(pd);
+	}
+
+	/**
+	 * 下单更新库存表库存
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public void orderStockByPid(Stock stock) {
+		/*
+		 * //获得之前的库存 PageData pd = new PageData(); pd.put("sku_id",
+		 * stock.getSku_id()); goodsMapper.queryStockBySkuId(pd);
+		 */
+		goodsMapper.updateStockByPid(stock);
+	}
+
+	/**
+	 * 下单更新商品表总库存
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public void orderGoodsStock(PageData pd) {
+		goodsMapper.update(pd);
+	}
+
+	/**
+	 * 批量更新库存
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public void updateStockByPid(StockList stocks) {
+		PageData data = new PageData();
+		int goods_stock = 0;
+		for (Stock s : stocks.getStocks()) {
+			goods_stock = goods_stock + Integer.parseInt(s.getStock());
+			goodsMapper.updateStockByPid(s);
+		}
+		if (stocks != null && stocks.getStocks() != null && stocks.getStocks().size() > 0) {
+			data.put("goods_stock", goods_stock);
+			data.put("goods_id", stocks.getStocks().get(0).getGoods_id());
+			// 同时更新总库存
+			goodsMapper.update(data);
+			// 更新默认库存
+			data.put("stock", goods_stock);
+			goodsMapper.updateDefaultStore(data);
+		}
+	}
+
+	/**
+	 * 更新库存
+	 */
+	public void updateStockByPid(Stock stock) {
+		goodsMapper.updateStockByPid(stock);
+	}
+
+	/**
+	 * 文案查询6条推荐商品
+	 */
+	public List<PageData> getTopGoods() {
+		return goodsMapper.selectTopGoods();
+	}
+
+	/**
+	 * 商城积分抵扣，优惠劵设置
+	 */
+	public Map<String, PageData> selectGoodsSetting() {
+		Map<String, PageData> result = new HashMap<>();
+		if (resetting == null) {
+			resetting = goodsMapper.selectGoodsSetting();
+		}
+		for (PageData pd : resetting) {
+			result.put(pd.getAsString("setting_code"), pd);
+		}
+		return result;
+	}
+
+	@Override
+	public EADao getDao() {
+		return goodsMapper;
+	}
+
+	/**
+	 * 查询商品赠送积分
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public List<PageData> getGoodsPaypoint(PageData pd) {
+		return goodsMapper.selectBySkuIds(pd);
+	}
+
+	/**
+	 * 查询购物车中的列表
+	 * 
+	 * @param pd
+	 * @return
+	 */
+	public List<PageData> selectAllByCartids(PageData pd) {
+		return goodsMapper.selectAllByCartids(pd);
+	}
+
+	public void updateGoodsSetting(PageData pd) {
+		goodsMapper.updateGoodsSetting(pd);
+		resetting = null;
+	}
+
+	/**
+	 * 商品复制 (深度复制) 参数 goodsId
+	 * 
+	 * @param pageData
+	 */
+	public Integer addCopyGoods(PageData pageData) {
+		/**
+		 * 复制商品基本信息
+		 */
+		if (StringUtils.isEmpty(pageData.getAsString("goods_id"))) {
+			return 0;
+		}
+		goodsMapper.copyGoods(pageData);
+		Integer goods_id = pageData.getAsInteger("id");
+		/**
+		 * 复制商品相册
+		 */
+		Page page = new Page();
+		page.setPd(pageData);
+
+		List<PageData> albums = goodsAlbumMapper.selectByMap(page);
+		if (albums != null) {
+			for (PageData tpd : albums) {
+				tpd.put("goods_id", pageData.getAsString("id"));
+				goodsAlbumMapper.insert(tpd);
+			}
+		}
+		/**
+		 * 复制商品属性
+		 */
+		List<PageData> goodsAttr = goodsAttrMapper.selectByMap(page);
+		if (goodsAttr != null) {
+			for (PageData tpd : goodsAttr) {
+				tpd.put("goods_id", pageData.getAsString("id"));
+				goodsAttrMapper.insert(tpd);
+			}
+		}
+		/**
+		 * 复制商品库存
+		 */
+		List<Stock> skus = goodsMapper.findStockByProductId(pageData);
+		if (skus != null) {
+			for (Stock tpd : skus) {
+				tpd.setGoods_id(pageData.getAsString("id"));
+				goodsMapper.initStockByProductId(tpd);
+			}
+		}
+		return goods_id;
+	}
+
+	/**
+	 * 彻底删除商品
+	 * 
+	 * @param pd
+	 */
+	public void thoroughDel(PageData pd) {
+		Page page = new Page();
+		page.setPd(pd);
+		goodsMapper.delete(page);
+		/**
+		 * 删除商品属性
+		 */
+		goodsAttrMapper.delete(pd);
+		/**
+		 * 删除商品库存
+		 */
+		goodsMapper.deleteStockByGoodsId(pd);
+	}
+	/**
+	 * 查询商品详情
+	 */
+	public ProductData goodsDetail(PageData pd){
+		String userId=pd.getAsString("user_id");
+		ProductData data=goodsMapper.selectItemEntity(pd);
+		// 更新用户浏览记录表
+		if (EAUtil.isNotEmpty(userId) && !"-2".equals(userId)) {
+			PageData lookpd = new PageData();
+			lookpd.put("user_id", userId);
+			lookpd.put("look_id", pd.getAsString("p_id"));
+			Page page= new Page();
+			page.setPd(lookpd);
+			List<PageData> looklist = goodsLookMapper.selectByMap(page);
+			if (EAUtil.isNotEmpty(looklist) && looklist.size()==1) {
+				lookpd.put("create_time", EADate.getCurrentTime());
+				goodsLookMapper.update(looklist.get(0));
+			} else {
+				lookpd.put("create_time", EADate.getCurrentTime());
+				goodsLookMapper.insert(lookpd);
+			}
+		}
+		// 更新商品浏览次数
+		PageData model = new PageData();
+		model.put("goods_id", pd.getAsString("p_id"));
+		model.put("click_count", (EAString.stringToInt(data.getClick_count(), 0) + 1));
+		goodsMapper.update(model);
+		return data;
+	}
+	
+	public List<PageData> selectByPcPage(PageExtend page){
+		return goodsMapper.selectByPcPage(page);
+	}
+	
+	
+	
+}

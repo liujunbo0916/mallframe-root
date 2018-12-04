@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.common.dao.RegionMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.region_id != null">
+			and region_id = #{pd.region_id}
+		</if>
+		<if test="pd.parent_id != null">
+			and parent_id = #{pd.parent_id}
+		</if>
+		<if test="pd.region_name != null">
+			and region_name = #{pd.region_name}
+		</if>
+		<if test="pd.region_type != null">
+			and region_type = #{pd.region_type}
+		</if>
+		<if test="pd.agency_id != null">
+			and agency_id = #{pd.agency_id}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_region where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_region where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_region where region_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_region (parent_id,region_name,region_type,agency_id)
+		values (#{parent_id},#{region_name},#{region_type},#{agency_id})
+	</insert>
+    <!-- 查询省 -->
+   <select id="selectByProvince" parameterType="pd" resultType="pd" >
+        select region_id as value,region_name as text  from t_region where parent_id = 1
+   </select>
+   <!-- 查询市 -->
+   <select id="selectByCity" parameterType="pd" resultType="pd">
+      select  region_id as value,region_name as text  from t_region where parent_id = #{parent_id}
+   </select>
+   <!-- 查询区县 -->
+   <select id="selectByArea" parameterType="pd" resultType="pd">
+      select  region_id as value,region_name as text  from t_region where parent_id = #{parent_id}
+   </select>
+   <update id="update" parameterType="pd">
+		update t_region <set>
+		<if test="parent_id != null">
+			parent_id = #{parent_id},
+		</if>
+		<if test="region_name != null">
+			region_name = #{region_name},
+		</if>
+		<if test="region_type != null">
+			region_type = #{region_type},
+		</if>
+		<if test="agency_id != null">
+			agency_id = #{agency_id},
+		</if>
+		</set>
+		where region_id = #{region_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_region where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

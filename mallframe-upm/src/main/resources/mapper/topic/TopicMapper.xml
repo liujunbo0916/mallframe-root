@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.topic.dao.TopicMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.topic_id != null">
+			and topic_id = #{pd.topic_id}
+		</if>
+		<if test="pd.icon != null">
+			and icon = #{pd.icon}
+		</if>
+		<if test="pd.title != null">
+			and title LIKE CONCAT('%',#{pd.title},'%')
+		</if>
+		<if test="pd.state != null">
+			and state = #{pd.state}
+		</if>
+		<if test="pd.sketch != null">
+			and sketch = #{pd.sketch}
+		</if>
+		<if test="pd.surface_picture != null">
+			and surface_picture = #{pd.surface_picture}
+		</if>
+		<if test="pd.topic_user_name != null">
+			and topic_user_name = #{pd.topic_user_name}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_topic where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_topic where 1=1
+			<include refid="condition"></include>
+	</select>
+	
+	<select id="selectByGoods" resultType="pd" parameterType="pd">
+		select good.goods_id,good.goods_name,good.list_img,good.shop_price from t_topic topic 
+		INNER JOIN t_topic_goods topicgood ON topicgood.topic_id = topic.topic_id 
+		INNER JOIN t_goods good ON good.goods_id = topicgood.goods_id where topic.topic_id = #{topic_id}
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_topic where topic_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_topic (icon,title,state,sketch,surface_picture,create_time,topic_user_name)
+		values (#{icon},#{title},#{state},#{sketch},#{surface_picture},#{create_time},#{topic_user_name})
+		<selectKey resultType="java.lang.Integer" keyProperty="order_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_topic <set>
+		<if test="icon != null">
+			icon = #{icon},
+		</if>
+		<if test="title != null">
+			title = #{title},
+		</if>
+		<if test="state != null">
+			state = #{state},
+		</if>
+		<if test="sketch != null">
+			sketch = #{sketch},
+		</if>
+		<if test="surface_picture != null">
+			surface_picture = #{surface_picture},
+		</if>
+		<if test="topic_user_name != null">
+			topic_user_name = #{topic_user_name},
+		</if>
+		</set>
+		where topic_id = #{topic_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_topic where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

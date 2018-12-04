@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.SysLogMapper">
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		SELECT
+		t_seller_log.*, t_business.bs_id,
+		t_business.bs_name
+		FROM
+		t_seller_log
+		LEFT JOIN t_seller ON t_seller_log.log_seller_id =
+		t_seller.id
+		LEFT JOIN t_business ON t_business.bs_id =
+		t_seller.business_id
+		where 1=1
+		<if test="pd.log_content != null and pd.log_content != ''">
+			and t_seller_log.log_content like
+			CONCAT(CONCAT('%',#{pd.log_content}),'%')
+		</if>
+		<if test="pd.log_seller_name != null and pd.log_seller_name != ''">
+			and t_seller_log.log_seller_name like
+			CONCAT(CONCAT('%',#{pd.log_seller_name}),'%')
+		</if>
+		<if test="pd.bs_name != null and pd.bs_name != ''">
+			and t_business.bs_name like
+			CONCAT(CONCAT('%',#{pd.bs_name}),'%')
+		</if>
+		<if test="pd.startTime != null and pd.startTime != ''">
+			<if test="pd.endTime == null or pd.endTime ==''">
+				and t_seller_log.log_time >= #{pd.startTime}
+			</if>
+			<if test="pd.endTime != null and pd.endTime !=''">
+				and t_seller_log.log_time >= #{pd.startTime} and
+				#{pd.endTime} >=
+				t_seller_log.log_time
+			</if>
+		</if>
+		<if test="pd.startTime == null or pd.startTime == ''">
+			<if test="pd.endTime != null and pd.endTime !='' ">
+				and #{pd.endTime} >= t_seller_log.log_time
+			</if>
+		</if>
+		ORDER BY
+		t_seller_log.log_time DESC
+	</select>
+
+	<select id="selectExceptionByPage" parameterType="page"
+		resultType="pd">
+		SELECT
+		t_seller_exception.*,
+		t_seller.id as seller_id,
+		t_seller.seller_name,
+		t_business.bs_name,
+		t_business.bs_id
+		FROM
+		t_seller_exception
+		LEFT JOIN t_seller ON t_seller_exception.opter =
+		t_seller.seller_name
+		LEFT JOIN t_business ON t_seller.business_id =
+		t_business.bs_id
+		where 1=1
+		<if test="pd.exception_msg != null and pd.exception_msg != ''">
+			and t_seller_exception.exception_msg like
+			CONCAT(CONCAT('%',#{pd.exception_msg}),'%')
+		</if>
+		<if test="pd.seller_name != null and pd.seller_name != ''">
+			and t_seller.seller_name like
+			CONCAT(CONCAT('%',#{pd.seller_name}),'%')
+		</if>
+		<if test="pd.bs_name != null and pd.bs_name != ''">
+			and t_business.bs_name like
+			CONCAT(CONCAT('%',#{pd.bs_name}),'%')
+		</if>
+		<if test="pd.exception_url != null and pd.exception_url != ''">
+			and t_seller_exception.exception_url = #{pd.exception_url}
+		</if>
+		<if test="pd.log_id != null and pd.log_id != ''">
+			and t_seller_exception.log_id = #{pd.log_id}
+		</if>
+		<if test="pd.startTime != null and pd.startTime != ''">
+			<if test="pd.endTime == null or pd.endTime =='' ">
+				and t_seller_exception.log_time >= #{pd.startTime}
+			</if>
+			<if test="pd.endTime != null and pd.endTime !='' ">
+				and t_seller_exception.log_time >= #{pd.startTime} and
+				#{pd.endTime} >= t_seller_exception.log_time
+			</if>
+		</if>
+		<if test="pd.startTime == null or pd.startTime ==''">
+			<if test="pd.endTime != null and pd.endTime !='' ">
+				and #{pd.endTime} >= t_seller_exception.log_time
+			</if>
+		</if>
+		ORDER BY
+		t_seller_exception.log_time DESC
+	</select>
+
+
+
+
+</mapper>

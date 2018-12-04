@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.hautecouture.dao.CoutureOrderLogMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="applicationColumns">
+		a.id AS "id",
+		a.order_id AS "order_id",
+		a.auto_note AS "auto_note",
+		a.log_note AS "log_note",
+		a.creator AS "creator",
+		a.create_time AS "create_time"
+	</sql>
+	
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_haute_couture_order_log where 1=1
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_haute_couture_order_log where 1=1
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_haute_couture_order_log where id = #{id}
+	</select>
+	
+	<select id="selectByOrdId" resultType="pd"  parameterType="java.lang.String">
+		SELECT * from t_haute_couture_order_log where order_id = #{order_id} ORDER BY create_time desc
+	</select>
+
+	<select id="selectall" resultType="pd"  parameterType="Integer">
+		SELECT * from t_haute_couture_order_log 
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into 
+		t_haute_couture_order_log (
+			order_id,
+			auto_note,
+			log_note,
+			creator,
+			create_time
+			)
+		values (
+			#{order_id},
+			#{auto_note},
+			#{log_note},
+			#{creator},
+			#{create_time}
+			)
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_haute_couture_order_log <set>
+		<if test="auto_note != null">
+			auto_note = #{auto_note},
+		</if>
+		<if test="log_note != null">
+			log_note = #{log_note},
+		</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_haute_couture_order_log where 1=1
+	</delete>
+</mapper>

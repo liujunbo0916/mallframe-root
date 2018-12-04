@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.content.dao.AdvertMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<!-- 广告内容 -->
+	<sql id="condition">
+		<if test="pd.ad_id != null">
+			and ad_id = #{pd.ad_id}
+		</if>
+		<if test="pd.ad_apid != null">
+			and ad_apid = #{pd.ad_apid}
+		</if>
+		<if test="pd.ad_begin_time != null">
+			and ad_begin_time = #{pd.ad_begin_time}
+		</if>
+		<if test="pd.ad_end_time != null">
+			and ad_end_time = #{pd.ad_end_time}
+		</if>
+		<if test="pd.ad_display != null">
+			and ad_display = #{pd.ad_display}
+		</if>
+		<if test="pd.ad_url != null">
+			and ad_url = #{pd.ad_url}
+		</if>
+		<if test="pd.ad_no != null">
+			and ad_no = #{pd.ad_no}
+		</if>
+		<if test="pd.ad_page_views != null">
+			and ad_page_views = #{pd.ad_page_views}
+		</if>
+		<if test="pd.ad_type!= null">
+			and ad_type = #{pd.ad_type}
+		</if>
+		<if test="pd.ad_relation_type != null">
+			and ad_relation_type = #{pd.ad_relation_type}
+		</if>
+		<if test="pd.ad_relation_id != null">
+			and ad_relation_id = #{pd.ad_relation_id}
+		</if>
+		<if test="pd.ad_create_time != null">
+			and ad_create_time = #{pd.ad_create_time}
+		</if>
+		<if test="pd.is_recommend!= null">
+			and is_recommend = #{pd.is_recommend}
+		</if>
+		<if test="pd.ap_code != null">
+			and t2.ap_code = #{pd.ap_code}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_advert_desc where 1=1
+		<include refid="condition"></include>
+	</select>
+
+<!-- 	<select id="selectadvertlistByPage" resultType="pd"
+		parameterType="page">
+		select t1.*,t2.ap_code,t2.ap_desc,t2.ap_name,t2.ap_price from
+		t_advert_desc t1
+		LEFT JOIN t_advert_position t2
+		on t1.ad_apid=t2.ap_id
+		where 1=1<include refid="condition"></include>
+		<if test="pd.datetime != null and pd.datetime !=''"><![CDATA[ and t1.ad_end_time > #(pd.datetime) and #(pd.datetime) > t1.ad_begin_time  ]]></if>
+		order by is_recommend desc
+	</select> -->
+	<select id="selectadvertlistByPage" resultType="pd"
+		parameterType="page">
+		select t1.*,t2.ap_code,t2.ap_desc,t2.ap_name,t2.ap_price from t_advert_desc t1
+		left join t_advert_position t2 on t1.ad_apid = t2.ap_id
+		where 1= 1
+		<include refid="condition"></include>
+		<if test="pd.datatime != null and pd.datetime != ''">
+		   <![CDATA[and t1.ad_end_time > #{pd.datetime} and  #{pd.datetime} > t1.ad_begin_time]]>
+		</if>
+		order by t1.is_recommend desc
+	</select>	
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_advert_desc where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_advert_desc where ad_id = #{ad_id}
+	</select>
+	<select id="selectByIds" resultType="pd" parameterType="pd">
+		SELECT *
+		from t_advert_desc where ad_id in (${ad_ids})
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_advert_desc
+		(ad_apid,ad_begin_time,ad_end_time,ad_display,ad_url,ad_no,ad_page_views,ad_type,ad_relation_type,ad_relation_id,ad_create_time,is_recommend)values
+		(#{ad_apid},#{ad_begin_time},#{ad_end_time},#{ad_display},#{ad_url},#{ad_no},#{ad_page_views},#{ad_type},#{ad_relation_type},#{ad_relation_id},#{ad_create_time},#{is_recommend})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_advert_desc
+		<set>
+			<if test="ad_apid != null">
+				ad_apid = #{ad_apid},
+			</if>
+			<if test="ad_begin_time != null">
+				ad_begin_time = #{ad_begin_time},
+			</if>
+			<if test="ad_end_time != null">
+				ad_end_time = #{ad_end_time},
+			</if>
+			<if test="ad_display != null">
+				ad_display = #{ad_display},
+			</if>
+			<if test="ad_url != null">
+				ad_url = #{ad_url},
+			</if>
+			<if test="ad_no != null">
+				ad_no = #{ad_no},
+			</if>
+			<if test="ad_page_views != null">
+				ad_page_views = #{ad_page_views},
+			</if>
+			<if test="ad_type != null">
+				ad_type = #{ad_type},
+			</if>
+			<if test="ad_relation_type != null">
+				ad_relation_type = #{ad_relation_type},
+			</if>
+			<if test="ad_relation_id != null">
+				ad_relation_id = #{ad_relation_id},
+			</if>
+			<if test="ad_create_time != null">
+				ad_create_time = #{ad_create_time},
+			</if>
+			<if test="is_recommend != null">
+				is_recommend = #{is_recommend}
+			</if>
+		</set>
+		where ad_id = #{ad_id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from t_advert_desc
+		where 1=1
+		<if test="pd.ad_id != null">
+			and ad_id = #{pd.ad_id}
+		</if>
+		<if test="pd.ad_apid != null">
+			and ad_apid = #{pd.ad_apid}
+		</if>
+	</delete>
+
+	<!-- 广告内容结束 -->
+
+	<!-- 广告位置 -->
+	<sql id="conditionposition">
+		<if test="pd.ap_id != null">
+			and ap_id = #{pd.ap_id}
+		</if>
+		<if test="pd.ap_name != null">
+			and ap_name = #{pd.ap_name}
+		</if>
+		<if test="pd.ap_code != null">
+			and ap_code = #{pd.ap_code}
+		</if>
+		<if test="pd.ap_type != null">
+			and ap_type = #{pd.ap_type}
+		</if>
+		<if test="pd.ap_status != null">
+			and ap_status = #{pd.ap_status}
+		</if>
+		<if test="pd.ap_price != null">
+			and ap_price = #{pd.ap_price}
+		</if>
+		<if test="pd.ap_desc != null">
+			and ap_desc = #{pd.ap_desc}
+		</if>
+		<if test="pd.ap_width != null">
+			and ap_width = #{pd.ap_width}
+		</if>
+		<if test="pd.ap_height!= null">
+			and ap_height = #{pd.ap_height}
+		</if>
+		<if test="pd.ap_create_time!= null">
+			and ap_create_time = #{pd.ap_create_time}
+		</if>
+		<if test="pd.ad_relation_id != null">
+			and ad_relation_id = #{pd.ad_relation_id}
+		</if>
+		<if test="pd.ad_create_time != null">
+			and ad_create_time = #{pd.ad_create_time}
+		</if>
+	</sql>
+
+	<select id="selectpositionByPage" resultType="pd" parameterType="page">
+		select * from t_advert_position where 1=1
+		<include refid="conditionposition"></include>
+	</select>
+
+	<select id="selectpositionByMap" resultType="pd" parameterType="pd">
+		select * from t_advert_position where 1=1
+		<include refid="conditionposition"></include>
+	</select>
+	<select id="selectpositionById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_advert_position where ap_id = #{ap_id}
+	</select>
+	<select id="selectpositionByIds" resultType="pd" parameterType="pd">
+		SELECT *
+		from t_advert_position where ap_id in (${ap_ids})
+	</select>
+	<insert id="insertposition" parameterType="pd">
+		insert into
+		t_advert_position
+		(ap_name,ap_code,ap_type,ap_status,ap_price,ap_desc,ap_width,ap_height,ap_create_time)values
+		(#{ap_name},#{ap_code},#{ap_type},#{ap_status},#{ap_price},#{ap_desc},#{ap_width},#{ap_height},#{ap_create_time})
+	</insert>
+	<update id="updateposition" parameterType="pd">
+		update t_advert_position
+		<set>
+			<if test="ap_name != null">
+				ap_name = #{ap_name},
+			</if>
+			<if test="ap_code != null">
+				ap_code = #{ap_code},
+			</if>
+			<if test="ap_type != null">
+				ap_type = #{ap_type},
+			</if>
+			<if test="ap_status != null">
+				ap_status = #{ap_status},
+			</if>
+			<if test="ap_price != null">
+				ap_price = #{ap_price},
+			</if>
+			<if test="ap_desc != null">
+				ap_desc = #{ap_desc},
+			</if>
+			<if test="ap_width != null">
+				ap_width = #{ap_width},
+			</if>
+			<if test="ap_height != null">
+				ap_height = #{ap_height},
+			</if>
+			<if test="ap_create_time != null">
+				ap_create_time = #{ap_create_time}
+			</if>
+		</set>
+		where ap_id = #{ap_id}
+	</update>
+
+	<delete id="deleteposition" parameterType="pd">
+		delete from
+		t_advert_position
+		where ap_id = #{ap_id}
+	</delete>
+
+	<!-- 广告位置结束 -->
+
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.article.dao.ArticleMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.article_id != null">
+			and article_id = #{pd.article_id}
+		</if>
+		<if test="pd.title != null and pd.title!=''">
+			and title LIKE CONCAT('%',#{pd.title},'%')
+		</if>
+		<if test="pd.summary != null">
+			and summary = #{pd.summary}
+		</if>
+		<if test="pd.status != null">
+			and status = #{pd.status}
+		</if>
+		<if test="pd.content != null">
+			and content = #{pd.content}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.cover_drawing != null">
+			and cover_drawing = #{pd.cover_drawing}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_article where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_article where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_article where article_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_article (title,summary,status,content,creator,create_time)
+		values (#{title},#{summary},#{status},#{content},#{creator},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_article <set>
+		<if test="title != null">
+			title = #{title},
+		</if>
+		<if test="summary != null">
+			summary = #{summary},
+		</if>
+		<if test="status != null">
+			status = #{status},
+		</if>
+		<if test="content != null">
+			content = #{content},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		<if test="cover_drawing != null">
+			cover_drawing = #{cover_drawing},
+		</if>
+		</set>
+		where article_id = #{article_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_article where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

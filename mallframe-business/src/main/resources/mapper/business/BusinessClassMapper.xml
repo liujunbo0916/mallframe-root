@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessClassMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	
+	<sql id="condition_bsj">
+		<if test="pd.sc_name!= null">
+			and sc_name = #{pd.sc_name}
+		</if>
+		<if test="pd.sc_bail != null">
+			and sc_bail = #{pd.sc_bail}
+		</if>
+		<if test="pd.sc_id != null">
+			and sc_id = #{pd.sc_id}
+		</if>
+		<if test="pd.sc_sort != null">
+			and sc_sort = #{pd.sc_sort}
+		</if>
+	</sql>
+	
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select * from t_business_class where 1=1 
+		<include refid="condition_bsj"></include>
+		order by sc_sort
+	</select>
+	
+	<select id="selectByMap" parameterType="pd" resultType="pd">
+		select * from t_business_class where 1=1 
+		<include refid="condition_bsj"></include>
+		order by sc_sort
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select * from t_business_class where sc_id=#{sc_id}
+		order by sc_sort
+	</select>
+	
+	<insert id="insert" parameterType="pd">
+		insert into t_business_class
+		(sc_name,sc_bail,sc_sort)
+		values(#{sc_name},#{sc_bail},#{sc_sort})
+	</insert>
+	
+	<update id="update" parameterType="pd">
+		update t_business_class
+		<set>
+			<if test="sc_name != null">
+				sc_name = #{sc_name},
+			</if>
+			<if test="sc_bail != null">
+				sc_bail = #{sc_bail},
+			</if>
+			<if test="sc_sort != null">
+				sc_sort = #{sc_sort},
+			</if>
+		</set>
+		where sc_id = #{sc_id}
+	</update>
+	
+	<delete id="delete" parameterType="page">
+		delete from t_business_class where sc_id = #{pd.sc_id}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.ActivitySeckillMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_activity_seckill where 1= 1
+		<if test="pd.currentTime != null and pd.currentTime != ''">
+			and kill_start_time &lt; #{pd.currentTime} and
+			kill_end_time &gt;
+			#{pd.currentTime}
+		</if>
+		<if test="pd.nowTime != null and pd.nowTime != ''">
+			and kill_start_time &gt; #{pd.nowTime}
+		</if>
+		<if test="pd.kill_name != null and pd.kill_name != ''">
+			and kill_name like CONCAT(CONCAT('%',#{pd.kill_name}),'%')
+		</if>
+		<!-- 未开始 -->
+		<if test="pd.activity_status == 0">
+			<if test="pd.currentTime != null and pd.currentTime != ''">
+		       <![CDATA[  and kill_start_time > #{pd.currentTime}  ]]>
+			</if>
+		</if>
+		<!-- 已结束 -->
+		<if test="pd.activity_status == 2">
+			<if test="pd.currentTime != null and pd.currentTime != ''">
+		       <![CDATA[  and kill_end_time < #{pd.currentTime}  ]]>
+			</if>
+		</if>
+		<!-- 进行中 -->
+		<if test="pd.activity_status == 1">
+			<if test="pd.currentTime != null and pd.currentTime != ''">
+		       <![CDATA[ and kill_start_time <  #{pd.currentTime} and kill_end_time > #{pd.currentTime}]]>
+			</if>
+		</if>
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select * from t_goods_activity_seckill where 1= 1
+		<if test="pd.currentTime != null and pd.currentPage != ''">
+			and kill_start_time &lt; #{pd.currentTime} and
+			kill_end_time &gt;
+			#{pd.currentTime}
+		</if>
+		<if test="pd.nowTime != null and pd.nowTime != ''">
+			and kill_start_time &gt; #{pd.nowTime}
+		</if>
+		<if test="pd.kill_name != null and pd.kill_name != ''">
+			and kill_name like CONCAT(CONCAT('%',#{pd.kill_name}),'%')
+		</if>
+		<if test="pd.id != null and pd.id != ''">
+			and id = #{pd.id}
+		</if>
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		select *
+		from t_goods_activity_seckill where 1= 1 and id = #{id}
+	</select>
+
+	<update id="update" parameterType="pd">
+		update t_goods_activity_seckill
+		<set>
+			<if test="kill_logo != null and kill_logo != ''">
+				kill_logo = #{kill_logo},
+			</if>
+			<if test="kill_start_time != null and kill_start_time != ''">
+				kill_start_time = #{kill_start_time},
+			</if>
+			<if test="kill_end_time != null and kill_end_time != ''">
+				kill_end_time = #{kill_end_time},
+			</if>
+			<if test="kill_name != null and kill_name != ''">
+				kill_name = #{kill_name},
+			</if>
+			<if test="kill_desc != null and kill_desc != ''">
+				kill_desc = #{kill_desc},
+			</if>
+			<if test="kill_limit_b != null and kill_limit_b != ''">
+				kill_limit_b = #{kill_limit_b},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_goods_activity_seckill
+		(kill_logo,kill_start_time,kill_end_time,kill_name,kill_desc,kill_limit_b)
+		values(#{kill_logo},#{kill_start_time},#{kill_end_time},#{kill_name},#{kill_desc},#{kill_limit_b})
+	</insert>
+
+	<select id="selectProByKillId" resultType="pd" parameterType="Integer">
+		SELECT
+		t1.*,t4.goods_id,t4.goods_name,t4.list_img,t5.bs_name,t5.bs_logo,t3.attr_json
+		FROM
+		t_goods_activity_seckill_pro t1
+		LEFT JOIN t_goods_activity_seckill
+		t2 ON t1.kill_id = t2.id
+		LEFT JOIN t_goods_sku t3 ON t1.kp_sku_id =
+		t3.sku_id
+		LEFT JOIN t_goods t4 ON t3.goods_id = t4.goods_id
+		LEFT JOIN
+		t_business t5 ON t5.bs_id=t1.bs_id
+		where 1=1 and t1.kill_id=#{id}
+	</select>
+
+	<select id="selectProById" resultType="pd" parameterType="Integer">
+		SELECT
+		t1.*,t4.goods_id,t4.goods_name,t4.list_img,t3.attr_json
+		FROM
+		t_goods_activity_seckill_pro t1
+		LEFT JOIN t_goods_sku t3 ON
+		t1.kp_sku_id = t3.sku_id
+		LEFT JOIN t_goods t4 ON t3.goods_id =
+		t4.goods_id
+		where 1=1 and t1.id=#{id}
+	</select>
+
+
+	<select id="selectProByMap" resultType="pd" parameterType="pd">
+		SELECT
+		t1.*,t4.goods_id,t4.goods_name,t4.list_img,t3.attr_json
+		FROM
+		t_goods_activity_seckill_pro t1
+		LEFT JOIN t_goods_sku t3 ON
+		t1.kp_sku_id = t3.sku_id
+		LEFT JOIN t_goods t4 ON t3.goods_id =
+		t4.goods_id
+		where 1=1
+		<if test="kill_id !=null and kill_id !=''">
+			and t1.kill_id=#{kill_id}
+		</if>
+		<if test="bs_id !=null and bs_id !=''">
+			and t1.bs_id=#{bs_id}
+		</if>
+		<if test="id !=null and id !=''">
+			and t1.id=#{id}
+		</if>
+		<if test="kp_sku_id !=null and kp_sku_id !=''">
+			and t1.kp_sku_id=#{kp_sku_id}
+		</if>
+		<if test="status !=null and status !=''">
+			and t1.status=#{status}
+		</if>
+	</select>
+
+	<update id="editProById" parameterType="pd">
+		update t_goods_activity_seckill_pro
+		<set>
+			<if test="discount_price != null and discount_price != ''">
+				discount_price = #{discount_price},
+			</if>
+			<if test="status != null and status != ''">
+				status = #{status},
+			</if>
+			<if test="buy_num != null and buy_num != ''">
+				buy_num = #{buy_num},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<insert id="insertKillGoods" parameterType="pd">
+		insert into
+		t_goods_activity_seckill_pro
+		(bs_id,kp_sku_id,goods_price,discount_price,kill_id,stock,status,buy_num,create_time)
+		values(#{bs_id},#{kp_sku_id},#{goods_price},#{discount_price},#{kill_id},#{stock},#{status},#{buy_num},#{create_time})
+	</insert>
+
+	<delete id="deleteKillGoods" parameterType="pd">
+		delete from
+		t_goods_activity_seckill_pro where 1=1
+		<if test="kill_id !=null and kill_id !=''">
+			and kill_id = #{kill_id}
+		</if>
+		<if test="id !=null and id !=''">
+			and id = #{id}
+		</if>
+	</delete>
+	<update id="updateKillGoods" parameterType="pd">
+		update t_goods_activity_seckill_pro
+		<set>
+			<if test="stock != null and stock != ''">
+				stock = #{stock},
+			</if>
+			<if test="discount_price != null and discount_price != ''">
+				discount_price = #{discount_price},
+			</if>
+			<if test="status != null and status != ''">
+				status = #{status},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+
+</mapper>

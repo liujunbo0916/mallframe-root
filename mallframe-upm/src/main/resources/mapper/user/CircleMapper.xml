@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.CircleMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_circle where 1=1
+		<include refid="condition"></include>
+		order by circle_time desc
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+	</select>
+
+	<insert id="insert" parameterType="pd">
+	</insert>
+
+	<update id="update" parameterType="pd">
+	</update>
+
+	<delete id="delete" parameterType="pd">
+	</delete>
+
+	<!-- 朋友圈列表 -->
+	<sql id="condition">
+		<if test="pd.circle_id != null and pd.circle_id != ''">
+			and circle_id = #{pd.circle_id}
+		</if>
+		<if test="pd.circle_imgs != null and pd.circle_imgs != ''">
+			and circle_imgs=#{pd.circle_imgs}
+		</if>
+		<if test="pd.circle_msg!= null and pd.circle_msg != ''">
+			and circle_msg like CONCAT(CONCAT('%',
+			#{pd.circle_msg}),'%')
+		</if>
+		<if test="pd.circle_time != null and pd.circle_time != ''">
+			and circle_time = #{pd.circle_time}
+		</if>
+		<if test="pd.circle_praise_total!= null and pd.circle_praise_total != ''">
+			and circle_praise_total = #{pd.circle_praise_total}
+		</if>
+		<if
+			test="pd.circle_comment_total != null and pd.circle_comment_total != ''">
+			and circle_comment_total = #{pd.circle_comment_total}
+		</if>
+		<if test="pd.circle_isrelevance != null and pd.circle_isrelevance != ''">
+			and circle_isrelevance = #{pd.circle_isrelevance}
+		</if>
+		<if
+			test="pd.circle_relevance_type != null and pd.circle_relevance_type != ''">
+			and circle_relevance_type = #{pd.circle_relevance_type}
+		</if>
+		<if test="pd.circle_product_id != null">
+			and circle_product_id = #{pd.circle_product_id}
+		</if>
+		<if test="pd.user_id != null and pd.user_id != '' ">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.user_photo != null">
+			and user_photo = #{pd.user_photo}
+		</if>
+		<if test="pd.user_name != null and pd.user_name != ''">
+			and user_name like CONCAT(CONCAT('%',
+			#{pd.user_name}),'%')
+		</if>
+	</sql>
+	<select id="selectCircleByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_circle where 1=1
+		<include refid="condition"></include>
+		order by circle_time desc
+	</select>
+
+	<select id="selectCircleByUidPage" resultType="pd"
+		parameterType="page">
+		SELECT
+		*,
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		t_ythd_circle_thumbsup
+		WHERE
+		1 = 1 and user_id = #{pd.users_id}
+		AND circle_id = tc.circle_id
+		) AS is_liked
+		FROM
+		t_ythd_circle tc
+		WHERE
+		1 = 1
+		<include refid="condition"></include>
+		order by circle_time desc
+	</select>
+
+	<select id="selectCircleByMap" resultType="pd" parameterType="page">
+		select * from t_ythd_circle where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectCircleById" resultType="pd" parameterType="Integer">
+		SELECT * from t_ythd_circle where circle_id = #{circle_id}
+	</select>
+
+	<insert id="insertCircle" parameterType="pd">
+		insert into
+		t_ythd_circle
+		(circle_imgs,circle_msg,circle_time,circle_praise_total,circle_comment_total,circle_isrelevance,circle_relevance_type,circle_product_id,user_id,user_photo,user_name)
+		values
+		(#{circle_imgs},#{circle_msg},#{circle_time},#{circle_praise_total},#{circle_comment_total},#{circle_isrelevance},#{circle_relevance_type},#{circle_product_id},#{user_id},#{user_photo},#{user_name})
+	</insert>
+
+	<update id="updateCircle" parameterType="pd">
+		update t_ythd_circle
+		<set>
+			<if test="circle_imgs != null">
+				circle_imgs = #{circle_imgs},
+			</if>
+			<if test="circle_msg != null">
+				circle_msg = #{circle_msg},
+			</if>
+			<if test="circle_time != null">
+				circle_time = #{circle_time},
+			</if>
+			<if test="circle_praise_total != null">
+				circle_praise_total = #{circle_praise_total},
+			</if>
+			<if test="circle_comment_total != null">
+				circle_comment_total = #{circle_comment_total},
+			</if>
+			<if test="circle_isrelevance != null">
+				circle_isrelevance = #{circle_isrelevance},
+			</if>
+			<if test="circle_relevance_type != null">
+				circle_relevance_type = #{circle_relevance_type},
+			</if>
+			<if test="circle_product_id != null">
+				circle_product_id = #{circle_product_id},
+			</if>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="user_name != null">
+				user_name = #{user_name},
+			</if>
+			<if test="user_photo != null">
+				user_photo = #{user_photo},
+			</if>
+		</set>
+		where circle_id = #{circle_id}
+	</update>
+
+	<delete id="deleteCircle" parameterType="pd">
+		delete from
+		t_ythd_circle where 1=1
+		and circle_id =#{circle_id}
+	</delete>
+
+	<!-- 朋友圈列表结束 -->
+
+	<!-- 朋友圈回复 -->
+
+	<sql id="conditioncomment">
+		<if test="pd.comment_id != null">
+			and comment_id = #{pd.comment_id}
+		</if>
+		<if test="pd.circle_id!= null">
+			and circle_id = #{pd.circle_id}
+		</if>
+		<if test="pd.p_id != null">
+			and p_id = #{pd.p_id}
+		</if>
+		<if test="pd.comment_author_logo != null">
+			and comment_author_logo = #{pd.comment_author_logo}
+		</if>
+		<if test="pd.comment_author != null">
+			and comment_author = #{pd.comment_author}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.comment_context_time != null">
+			and comment_context_time = #{pd.comment_context_time}
+		</if>
+		<if test="pd.comment_context != null">
+			and comment_context = #{pd.comment_context}
+		</if>
+	</sql>
+
+	<select id="selectCirclecommentByPage" resultType="pd"
+		parameterType="page">
+		select * from t_ythd_circle_comment where 1=1
+		<include refid="conditioncomment"></include>
+	</select>
+	<select id="selectCirclecommentByMap" resultType="pd"
+		parameterType="pd">
+		select * from t_ythd_circle_comment where 1=1
+		<if test="circle_id!= null">
+			and circle_id = #{circle_id}
+		</if>
+		<if test="p_id != null">
+			and p_id = #{p_id}
+		</if>
+		<if test="comment_id != null">
+			and comment_id = #{comment_id}
+		</if>
+		order by comment_context_time desc
+	</select>
+
+	<select id="selectCirclecommentMyPage" resultType="pd"
+		parameterType="page">
+		SELECT
+		tcc.*
+		FROM
+		t_ythd_circle_comment tcc
+		LEFT JOIN
+		t_ythd_circle tc ON tcc.circle_id = tc.circle_id
+		WHERE
+		tcc.circle_id IN
+		(
+		SELECT
+		circle_id
+		FROM
+		t_ythd_circle
+		WHERE
+		tc.user_id = #{pd.user_id}
+		)
+		AND
+		tcc.p_id = 0
+		order by comment_context_time desc
+	</select>
+
+	<select id="selectCirclecommentById" resultType="pd"
+		parameterType="Integer">
+		SELECT * from t_ythd_circle_comment where id = #{id}
+	</select>
+
+	<insert id="insertCirclecomment" parameterType="pd">
+		insert into
+		t_ythd_circle_comment
+		(circle_id,p_id,comment_author_logo,comment_author,user_id,comment_context,comment_context_time)
+		values
+		(#{circle_id},#{p_id},#{comment_author_logo},#{comment_author},#{user_id},#{comment_context},#{comment_context_time})
+	</insert>
+
+	<update id="updateCirclecomment" parameterType="pd">
+		update t_ythd_circle_comment
+		<set>
+			<if test="circle_id != null">
+				circle_id = #{circle_id},
+			</if>
+			<if test="p_id != null">
+				p_id = #{p_id},
+			</if>
+			<if test="comment_author_logo != null">
+				comment_author_logo = #{comment_author_logo},
+			</if>
+			<if test="comment_author != null">
+				comment_author = #{comment_author},
+			</if>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="comment_context != null">
+				comment_context = #{comment_context},
+			</if>
+			<if test="comment_context_time != null">
+				comment_context_time = #{comment_context_time},
+			</if>
+		</set>
+		where comment_id = #{comment_id}
+	</update>
+
+	<delete id="deleteCirclecomment" parameterType="pd">
+		delete from
+		t_ythd_circle_comment where 1=1
+		and circle_id = #{circle_id}
+	</delete>
+	<delete id="deleteCommentback" parameterType="pd">
+		delete from
+		t_ythd_circle_comment where 1=1
+		and comment_id in (${comment_ids})
+	</delete>
+	<!-- 朋友圈回复结束 -->
+
+	<!-- 点赞t_ythd_circle_thumbsup -->
+	<select id="selectThumbsupById" resultType="pd" parameterType="pd">
+		SELECT * from t_ythd_circle_thumbsup where user_id = #{user_id} and
+		circle_id = #{circle_id}
+	</select>
+
+	<insert id="insertThumbsup" parameterType="pd">
+		insert into
+		t_ythd_circle_thumbsup
+		(circle_id,user_id)
+		values
+		(#{circle_id},#{user_id})
+	</insert>
+	<!-- 点赞结束 -->
+</mapper>

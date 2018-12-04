@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="mallframe-pushmsg:war">
+    <output-path>$PROJECT_DIR$/mallframe-pushmsg/target</output-path>
+    <root id="archive" name="mallframe-pushmsg.war">
+      <element id="artifact" artifact-name="mallframe-pushmsg:war exploded" />
+    </root>
+  </artifact>
+</component>

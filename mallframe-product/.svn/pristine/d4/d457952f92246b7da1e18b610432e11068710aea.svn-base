@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsBrandMapper">
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="condition">
+		<if test="pd.brand_id != null">
+			and brand_id = #{pd.brand_id}
+		</if>
+		<if test="pd.brand_name != null and pd.brand_name != ''">
+			and brand_name = #{pd.brand_name}
+		</if>
+		<if test="pd.brand_icon != null and pd.brand_icon != ''">
+			and brand_icon = #{pd.brand_icon}
+		</if>
+		<if test="pd.brand_category != null and pd.brand_category != ''">
+			and brand_category = #{pd.brand_category}
+		</if>
+		<if test="pd.brand_url != null and pd.brand_url != ''">
+			and brand_url = #{pd.brand_url}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.category1_id != null and pd.category1_id != ''">
+			and category1_id = #{pd.category1_id}
+		</if>
+		<if test="pd.category2_id != null and pd.category2_id != ''">
+			and category2_id = #{pd.category2_id}
+		</if>
+		<if test="pd.category3_id != null and pd.category3_id != ''">
+			and category3_id = #{pd.category3_id}
+		</if>
+		<if test="pd.category_id != null and pd.category_id != ''">
+			and category_id = #{pd.category_id}
+		</if>
+		<if test="pd.bs_id != null">
+			and bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.band_state != null and pd.band_state != ''">
+			and band_state = #{pd.band_state}
+		</if>
+		<if test="pd.remark != null and pd.remark != ''">
+			and remark = #{pd.remark}
+		</if>
+		<if test="pd.brand_order != null and pd.brand_order != ''">
+			and brand_order = #{pd.brand_order}
+		</if>
+		<if test="pd.brand_firstW != null and pd.brand_firstW != ''">
+			and brand_firstW = #{pd.brand_firstW}
+		</if>
+	</sql>
+
+	<sql id="conditionsq">
+		<if test="pd.brand_id != null">
+			and tgb.brand_id = #{pd.brand_id}
+		</if>
+		<if test="pd.brand_name != null and pd.brand_name != ''">
+			and tgb.brand_name  LIKE CONCAT(CONCAT('%',
+			#{pd.brand_name}),'%')
+		</if>
+		<if test="pd.brand_icon != null and pd.brand_icon != ''">
+			and tgb.brand_icon = #{pd.brand_icon}
+		</if>
+		<if test="pd.brand_category != null and pd.brand_category != ''">
+			and tgb.brand_category = #{pd.brand_category}
+		</if>
+		<if test="pd.brand_url != null and pd.brand_url != ''">
+			and tgb.brand_url = #{pd.brand_url}
+		</if>
+		<if test="pd.creator != null">
+			and tgb.creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and tgb.create_time = #{pd.create_time}
+		</if>
+		<if test="pd.category1_id != null and pd.category1_id != ''">
+			and tgb.category1_id = #{pd.category1_id}
+		</if>
+		<if test="pd.category2_id != null and pd.category2_id != ''">
+			and tgb.category2_id = #{pd.category2_id}
+		</if>
+		<if test="pd.category3_id != null and pd.category3_id != ''">
+			and tgb.category3_id = #{pd.category3_id}
+		</if>
+		<if test="pd.category_id != null and pd.category_id != ''">
+			and tgb.category_id = #{pd.category_id}
+		</if>
+		<if test="pd.bs_id != null">
+			and tgb.bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.band_state != null and pd.band_state != ''">
+			and tgb.band_state = #{pd.band_state}
+		</if>
+		<if test="pd.remark != null and pd.remark != ''">
+			and tgb.remark = #{pd.remark}
+		</if>
+		<if test="pd.brand_order != null and pd.brand_order != ''">
+			and tgb.brand_order = #{pd.brand_order}
+		</if>
+		<if test="pd.brand_firstW != null and pd.brand_firstW != ''">
+			and tgb.brand_firstW = #{pd.brand_firstW}
+		</if>
+		<if test="pd.type !=null">
+			and tgb.bs_id NOT IN (0)
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_brand where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_goods_brand where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectlSQByPage" resultType="pd" parameterType="page">
+		select tgb.*,tb.bs_name from t_goods_brand tgb LEFT JOIN t_business tb
+		on tgb.bs_id=tb.bs_id where 1=1
+		<include refid="conditionsq"></include>
+		ORDER BY tgb.create_time desc
+	</select>
+
+	<select id="recursion" resultType="pd" parameterType="pd">
+		select * from t_goods_brand where category1_id = #{category1_id}
+		<if test="category2_id != null and category2_id != ''">
+			and category2_id not in (${category2_id});
+		</if>
+		<if test="category3_id != null and category3_id != ''">
+			and category3_id not in (${category3_id});
+		</if>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_goods_brand where brand_id = #{id}
+	</select>
+	<select id="selectByCIds" resultType="pd" parameterType="pd">
+		SELECT
+		*
+		FROM t_goods_brand WHERE category_id in
+		<foreach item="item" index="index" collection="category_ids"
+			open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<select id="selectByIds" resultType="pd" parameterType="pd">
+		SELECT
+		*
+		FROM t_goods_brand
+		<where>
+			brand_id in
+			<!-- <foreach item="item" index="index" collection="ids" open="(" separator="," 
+				close=")"> -->
+			${ids}
+			<!-- </foreach> -->
+		</where>
+	</select>
+
+
+	<select id="selectByGroup" resultType="pd" parameterType="Integer">
+		SELECT
+		t1.brand_id,t1.brand_name,t1.brand_icon,t2.category_name as
+		'firstCategory',t3.category_name as 'secondCategory',
+		t4.category_name
+		as 'thirdCategory'
+		from t_goods_brand t1 left join t_goods_category t2
+		on
+		t1.category1_id = t2.category_id
+		left join t_goods_category t3 on
+		t1.category2_id = t3.category_id
+		left join
+		t_goods_category t4 on
+		t1.category3_id = t4.category_id
+	</select>
+
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_brand
+		(brand_name,brand_icon,brand_category,brand_url,creator,create_time,category_id,category1_id,
+		brand_order,category2_id,category3_id,brand_firstW,bs_id,band_state,remark)
+		values
+		(#{brand_name},#{brand_icon},#{brand_category},#{brand_url},#{creator},#{create_time},#{category_id},#{category1_id},
+		#{brand_order},#{category2_id},#{category3_id},#{brand_firstW},#{bs_id},#{band_state},#{remark})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_goods_brand
+		<set>
+			<if test="brand_name != null">
+				brand_name = #{brand_name},
+			</if>
+			<if test="brand_icon != null">
+				brand_icon = #{brand_icon},
+			</if>
+			<if test="brand_category != null">
+				brand_category = #{brand_category},
+			</if>
+			<if test="brand_url != null">
+				brand_url = #{brand_url},
+			</if>
+			<if test="creator != null">
+				creator = #{creator},
+			</if>
+			<if test="category_id != null">
+				category_id = #{category_id},
+			</if>
+			<if test="brand_order != null">
+				brand_order = #{brand_order},
+			</if>
+			<if test="category1_id != null">
+				category1_id = #{category1_id},
+			</if>
+			<if test="category2_id != null">
+				category2_id = #{category2_id},
+			</if>
+			<if test="category3_id != null">
+				category3_id = #{category3_id},
+			</if>
+			<if test="brand_firstW != null">
+				brand_firstW = #{brand_firstW},
+			</if>
+			<if test="bs_id != null">
+				bs_id = #{bs_id},
+			</if>
+			<if test="band_state != null">
+				band_state = #{band_state},
+			</if>
+			<if test="remark != null">
+				remark = #{remark},
+			</if>
+		</set>
+		where brand_id = #{brand_id}
+	</update>
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_brand where 1=1
+		<include refid="condition"></include>
+	</delete>
+</mapper>

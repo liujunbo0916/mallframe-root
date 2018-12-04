@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessCategoryMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	
+	<sql id="condition">
+		<if test="pd.bs_category_id!= null">
+			and bs_category_id = #{pd.bs_category_id}
+		</if>
+		<if test="pd.bs_category_name != null">
+			and bs_category_name = #{pd.bs_category_name}
+		</if>
+		<if test="pd.bs_parent_id != null">
+			and bs_parent_id = #{pd.bs_parent_id}
+		</if>
+		<if test="pd.bs_category_order != null">
+			and bs_category_order = #{pd.bs_category_order}
+		</if>
+		<if test="pd.bs_category_state != null">
+			and bs_category_state = #{pd.bs_category_state}
+		</if>
+		<if test="pd.is_leaf != null">
+			and is_leaf = #{pd.is_leaf}
+		</if>
+		<if test="pd.bs_id != null">
+			and bs_id = #{pd.bs_id}
+		</if>
+	</sql>
+
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select * from t_business_category where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" parameterType="pd" resultType="pd">
+		select * from t_business_category where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select * from t_business_category where
+		bs_category_id=#{bs_category_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_business_category
+		(bs_category_name,bs_parent_id,bs_category_order,bs_category_state,is_leaf,bs_id)
+		values(#{bs_category_name},#{bs_parent_id},#{bs_category_order},#{bs_category_state},#{is_leaf},#{bs_id})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_business_category
+		<set>
+			<if test="bs_category_name != null">
+				bs_category_name = #{bs_category_name},
+			</if>
+			<if test="bs_parent_id != null">
+				bs_parent_id = #{bs_parent_id},
+			</if>
+			<if test="bs_category_order != null">
+				bs_category_order = #{bs_category_order},
+			</if>
+			<if test="bs_category_state != null">
+				bs_category_state = #{bs_category_state},
+			</if>
+			<if test="is_leaf != null">
+				is_leaf = #{is_leaf},
+			</if>
+			<if test="bs_id != null">
+				bs_id = #{bs_id},
+			</if>
+		</set>
+		where bs_category_id = #{bs_category_id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from
+		t_business_category where bs_category_id = #{pd.bs_category_id}
+	</delete>
+	
+</mapper>

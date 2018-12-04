@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.rebate.dao.RebateOrderMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.order_id != null">
+			and order_id = #{pd.order_id}
+		</if>
+		<if test="pd.order_type != null">
+			and order_type = #{pd.order_type}
+		</if>
+		<if test="pd.rebate_time != null">
+			and rebate_time = #{pd.rebate_time}
+		</if>
+		<if test="pd.rebate_status != null and pd.rebate_status !=''">
+			and rebate_status = #{pd.rebate_status}
+		</if>
+		<if test="pd.user_1 != null">
+			and user_1 = #{pd.user_1}
+		</if>
+		<if test="pd.user_2 != null">
+			and user_2 = #{pd.user_2}
+		</if>
+		<if test="pd.user_3 != null">
+			and user_3 = #{pd.user_3}
+		</if>
+		<if test="pd.total_rebate != null">
+			and total_rebate = #{pd.total_rebate}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		SELECT
+		rebate.*, orders.order_status,
+		orders.order_money,
+		orders.create_time,
+		orders.user_id,
+		orderUser.nick_name AS user_name,
+		user1.nick_name AS name_1,
+		user2.nick_name AS name_2,
+		user3.nick_name AS name_3
+		FROM
+		t_rebate_order
+		AS rebate
+		LEFT JOIN t_orders AS orders ON rebate.order_id =
+		orders.order_id
+		LEFT JOIN t_user AS user1 ON rebate.user_1 =
+		user1.user_id
+		LEFT JOIN t_user AS user2 ON rebate.user_2 =
+		user2.user_id
+		LEFT JOIN t_user AS user3 ON rebate.user_3 =
+		user3.user_id
+		LEFT JOIN t_user AS orderUser ON orders.user_id =
+		orderUser.user_id
+		WHERE
+		1 = 1
+		<if test="pd.id != null">
+			and rebate.id = #{pd.id}
+		</if>
+		<if test="pd.order_id != null">
+			and rebate.order_id = #{pd.order_id}
+		</if>
+		<if test="pd.order_type != null">
+			and rebate.order_type = #{pd.order_type}
+		</if>
+		<if test="pd.rebate_time != null">
+			and rebate.rebate_time = #{pd.rebate_time}
+		</if>
+		<if test="pd.rebate_status != null and pd.rebate_status!=''">
+			and rebate.rebate_status = #{pd.rebate_status}
+		</if>
+		<if test="pd.user_1 != null">
+			and rebate.user_1 = #{pd.user_1}
+		</if>
+		<if test="pd.user_2 != null">
+			and rebate.user_2 = #{pd.user_2}
+		</if>
+		<if test="pd.user_3 != null">
+			and rebate.user_3 = #{pd.user_3}
+		</if>
+		<if test="pd.total_rebate != null">
+			and rebate.total_rebate = #{pd.total_rebate}
+		</if>
+		order by create_time desc
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_rebate_order  where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByMapPage" resultType="pd" parameterType="page">
+		select * from t_rebate_order  where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_rebate_order where id = #{id}
+	</select>
+    <!-- 查询分销订单总数  一级分销订单  二级分销订单 三级分销订单 -->
+    <select id="selectOrderCount" parameterType="pd" resultType="Integer">
+       select count(*) from t_rebate_order where rebate_status = 5 
+       and  (user_1 = #{user_1} or user_2 = #{user_1} or user_3 = #{user_1})
+    </select>
+	<insert id="insert" parameterType="pd">
+		insert into t_rebate_order
+		(order_id,order_sn,order_type,rebate_time,rebate_status,user_1,user_2,user_3,total_rebate,rebate_1,rebate_2,rebate_3,points_1,points_2,points_3)
+		values
+		(#{order_id},#{order_sn},#{order_type},#{rebate_time},#{rebate_status},#{user_1},#{user_2},#{user_3},#{total_rebate},#{rebate_1},#{rebate_2},#{rebate_3},#{points_1},#{points_2},#{points_3})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_rebate_order
+		<set>
+			<if test="order_id != null">
+				order_id = #{order_id},
+			</if>
+			<if test="order_type != null">
+				order_type = #{order_type},
+			</if>
+			<if test="rebate_time != null">
+				rebate_time = #{rebate_time},
+			</if>
+			<if test="rebate_status != null">
+				rebate_status = #{rebate_status},
+			</if>
+			<if test="user_1 != null">
+				user_1 = #{user_1},
+			</if>
+			<if test="user_2 != null">
+				user_2 = #{user_2},
+			</if>
+			<if test="user_3 != null">
+				user_3 = #{user_3},
+			</if>
+			<if test="total_rebate != null">
+				total_rebate = #{total_rebate},
+			</if>
+			<if test="rebate_1 != null">
+				rebate_1 = #{rebate_1},
+			</if>
+			<if test="rebate_2 != null">
+				rebate_2 = #{rebate_2},
+			</if>
+			<if test="rebate_3 != null">
+				rebate_3 = #{rebate_3},
+			</if>
+			<if test="points_1 != null">
+				points_1 = #{points_1},
+			</if>
+			<if test="points_2 != null">
+				points_2 = #{points_2},
+			</if>
+			<if test="points_3 != null">
+				points_3 = #{points_3},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+ 
+	<delete id="delete" parameterType="pd">
+		delete from t_rebate_order AS rebate where 1=1
+		<include refid="condition"></include>
+	</delete>
+</mapper>

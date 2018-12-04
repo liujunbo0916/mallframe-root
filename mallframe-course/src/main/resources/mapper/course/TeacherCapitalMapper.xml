@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.TeacherCapitalMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.capital_id != null">
+			and capital_id = #{pd.capital_id}
+		</if>
+		<if test="pd.course_id!= null">
+			and course_id = #{pd.course_id}
+		</if>
+		<if test="pd.teacher_id!= null">
+			and teacher_id = #{pd.teacher_id}
+		</if>
+		<if test="pd.capital != null">
+			and capital = #{pd.capital}
+		</if>
+		<if test="pd.admin_name != null">
+			and admin_name = #{pd.admin_name}
+		</if>
+		<if test="pd.admin_id != null">
+			and admin_id = #{pd.admin_id}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+		<if test="pd.create_time!= null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_teacher_capital_log where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_teacher_capital_log where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_teacher_capital_log where capital_id = #{capital_id}
+	</select>
+	<select id="selectAllByPage" resultType="pd" parameterType="page">
+		select
+		tcl.*,
+		tc.course_name,
+		tc.course_logo,
+		tc.course_level,
+		tc.course_buyer_total,
+		tc.course_audition,
+		tgc.category_id,
+		tgc.category_name,
+		tcs.id as subject_id,
+		tcs.subject_name,
+		tl.id as capital_teaid,
+		tl.user_id as
+		capital_teause_id,
+		tl.teacher_real_name as capital_teause_name,
+		tl.teacher_phone as capital_teause_phone,
+		tytl.id as course_teaid,
+		tytl.user_id as course_teause_id,
+		tytl.teacher_real_name as
+		course_teause_name,
+		tytl.teacher_phone as course_teause_phone
+		FROM
+		t_ythd_teacher_capital_log tcl
+		LEFT JOIN t_ythd_course tc on
+		tc.id=tcl.course_id
+		LEFT JOIN t_ythd_teacher_lib tl on
+		tl.id=tcl.teacher_id
+		LEFT JOIN t_ythd_teacher_lib tytl on
+		tytl.id=tc.teacher_id
+		LEFT JOIN t_goods_category tgc on
+		tgc.category_id=tc.category_id
+		LEFT JOIN t_ythd_course_subject tcs ON
+		tcs.id = tc.subject_id
+		WHERE
+		1 = 1
+		<if test="pd.course_id != null and pd.course_id != ''">
+		AND tcl.course_id =#{pd.course_id}
+		</if>
+		<if test="pd.course_name != null and pd.course_name != ''">
+		AND tc.course_name LIKE CONCAT(CONCAT('%', #{pd.course_name}),'%') 
+		</if>
+		<if test="pd.category_id != null and pd.category_id != ''">
+		AND tc.category_id = #{pd.category_id} 
+		</if>
+		<if test="pd.subject_id != null and pd.subject_id != ''">
+		AND tcs.id = #{pd.subject_id} 
+		</if>
+		<if test="pd.course_level != null and pd.course_level != ''">
+		AND tc.course_level = #{pd.course_level} 
+		</if>
+		<if test="pd.course_audition != null and pd.course_audition != ''">
+		AND tc.course_audition =#{pd.course_audition} 
+		</if>
+		<if test="pd.capital_teaid != null and pd.capital_teaid != ''">
+		AND tl.id =#{pd.capital_teaid} 
+		</if>
+		<if test="pd.course_teaid != null and pd.course_teaid!= ''">
+		AND tytl.id =#{pd.course_teaid} 
+		</if>
+		ORDER BY
+		tcl.create_time DESC
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_ythd_teacher_capital_log
+		(course_id,teacher_id,capital,capital_type,create_time,admin_note,admin_name,admin_id)
+		values
+		(#{course_id},#{teacher_id},#{capital},#{capital_type},#{create_time},#{admin_note},#{admin_name},#{admin_id})
+	</insert>
+	<delete id="delete" parameterType="pd">
+		delete from
+		t_ythd_teacher_capital_log where capital_id = #{capital_id}
+	</delete>
+
+	<update id="update" parameterType="pd">
+		update t_ythd_teacher_capital_log
+		<set>
+			<if test="course_id != null">
+				course_id = #{course_id},
+			</if>
+			<if test="teacher_id != null">
+				teacher_id = #{teacher_id},
+			</if>
+			<if test="capital != null">
+				capital = #{capital},
+			</if>
+			<if test="admin_name != null">
+				admin_name = #{admin_name},
+			</if>
+			<if test="admin_note != null">
+				admin_note = #{admin_note},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+			<if test="admin_id != null">
+				admin_id = #{admin_id},
+			</if>
+		</set>
+		where capital_id = #{capital_id}
+	</update>
+
+</mapper>

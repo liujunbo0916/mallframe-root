@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessRecommendMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.bs_id != null">
+			and bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.recommend_icon != null">
+			and recommend_icon = #{pd.recommend_icon}
+		</if>
+		<if test="pd.recommend_slogan != null">
+			and recommend_slogan = #{pd.recommend_slogan}
+		</if>
+		<if test="pd.recommend_theme != null">
+			and recommend_theme = #{pd.recommend_theme}
+		</if>
+		<if test="pd.recommend_order != null">
+			and recommend_order = #{pd.recommend_order}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		
+	</sql>
+
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		SELECT
+		t_business_recommend.*,
+		t_business.bs_name,
+		t_business.bs_logo
+		FROM
+		t_business_recommend
+		LEFT JOIN t_business ON
+		t_business_recommend.bs_id = t_business.bs_id
+		WHERE
+		1 = 1
+		<include refid="condition"></include>
+		order by recommend_order desc,create_time desc
+	</select>
+
+	<select id="selectByMap" parameterType="pd" resultType="pd">
+		SELECT
+		t_business_recommend.*,
+		t_business.bs_name,
+		t_business.bs_logo
+		FROM
+		t_business_recommend
+		LEFT JOIN t_business ON
+		t_business_recommend.bs_id = t_business.bs_id
+		WHERE
+		1 = 1
+		<include refid="condition"></include>
+		order by recommend_order desc,create_time desc
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select * from t_business_recommend where id=#{id}
+	</select>
+
+	<!-- 查询排序值的最大值和当前值排序 -->
+	<select id="selectMaxOrder" parameterType="pd" resultType="pd">
+		select * from t_business_recommend where ifnull(recommend_order,0) >
+		#{orderValue}
+		order by recommend_order desc
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_business_recommend
+		(bs_id,recommend_icon,recommend_slogan,recommend_theme,recommend_order,create_time)
+		values(#{bs_id},#{recommend_icon},#{recommend_slogan},#{recommend_theme},#{recommend_order},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_business_recommend
+		<set>
+			<if test="bs_id != null">
+				bs_id = #{bs_id},
+			</if>
+			<if test="recommend_icon != null">
+				recommend_icon = #{recommend_icon},
+			</if>
+			<if test="recommend_theme != null">
+				recommend_theme = #{recommend_theme},
+			</if>
+			<if test="recommend_slogan != null">
+				recommend_slogan = #{recommend_slogan},
+			</if>
+			<if test="recommend_order != null">
+				recommend_order = #{recommend_order},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from
+		t_business_recommend where id = #{pd.id}
+	</delete>
+</mapper>

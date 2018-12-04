@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.bank.dao.BankMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.bank_id != null">
+			and bank_id = #{pd.bank_id}
+		</if>
+		<if test="pd.bank_name != null and pd.bank_name!=''">
+			and bank_name LIKE CONCAT('%',#{pd.bank_name},'%')
+		</if>
+		<if test="pd.bank_logo != null and pd.bank_logo != ''">
+			and bank_logo = #{pd.bank_logo}
+		</if>
+		<if test="pd.bank_icon != null and pd.bank_icon!= ''">
+			and bank_icon = #{pd.bank_icon}
+		</if>
+		<if test="pd.bank_type != null and pd.bank_type != ''">
+			and bank_type = #{pd.bank_type}
+		</if>
+		<if test="pd.bin_length != null and pd.bin_length != ''">
+			and bin_length = #{pd.bin_length}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_bank_bin where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_bank_bin where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_bank_bin where bank_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_bank_bin (bank_name,bank_logo,bank_icon,bank_type,bin_length)
+		values (#{bank_name},#{bank_logo},#{bank_icon},#{bank_type},#{bin_length})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_bank_bin <set>
+		<if test="bank_name != null and bank_name != ''">
+			bank_name = #{bank_name},
+		</if>
+		<if test="bank_logo != null and bank_logo != ''">
+			bank_logo = #{bank_logo},
+		</if>
+		<if test="bank_icon != null and bank_icon != ''">
+			bank_icon = #{bank_icon},
+		</if>
+		<if test="bank_type != null and bank_type != ''">
+			bank_type = #{bank_type},
+		</if>
+		<if test="bin_length != null and bin_length != ''">
+			bin_length = #{bin_length},
+		</if>
+		</set>
+		where bank_id = #{bank_id}
+	</update>
+	<delete id="delete"   parameterType="page">
+		delete from t_user_bank where 
+			bank_id = #{pd.bank_id}
+	</delete>
+	<!-- 更新BIN表的logo 根据银行名臣模糊匹配-->
+	<update id="updateBankBin" parameterType="pd">
+	   update t_bank_bin set bank_logo = #{bank_logo}
+	   where bank_name like CONCAT("%",#{bank_name},"%")
+	</update>
+	
+	<select id="selectByBankNo" resultType="pd"  parameterType="String">
+		select * from t_bank_bin t1 where left(#{bank_no},t1.BIN_LENGTH) = t1.BIN
+	</select>
+</mapper>

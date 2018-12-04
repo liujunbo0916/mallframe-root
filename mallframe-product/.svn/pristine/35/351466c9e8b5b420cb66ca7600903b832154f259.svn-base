@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsCategoryMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.category_id != null">
+			and category_id = #{pd.category_id}
+		</if>
+		<if test="pd.category_name != null">
+			and category_name = #{pd.category_name}
+		</if>
+		<if test="pd.category_icon != null">
+			and category_icon = #{pd.category_icon}
+		</if>
+		<if test="pd.is_show_search != null">
+			and is_show_search = #{pd.is_show_search}
+		</if>
+		<if test="pd.parent_id != null">
+			and parent_id = #{pd.parent_id}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.is_course != null">
+			and is_course = #{pd.is_course}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_goods_category where 1=1
+			<include refid="condition"></include>
+	</select>
+	<select id="selectHeatList" resultType="pd"  parameterType="page">
+		select * from t_goods_category where  parent_id=0 ORDER BY category_order DESC
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_goods_category where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_goods_category where category_id = #{id}
+	</select>
+    
+    
+    <!-- 查询自己统计不包含自己的分类 -->
+    <select id="sublings" parameterType="pd" resultType="pd">
+       select * from t_goods_category where parent_id = #{parent_id} and category_id != #{category_id}
+    </select>
+    
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_category (category_name,category_icon,is_show_search,parent_id,creator,create_time,is_leaf,category_order,is_course)
+		values (#{category_name},#{category_icon},#{is_show_search},#{parent_id},#{creator},#{create_time},#{is_leaf},#{category_order},#{is_course})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_goods_category <set>
+		<if test="category_name != null">
+			category_name = #{category_name},
+		</if>
+		<if test="category_icon != null">
+			category_icon = #{category_icon},
+		</if>
+		<if test="is_show_search != null">
+			is_show_search = #{is_show_search},
+		</if>
+		<if test="parent_id != null">
+			parent_id = #{parent_id},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="is_leaf != null">
+			is_leaf = #{is_leaf},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		<if test="category_order != null">
+			category_order = #{category_order},
+		</if>
+		<if test="is_course != null">
+			is_course = #{is_course},
+		</if>
+		</set>
+		where category_id = #{category_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_goods_category where 1=1
+			<include refid="condition"></include>
+	</delete>
+	<!-- 查询排序值的最大值和当前值排序 -->
+	<select id="selectMaxOrder" parameterType="pd" resultType="pd">
+	   select * from t_goods_category where ifnull(category_order,0) > #{orderValue}
+	   order by category_order desc
+	</select>
+</mapper>

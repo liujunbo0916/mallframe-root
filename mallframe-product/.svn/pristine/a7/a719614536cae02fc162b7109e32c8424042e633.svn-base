@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.DesignerGoodsMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.designer_goods_id != null">
+			and designer_goods_id = #{pd.designer_goods_id}
+		</if>
+		<if test="pd.designer_id != null">
+			and designer_id = #{pd.designer_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_designer_goods where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_designer_goods where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="getByGoodsId" resultType="pd"  parameterType="Integer">
+		SELECT * from t_designer_goods where  goods_id = #{goods_id}
+	</select>
+	
+	<select id="getByDesignerId" resultType="pd"  parameterType="Integer">
+		SELECT b.goods_id,b.goods_sn,b.goods_name,b.goods_tags,b.shop_price,b.goods_stock,b.list_img from t_designer_goods a 
+		LEFT JOIN t_goods b ON a.goods_id = b.goods_id WHERE a.designer_id = #{designer_id}
+	</select>
+	
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_designer_goods where designer_goods_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_designer_goods (designer_id,goods_id)
+		values (#{designer_id},#{goods_id})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_designer_goods <set>
+		<if test="designer_id != null and designer_id != ''">
+			designer_id = #{designer_id},
+		</if>
+		</set>
+		where goods_id = #{goods_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_designer_goods where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.UserWithdrawMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.wit_id != null">
+			and wit_id = #{pd.wit_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.withdraw_sn != null">
+			and withdraw_sn = #{pd.withdraw_sn}
+		</if>
+		<if test="pd.amount != null">
+			and amount = #{pd.amount}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.bank_name != null">
+			and bank_name = #{pd.bank_name}
+		</if>
+		<if test="pd.bank_type != null">
+			and bank_type = #{pd.bank_type}
+		</if>
+		<if test="pd.bank_card_no != null">
+			and bank_card_no = #{pd.bank_card_no}
+		</if>
+		<if test="pd.status != null">
+			and status = #{pd.status}
+		</if>
+		<if test="pd.admin_name != null">
+			and admin_name = #{pd.admin_name}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+		<if test="pd.admin_time != null">
+			and admin_time = #{pd.admin_time}
+		</if>
+		<if test="pd.withdraw_fee != null">
+			and withdraw_fee = #{pd.withdraw_fee}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_user_withdraw where 1=1
+		<if test="pd.wit_id != null">
+			and wit_id = #{pd.wit_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.withdraw_sn != null">
+		and withdraw_sn like
+			CONCAT('%',#{pd.withdraw_sn},'%')
+		</if>
+		<if test="pd.amount != null">
+			and amount = #{pd.amount}
+		</if>
+		<if test="pd.bank_name != null">
+		and bank_name like
+			CONCAT('%',#{pd.bank_name},'%')
+		</if>
+		<if test="pd.bank_type != null">
+			and bank_type = #{pd.bank_type}
+		</if>
+		<if test="pd.bank_card_no != null">
+			and bank_card_no = #{pd.bank_card_no}
+		</if>
+		<if test="pd.status != null">
+			and status = #{pd.status}
+		</if>
+		<if test="pd.admin_name != null">
+			and admin_name = #{pd.admin_name}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+		<if test="pd.admin_time != null">
+			and admin_time = #{pd.admin_time}
+		</if>
+		<if test="pd.withdraw_fee != null">
+			and withdraw_fee = #{pd.withdraw_fee}
+		</if>
+		<choose>
+			<when test="pd.start_create_time != null and pd.start_create_time != ''">
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		               and  (date_format(create_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		                    and date_format(create_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		               )
+		             ]]>
+					</when>
+					<otherwise>
+		             <![CDATA[
+		              and date_format(create_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		             ]]>
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		                    and date_format(create_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		             ]]>
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+		ORDER BY
+		STATUS,
+		create_time DESC
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_user_withdraw w INNER JOIN t_user u on w.user_id =
+		u.user_id where 1=1
+		<include refid="condition"></include>
+		ORDER BY
+		w.STATUS,
+		w.create_time DESC
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_user_withdraw where wit_id = #{wit_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_user_withdraw
+		(user_id,withdraw_sn,amount,create_time,bank_name,bank_type,bank_card_no,status,admin_name,admin_note,admin_time,withdraw_fee)
+		values
+		(#{user_id},#{withdraw_sn},#{amount},#{create_time},#{bank_name},#{bank_type},#{bank_card_no},#{status},#{admin_name},#{admin_note},#{admin_time},#{withdraw_fee})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_user_withdraw
+		<set>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="withdraw_sn != null">
+				withdraw_sn = #{withdraw_sn},
+			</if>
+			<if test="amount != null">
+				amount = #{amount},
+			</if>
+			<if test="withdraw_fee != null">
+				withdraw_fee = #{withdraw_fee},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+			<if test="bank_name != null">
+				bank_name = #{bank_name},
+			</if>
+			<if test="bank_type != null">
+				bank_type = #{bank_type},
+			</if>
+			<if test="bank_card_no != null">
+				bank_card_no = #{bank_card_no},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="admin_name != null">
+				admin_name = #{admin_name},
+			</if>
+			<if test="admin_note != null">
+				admin_note = #{admin_note},
+			</if>
+			<if test="admin_time != null">
+				admin_time = #{admin_time},
+			</if>
+		</set>
+		where wit_id = #{wit_id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_user_withdraw where 1=1
+		<include refid="condition"></include>
+	</delete>
+</mapper>

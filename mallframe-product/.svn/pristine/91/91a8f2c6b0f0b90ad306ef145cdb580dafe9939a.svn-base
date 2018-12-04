@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsLookMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.look_id != null">
+			and look_id = #{pd.look_id}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_look where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_goods_look where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_goods_look where id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_look
+		(user_id,look_id,create_time)
+		values
+		(#{user_id},#{look_id},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_look
+		<set>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="designer_id != null">
+				look_id = #{look_id},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_look where 1=1
+		<include refid="condition"></include>
+	</delete>
+</mapper>

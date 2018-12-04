@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.GoodsActivityTimelimitMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_activity_timelimit
+		(activity_code,bs_id,timelimit_name,timelimit_title,timelimit_start_time,timelimit_end_time,timelimit_buy_min,status,remark,create_time)
+		values(#{activity_code},#{bs_id},#{timelimit_name},#{timelimit_title},#{timelimit_start_time},#{timelimit_end_time},#{timelimit_buy_min},#{status},#{remark},#{create_time})
+		<selectKey resultType="java.lang.String" order="AFTER"
+			keyProperty="id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<select id="selectById" parameterType="java.lang.Integer"
+		resultType="pd">
+		select * from t_goods_activity_timelimit where id = #{id}
+	</select>
+	<select id="selectByProId" parameterType="pd" resultType="pd">
+		SELECT
+		t1.*, t2.timelimit_buy_min,t4.bs_id,t4.goods_id,t4.goods_freight,t4.goods_name,t4.goods_sn
+		FROM
+		t_goods_activity_timelimit_pro t1
+		LEFT JOIN t_goods_activity_timelimit t2 ON t1.limit_id = t2.id
+		LEFT JOIN t_goods_sku t3 ON t1.stock_id=t3.sku_id
+		LEFT JOIN t_goods t4 on t4.goods_id =t3.goods_id
+		where
+		t2.timelimit_end_time > #{now}
+		and #{now} > t2.timelimit_start_time
+		and
+		t1.id=#{id}
+	</select>
+	<select id="selectByMap" parameterType="pd" resultType="pd">
+		select * from t_goods_activity_timelimit where 1=1
+		<if test="pd.bs_id !=null and pd.bs_id !=''">
+			and bs_id=#{pd.bs_id}
+		</if>
+		<if test="pd.id !=null and pd.id !=''">
+			and id=#{pd.id}
+		</if>
+		order by create_time desc
+	</select>
+
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select * from t_goods_activity_timelimit where 1=1
+		<if test="pd.bs_id !=null and pd.bs_id !=''">
+			and bs_id=#{pd.bs_id}
+		</if>
+		<if test="pd.id !=null and pd.id !=''">
+			and id=#{pd.id}
+		</if>
+		<if test="pd.type !=null and pd.type == 0 ">
+			and timelimit_start_time > #{pd.currentTime}
+		</if>
+		<if test="pd.type !=null and pd.type == 1 ">
+			and timelimit_end_time > #{pd.currentTime} and
+			#{pd.currentTime} > timelimit_start_time
+		</if>
+		<if test="pd.type !=null and pd.type == 2 ">
+			and #{pd.currentTime} > timelimit_end_time
+		</if>
+		<if test="pd.status !=null and pd.status !=''">
+			and status = 1
+		</if>
+		order by create_time desc
+	</select>
+
+	<update id="update" parameterType="pd">
+		update t_goods_activity_timelimit
+		<set>
+			<if test="activity_code !=null and activity_code !=''">
+				activity_code = #{activity_code},
+			</if>
+			<if test="bs_id !=null and bs_id !=''">
+				bs_id = #{bs_id},
+			</if>
+			<if test="timelimit_name !=null and timelimit_name !=''">
+				timelimit_name = #{timelimit_name},
+			</if>
+			<if test="timelimit_title !=null and timelimit_title !=''">
+				timelimit_title = #{timelimit_title},
+			</if>
+			<if test="timelimit_start_time !=null and timelimit_start_time !=''">
+				timelimit_start_time = #{timelimit_start_time},
+			</if>
+			<if test="timelimit_end_time !=null">
+				timelimit_end_time = #{timelimit_end_time},
+			</if>
+			<if test="timelimit_buy_min !=null">
+				timelimit_buy_min = #{timelimit_buy_min},
+			</if>
+			<if test="status !=null">
+				status = #{status},
+			</if>
+			<if test="remark !=null">
+				remark = #{remark},
+			</if>
+			<if test="create_time !=null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from
+		t_goods_activity_timelimit where id = #{pd.id}
+	</delete>
+
+
+	<!-- 活动商品 -->
+	<insert id="insertProduct" parameterType="pd">
+		insert into t_goods_activity_timelimit_pro
+		(limit_id,stock_id,goods_name,goods_price,discount_price,discount,min_num,create_time)
+		values(#{limit_id},#{stock_id},#{goods_name},#{goods_price},#{discount_price},#{discount},#{min_num},#{create_time})
+		<selectKey resultType="java.lang.String" order="AFTER"
+			keyProperty="id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<select id="selectProductById" parameterType="java.lang.Integer"
+		resultType="pd">
+		select * from t_goods_activity_timelimit_pro where id =
+		#{id}
+	</select>
+
+	<select id="selectProductByMap" parameterType="pd" resultType="pd">
+		SELECT
+		t1.id,
+		t1.limit_id,
+		t1.stock_id,
+		t1.discount_price,
+		t1.discount,
+		t1.min_num,
+		t1.create_time,
+		t2.goods_id,
+		t2.price AS goods_price,
+		t2.stock,
+		t2.attr_json,
+		t3.list_img,
+		t3.goods_name,
+		t3.virtual_sales
+		FROM
+		t_goods_activity_timelimit_pro t1
+		LEFT JOIN t_goods_sku t2 ON
+		t1.stock_id = t2.sku_id
+		LEFT JOIN t_goods t3 ON t2.goods_id =
+		t3.goods_id
+		LEFT JOIN t_goods_activity_timelimit t4 ON t4.id =
+		t1.limit_id
+		where 1=1
+		<if test="limit_id !=null and limit_id !=''">
+			and t1.limit_id=#{limit_id}
+		</if>
+		<if test="stock_id !=null and stock_id !=''">
+			and t1.stock_id=#{stock_id}
+		</if>
+		<if test="id !=null and id !=''">
+			and t1.id=#{id}
+		</if>
+		<if test="goods_id !=null and goods_id !=''">
+			and t2.goods_id=#{goods_id}
+		</if>
+		<if test="type !=null and type !='' and  type == 1 ">
+			and t4.timelimit_end_time > #{currentTime} and
+			#{currentTime} > t4.timelimit_start_time
+		</if>
+		order by t1.create_time desc
+	</select>
+
+	<select id="selectProductByPage" parameterType="page"
+		resultType="pd">
+		SELECT
+		t1.id,
+		t1.limit_id,
+		t1.stock_id,
+		t1.discount_price,
+		t1.discount,
+		t1.min_num,
+		t1.create_time,
+		t2.goods_id,
+		t2.price AS goods_price,
+		t2.stock,
+		t2.attr_json,
+		t3.list_img,
+		t3.goods_name,
+		t3.virtual_sales
+		FROM
+		t_goods_activity_timelimit_pro t1
+		LEFT JOIN t_goods_sku t2 ON
+		t1.stock_id = t2.sku_id
+		LEFT JOIN t_goods t3 ON t2.goods_id =
+		t3.goods_id
+		LEFT JOIN t_goods_activity_timelimit t4 ON t4.id =
+		t1.limit_id
+		where 1=1
+		<if test="pd.limit_id !=null and pd.limit_id !=''">
+			and t1.limit_id=#{pd.limit_id}
+		</if>
+		<if test="pd.stock_id !=null and pd.stock_id !=''">
+			and t1.stock_id=#{pd.stock_id}
+		</if>
+		<if test="pd.id !=null and pd.id !=''">
+			and t1.id=#{pd.id}
+		</if>
+		<if test="pd.goods_id !=null and pd.goods_id !=''">
+			and t2.goods_id=#{pd.goods_id}
+		</if>
+		<if test="pd.type !=null and pd.type !='' and  pd.type == 1 ">
+			and t4.timelimit_end_time > #{pd.currentTime} and
+			#{pd.currentTime} > t4.timelimit_start_time
+		</if>
+		order by t1.create_time desc
+	</select>
+
+	<update id="updateProduct" parameterType="pd">
+		update t_goods_activity_timelimit_pro
+		<set>
+			<if test="limit_id !=null and limit_id !=''">
+				limit_id = #{limit_id},
+			</if>
+			<if test="stock_id !=null and stock_id !=''">
+				stock_id = #{stock_id},
+			</if>
+			<if test="goods_name !=null and goods_name !=''">
+				goods_name = #{goods_name},
+			</if>
+			<if test="goods_price !=null and goods_price !=''">
+				goods_price = #{goods_price},
+			</if>
+			<if test="discount_price !=null and discount_price !=''">
+				discount_price = #{discount_price},
+			</if>
+			<if test="discount !=null and discount !=''">
+				discount = #{discount},
+			</if>
+			<if test="min_num !=null and min_num !=''">
+				min_num = #{min_num},
+			</if>
+			<if test="create_time !=null and create_time !=''">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	<delete id="deleteProductByID" parameterType="pd">
+		delete from
+		t_goods_activity_timelimit_pro where id = #{id}
+	</delete>
+	<delete id="deleteProductByLimitID" parameterType="pd">
+		delete from
+		t_goods_activity_timelimit_pro where limit_id = #{limit_id}
+	</delete>
+</mapper>

@@ -1,0 +1,1073 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.goods_id != null">
+			and t1.goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.goods_sn != null and pd.goods_sn != ''">
+			and t1.goods_sn like CONCAT(CONCAT('%',
+			#{pd.goods_sn}),'%')
+		</if>
+		<if test="pd.goods_name != null and pd.goods_name != ''">
+			and t1.goods_name like CONCAT(CONCAT('%',
+			#{pd.goods_name}),'%')
+		</if>
+		<if test="pd.goods_tags != null">
+			and goods_tags = #{pd.goods_tags}
+		</if>
+		<if test="pd.goods_spec != null">
+			and goods_spec = #{pd.goods_spec}
+		</if>
+		<if test="pd.brand_id != null and pd.brand_id != ''">
+			and brand_id = #{pd.brand_id}
+		</if>
+		<if test="pd.category_id != null">
+			and t1.category_id = #{pd.category_id}
+		</if>
+		<if test="pd.goods_desc != null">
+			and goods_desc = #{pd.goods_desc}
+		</if>
+		<if test="pd.is_alumb_desc != null">
+			and is_alumb_desc = #{pd.is_alumb_desc}
+		</if>
+		<if test="pd.goods_summary != null">
+			and goods_summary = #{pd.goods_summary}
+		</if>
+		<if test="pd.goods_weight != null">
+			and goods_weight = #{pd.goods_weight}
+		</if>
+		<if test="pd.market_price != null">
+			and market_price = #{pd.market_price}
+		</if>
+		<if test="pd.shop_price != null">
+			and shop_price = #{pd.shop_price}
+		</if>
+		<if test="pd.goods_stock != null and pd.goods_stock != ''">
+			and goods_stock = #{pd.goods_stock}
+		</if>
+		<if test="pd.is_virtual != null">
+			and is_virtual = #{pd.is_virtual}
+		</if>
+		<if test="pd.category1_id != null and pd.category1_id != ''">
+			and t1.category1_id = #{pd.category1_id}
+		</if>
+		<if test="pd.category2_id != null and pd.category2_id != ''">
+			and t1.category2_id = #{pd.category2_id}
+		</if>
+		<if test="pd.category3_id != null and pd.category3_id != ''">
+			and t1.category3_id = #{pd.category3_id}
+		</if>
+		<if test="pd.is_gift != null">
+			and is_gift = #{pd.is_gift}
+		</if>
+		<if test="pd.is_delete != null and pd.is_delete != ''">
+			and is_delete = #{pd.is_delete}
+		</if>
+		<if test="pd.is_on_sale != null and pd.is_on_sale != ''">
+			and is_on_sale = #{pd.is_on_sale}
+		</if>
+		<if test="pd.is_free_shipping != null and pd.is_free_shipping != ''">
+			and is_free_shipping = #{pd.is_free_shipping}
+		</if>
+		<if test="pd.click_count != null">
+			and click_count = #{pd.click_count}
+		</if>
+		<if test="pd.share_count != null">
+			and share_count = #{pd.share_count}
+		</if>
+		<if test="pd.goods_type_id != null and pd.goods_type_id != ''">
+			and goods_type_id = #{pd.goods_type_id}
+		</if>
+		<if test="pd.rebate_type != null">
+			and rebate_type = #{pd.rebate_type}
+		</if>
+		<if test="pd.seller_note != null">
+			and seller_note = #{pd.seller_note}
+		</if>
+		<if test="pd.give_points != null">
+			and give_points = #{pd.give_points}
+		</if>
+		<if test="pd.pay_points != null">
+			and pay_points = #{pd.pay_points}
+		</if>
+		<if test="pd.list_img != null">
+			and list_img = #{pd.list_img}
+		</if>
+		<if test="pd.virtual_sales != null">
+			and virtual_sales = #{pd.virtual_sales}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.is_device != null">
+			and is_device = #{pd.is_device}
+		</if>
+		<if test="pd.bs_id != null">
+			and t1.bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.house_id != null">
+			and house_id = #{pd.house_id}
+		</if>
+		<if test="pd.bs_category_id != null">
+			and bs_category_id = #{pd.bs_category_id}
+		</if>
+		<if test="pd.is_popular!= null and pd.is_popular !=''">
+			and is_popular = #{pd.is_popular}
+		</if>
+		<if test="pd.is_popular!= null and pd.is_popular !=''">
+			and is_special = #{pd.is_special}
+		</if>
+		<if test="pd.min_price!=null and pd.max_price!=null">
+			and shop_price
+			between #{pd.min_price} and #{pd.max_price}
+		</if>
+		<if
+			test="pd.is_virtual_sales!=null and pd.is_virtual_sales !='' and pd.is_virtual_sales==1">
+			order by virtual_sales DESC
+		</if>
+		<if
+			test="pd.is_shop_price!=null and pd.is_shop_price!='' and pd.is_shop_price==1">
+			order by shop_price DESC
+		</if>
+		<if
+			test="pd.is_shop_price!=null and pd.is_shop_price!='' and pd.is_shop_price==0">
+			order by shop_price
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select t1.*,t2.brand_name,t3.bs_name,t3.bs_avatar from t_goods t1 left join t_goods_brand t2
+		on t1.brand_id = t2.brand_id
+		left join t_business t3 on t1.bs_id = t3.bs_id
+		WHERE 1=1
+		<include refid="condition"></include>
+		ORDER BY
+		<if
+			test="pd.is_recommend!= null and pd.is_recommend!='' and pd.is_recommend == 0">
+			t1.is_recommend ASC,
+		</if>
+		<if
+			test="pd.is_recommend!= null and pd.is_recommend!='' and pd.is_recommend == 1">
+			t1.is_recommend DESC,
+		</if>
+		t1.create_time DESC
+	</select>
+
+	<select id="selectGoodsPage" resultType="pd" parameterType="page">
+		select
+		t1.goods_id,t1.goods_sn,t1.goods_name,t1.goods_tags,t1.shop_price,t1.market_price,t1.goods_stock,t1.is_special,t1.is_popular,
+		t1.list_img,t1.virtual_sales,t2.brand_name,
+		t3.stock
+		from t_goods t1
+		left join t_goods_brand t2 on t1.brand_id =
+		t2.brand_id left join
+		t_goods_sku t3 on t1.goods_id = t3.goods_id
+		where 1=1
+		and t3.attr_json =
+		'-1'
+		<if test="pd.category_ids!=null and pd.category_ids!=''">
+			and t1.category_id in
+			<foreach item="item" index="index" collection="pd.category_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<if test="pd.bs_ids !=null and pd.bs_ids !=''">
+			and t1.bs_id in ${pd.bs_ids}
+		</if>
+		<include refid="condition"></include>
+	</select>
+	<select id="goodsIdCId" resultType="pd" parameterType="pd">
+		SELECT
+		goods_id,
+		category_id,
+		is_device
+		FROM
+		t_goods
+		ORDER BY create_time DESC
+		LIMIT 1
+	</select>
+	<select id="goodsRelationCourse" resultType="pd" parameterType="pd">
+		SELECT
+		goods_id,
+		goods_sn,
+		goods_name,
+		goods_tags,
+		shop_price,
+		market_price,
+		goods_stock,
+		list_img,
+		virtual_sales,
+		is_special,
+		is_popular
+		FROM
+		t_goods
+		WHERE
+		1 = 1
+		AND is_delete = 0
+		AND is_gift = 0
+		AND is_on_sale = 1
+		<if test="goods_ids!=null and goods_ids!=''">
+			and goods_id in (${goods_ids})
+		</if>
+		<if test="category_ids!=null and category_ids!=''">
+			and category_id in
+			<foreach item="item" index="index" collection="category_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<if test="limit != null and limit != ''">
+			limit #{limit}
+		</if>
+	</select>
+	<select id="goodsDiscounts" resultType="pd" parameterType="page">
+		SELECT
+		goods_id,
+		goods_sn,
+		goods_name,
+		goods_tags,
+		shop_price,
+		market_price,
+		goods_stock,
+		list_img,
+		virtual_sales,
+		is_special,
+		is_popular,
+		t2.brand_name
+		FROM
+		t_goods t1
+		LEFT JOIN t_goods_brand t2 ON
+		t1.brand_id = t2.brand_id
+		where 1=1 and is_delete = 0
+		<if test="pd.category_ids!=null and pd.category_ids!=''">
+			and t1.category_id in
+			<foreach item="item" index="index" collection="pd.category_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<include refid="condition"></include>
+		ORDER BY
+		t1.is_recommend DESC
+		LIMIT #{pd.number}
+	</select>
+
+	<select id="selectBySkuIds" resultType="pd" parameterType="pd">
+		SELECT
+		t1.pay_points,t1.give_points,t2.sku_id
+		FROM
+		t_goods t1
+		LEFT JOIN
+		t_goods_sku
+		t2 ON t1.goods_id = t2.goods_id
+		WHERE
+		t2.sku_id IN
+		(${sku_ids})
+	</select>
+	<select id="selectAllByCartids" resultType="pd" parameterType="pd">
+		SELECT
+		*
+		FROM
+		t_goods t1
+		LEFT JOIN t_goods_cart t2 ON t1.goods_id =
+		t2.goods_id
+		WHERE
+		t2.cart_id IN (${cart_ids})
+	</select>
+	<select id="categoryGoodsList" resultType="pd" parameterType="page">
+		select
+		goods_id,goods_name,goods_tags,shop_price,market_price,goods_stock,list_img,virtual_sales,is_special,is_popular,t2.brand_name
+		from t_goods t1 left join t_goods_brand t2 on t1.brand_id =
+		t2.brand_id
+		where 1=1
+		<include refid="condition"></include>
+		<if test="pd.limit !=null ">
+			LIMIT #{pd.limit}
+		</if>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select * from t_goods t1 where 1=1
+		<include refid="condition"></include>
+		<if test="pd.limit != null and pd.limit != ''">
+			limit #{pd.limit}
+		</if>
+	</select>
+	<select id="selectByBandId" resultType="pd" parameterType="Integer">
+		select * from t_goods where brand_id=#{brand_id}
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT
+		t1.*,t2.stock
+		from t_goods t1 left join t_goods_sku t2 on t1.goods_id =
+		t2.goods_id
+		where t2.attr_json = '-1' and t1.goods_id = #{id}
+		limit 1
+	</select>
+	<select id="selectSellerById" resultType="pd" parameterType="Integer">
+		SELECT
+		t1.*,c1.category_name as category1_name,c2.category_name as
+		category2_name,c3.category_name as category3_name
+		from t_goods t1
+		LEFT
+		JOIN t_goods_category c1 on t1.category1_id=c1.category_id
+		LEFT JOIN
+		t_goods_category c2 on t1.category2_id=c2.category_id
+		LEFT JOIN
+		t_goods_category c3 on t1.category3_id=c3.category_id
+		where t1.goods_id
+		= #{id}
+		limit 1
+	</select>
+	<select id="selectByIds" resultType="pd" parameterType="pd">
+		SELECT
+		*
+		FROM t_goods WHERE category_id in
+		<foreach item="item" index="index" collection="category_ids"
+			open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	<select id="selectByIdsStr" resultType="pd" parameterType="pd">
+		SELECT
+		*
+		FROM t_goods WHERE goods_id in ${goodsIdsStr}
+	</select>
+	<select id="selectByGoodsId" resultType="pd" parameterType="Integer">
+		SELECT *
+		FROM t_goods WHERE goods_id = #{goods_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods
+		(goods_sn,goods_name,goods_tags,goods_spec,brand_id,category1_id,category2_id,category3_id,
+		category_id,goods_desc,is_alumb_desc,goods_summary,goods_weight,market_price,shop_price,goods_stock,is_virtual,
+		is_gift,is_delete,is_on_sale,is_free_shipping,click_count,share_count,goods_type_id,rebate_type,seller_note,give_points,
+		pay_points,list_img,virtual_sales,creator,create_time,is_device,is_recommend,is_special,is_popular,
+		bs_id,is_paid_tax,goods_storage_alarm,goods_freight,is_fcode,is_appoint,is_presell,is_own_shop,is_offer_shop,areaid,house_id,bs_category_id,is_freight_tpl,freight_tpl_id,fright_tpl_name,add_type)
+		values
+		(#{goods_sn},#{goods_name},#{goods_tags},#{goods_spec},
+		#{brand_id}
+		,#{category1_id},#{category2_id},#{category3_id},
+		#{category_id},#{goods_desc},#{is_alumb_desc},#{goods_summary},#{goods_weight},#{market_price},#{shop_price},#{goods_stock},#{is_virtual},
+		#{is_gift},#{is_delete},#{is_on_sale},#{is_free_shipping},#{click_count},#{share_count},#{goods_type_id},#{rebate_type},#{seller_note},#{give_points},
+		#{pay_points},#{list_img},#{virtual_sales},#{creator},#{create_time},#{is_device},#{is_recommend},#{is_special},#{is_popular},
+		#{bs_id},#{is_paid_tax},#{goods_storage_alarm},#{goods_freight},#{is_fcode},#{is_appoint},#{is_presell},#{is_own_shop},#{is_offer_shop},#{areaid},#{house_id},#{bs_category_id},#{is_freight_tpl},#{freight_tpl_id},#{fright_tpl_name},#{add_type})
+		<selectKey resultType="java.lang.Integer" keyProperty="goods_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	<insert id="copyGoods" parameterType="pd">
+		insert into t_goods
+		(goods_name,goods_tags,goods_spec,brand_id,category1_id,category2_id,category3_id,
+		category_id,goods_desc,is_alumb_desc,goods_summary,goods_weight,market_price,shop_price,goods_stock,is_virtual,
+		is_gift,is_delete,is_on_sale,is_free_shipping,click_count,share_count,goods_type_id,rebate_type,seller_note,give_points,
+		pay_points,list_img,virtual_sales,creator,create_time,is_device,add_type)
+		select
+		goods_name,goods_tags,goods_spec,brand_id,category1_id,category2_id,category3_id,
+		category_id,goods_desc,is_alumb_desc,goods_summary,goods_weight,market_price,shop_price,goods_stock,is_virtual,
+		is_gift,is_delete,is_on_sale,is_free_shipping,click_count,share_count,goods_type_id,rebate_type,seller_note,give_points,
+		pay_points,list_img,virtual_sales,creator,create_time,is_device,add_type
+		from
+		t_goods where goods_id = #{goods_id}
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	<!-- 初始化库存 -->
+	<insert id="initStockByProductId" parameterType="stock">
+		insert into
+		t_goods_sku
+		(goods_id,price,market_price,cost_price,stock,attr_json,bar_code)
+		values(#{goods_id},#{price},#{market_price},#{cost_price},#{stock},#{attr_json},#{bar_code})
+	</insert>
+
+	<!-- 根据商品id查询所有库存 -->
+	<select id="findStockByProductId" resultType="stock"
+		parameterType="pd">
+		select * from t_goods_sku where goods_id = #{goods_id}
+	</select>
+	<!-- 根据商品id查询非默认库存 -->
+	<select id="findStockNoDefault" resultType="stock"
+		parameterType="pd">
+		select * from t_goods_sku where goods_id = #{goods_id}
+		and attr_json != '-1'
+	</select>
+	<!-- 根据商品属性查询库存 -->
+	<select id="findStockByAttr" resultType="Stock" parameterType="pd">
+		select * from t_goods_sku where goods_id = #{goods_id} and attr_json =
+		#{attr_json}
+	</select>
+	<!-- 根据库存id查询所有销售属性 -->
+	<select id="queryStockBySkuId" resultType="stock" parameterType="pd">
+		select
+		t1.*,t2.goods_name,t2.list_img,t2.is_free_shipping,t2.goods_freight
+		from t_goods_sku t1 left join t_goods t2 on t1.goods_id = t2.goods_id
+		where t1.sku_id = #{sku_id}
+	</select>
+<<<<<<< .mine
+
+	<!-- 查询所有库存商品 -->
+	<select id="queryStockAllPage" resultType="pd" parameterType="page">
+		select
+		t1.*,t2.goods_name,t2.list_img
+		from (select * from t_goods_sku
+		where goods_id in (select goods_id from t_goods_sku GROUP BY goods_id
+		HAVING COUNT(goods_id) > 1)
+		and attr_json != '-1'
+		UNION
+		select * from
+		t_goods_sku where goods_id in (select goods_id from
+		t_goods_sku GROUP
+		BY goods_id HAVING COUNT(goods_id) = 1)
+		and attr_json = '-1') t1 left
+		join t_goods t2 on t1.goods_id =
+		t2.goods_id
+		where 1=1
+		<if test="pd.bs_id !=null and pd.bs_id !=''">
+			and t2.bs_id=#{pd.bs_id}
+		</if>
+		<if test="pd.search_name !=null and pd.search_name !=''">
+			and t2.goods_name like CONCAT(CONCAT('%',
+			#{pd.search_name}),'%')
+		</if>
+		and t2.is_delete=0
+		and t2.is_on_sale=1
+	</select>
+
+
+
+
+=======
+>>>>>>> .r1969
+	<!-- 根据商品id查询库存不为空的库存 -->
+	<select id="queryStockByGoodsId" resultType="stock"
+		parameterType="pd">
+		select * from t_goods_sku where goods_id = #{goods_id}
+		and attr_json != '-1'
+	</select>
+	<!-- 根据库存id批量更新库存 -->
+	<update id="updateStockByPid" parameterType="stock">
+		update t_goods_sku
+		<set>
+			<if test="stock != null and stock != ''">
+				stock = #{stock},
+			</if>
+			<if test="price != null and price != ''">
+				price = #{price},
+			</if>
+			<if test="cost_price != null and cost_price != '' ">
+				cost_price = #{cost_price},
+			</if>
+			<if test="market_price != null and market_price != '' ">
+				market_price = #{market_price},
+			</if>
+			<if test="img_ary != null and img_ary != '' ">
+				img_ary = #{img_ary},
+			</if>
+			<if test="bar_code != null and bar_code != '' ">
+				bar_code = #{bar_code},
+			</if>
+			<if test="logistics_weight != null and logistics_weight != '' ">
+				logistics_weight = #{logistics_weight},
+			</if>
+		</set>
+		where sku_id = #{sku_id}
+	</update>
+
+	<!-- 清除库存信息 非默认库存信息 -->
+	<delete id="clearStockByGoodsId" parameterType="pd">
+		delete from
+		t_goods_sku where goods_id = #{goods_id} and attr_json != '-1'
+	</delete>
+	<!-- 清除所有库存信息 -->
+	<delete id="deleteStockByGoodsId" parameterType="pd">
+		delete from
+		t_goods_sku where goods_id = #{goods_id}
+	</delete>
+	<update id="updateDefaultStore" parameterType="pd">
+		update t_goods_sku
+		<set>
+			<if test="stock != null and stock != ''">
+				stock = #{stock},
+			</if>
+			<if test="cost_price != null and cost_price != ''">
+				cost_price = #{cost_price},
+			</if>
+			<if test="price != null and price != ''">
+				price = #{price},
+			</if>
+			<if test="market_price != null and market_price != ''">
+				market_price = #{market_price},
+			</if>
+		</set>
+		where goods_id = #{goods_id} and attr_json = '-1'
+	</update>
+	<!-- 文案管理查询6条数据 -->
+	<select id="selectTopGoods" resultType="pd">
+		select * from t_goods
+		limit 6
+	</select>
+	<!-- 人气推荐 -->
+	<select id="selectGoodsHeat" resultType="pd" parameterType="page">
+		select
+		goods_id,goods_sn,goods_name,goods_tags,shop_price,market_price,goods_stock,list_img,virtual_sales,t2.brand_name
+		from t_goods t1 left join t_goods_brand t2 on t1.brand_id =
+		t2.brand_id
+		where 1=1 and is_delete = 0
+		<include refid="condition"></include>
+		order by virtual_sales DESC LIMIT #{pd.limit}
+	</select>
+	<!-- 猜你喜欢 登陆返回数据-->
+	<select id="selectGoodsLikes" resultType="pd" parameterType="page">
+		SELECT
+		goods_id,
+		goods_sn,
+		goods_name,
+		goods_tags,
+		shop_price,
+		market_price,
+		goods_stock,
+		list_img,
+		is_special,is_popular,
+		virtual_sales
+		FROM
+		t_goods
+		WHERE
+		category1_id = (
+		SELECT
+		category1_id
+		FROM
+		t_goods
+		WHERE
+		goods_id = (
+		SELECT
+		look_id
+		FROM
+		t_goods_look
+		WHERE
+		user_id = #{pd.user_id}
+		ORDER BY
+		create_time desc
+		LIMIT 1
+		)
+		)
+		and 1=1
+		<include refid="condition"></include>
+		ORDER BY
+		create_time desc
+		LIMIT #{pd.limit}
+	</select>
+	<!-- 猜你喜欢 无登陆 返回数据 -->
+	<select id="selectGoodsLikeNo" resultType="pd" parameterType="page">
+		SELECT
+		goods_id,
+		goods_sn,
+		goods_name,
+		goods_tags,
+		shop_price,
+		market_price,
+		goods_stock,
+		list_img,
+		virtual_sales,is_special,is_popular
+		FROM
+		t_goods
+		WHERE 1=1
+		<include refid="condition"></include>
+		ORDER BY
+		create_time desc
+		LIMIT #{pd.limit}
+	</select>
+
+	<update id="update" parameterType="pd">
+		update t_goods
+		<set>
+			<if test="goods_sn != null">
+				goods_sn = #{goods_sn},
+			</if>
+			<if test="goods_name != null">
+				goods_name = #{goods_name},
+			</if>
+			<if test="goods_tags != null">
+				goods_tags = #{goods_tags},
+			</if>
+			<if test="goods_spec != null">
+				goods_spec = #{goods_spec},
+			</if>
+			<if test="brand_id != null and brand_id != ''">
+				brand_id = #{brand_id},
+			</if>
+			<if test="category1_id != null and category1_id != ''">
+				category1_id = #{category1_id},
+			</if>
+			<if test="category2_id != null and category2_id != ''">
+				category2_id = #{category2_id},
+			</if>
+			<if test="category3_id != null and category3_id != ''">
+				category3_id = #{category3_id},
+			</if>
+			<if test="category_id != null and category_id != ''">
+				category_id = #{category_id},
+			</if>
+			<if test="goods_desc != null">
+				goods_desc = #{goods_desc},
+			</if>
+			<if test="is_alumb_desc != null">
+				is_alumb_desc = #{is_alumb_desc},
+			</if>
+			<if test="goods_summary != null">
+				goods_summary = #{goods_summary},
+			</if>
+			<if test="goods_weight != null">
+				goods_weight = #{goods_weight},
+			</if>
+			<if test="market_price != null">
+				market_price = #{market_price},
+			</if>
+			<if test="shop_price != null">
+				shop_price = #{shop_price},
+			</if>
+			<if test="goods_stock != null">
+				goods_stock = #{goods_stock},
+			</if>
+			<if test="is_virtual != null and is_virtual != ''">
+				is_virtual = #{is_virtual},
+			</if>
+			<if test="is_gift != null and is_gift != ''">
+				is_gift = #{is_gift},
+			</if>
+			<if test="is_delete != null">
+				is_delete = #{is_delete},
+			</if>
+			<if test="is_on_sale != null and is_on_sale != ''">
+				is_on_sale = #{is_on_sale},
+			</if>
+			<if test="is_free_shipping != null and is_free_shipping!=''">
+				is_free_shipping = #{is_free_shipping},
+			</if>
+			<if test="click_count != null and click_count != ''">
+				click_count = #{click_count},
+			</if>
+			<if test="share_count != null and share_count != ''">
+				share_count = #{share_count},
+			</if>
+			<if test="goods_type_id != null and goods_type_id != ''">
+				goods_type_id = #{goods_type_id},
+			</if>
+			<if test="rebate_type != null and rebate_type != ''">
+				rebate_type = #{rebate_type},
+			</if>
+			<if test="seller_note != null">
+				seller_note = #{seller_note},
+			</if>
+			<if test="give_points != null and give_points != ''">
+				give_points = #{give_points},
+			</if>
+			<if test="pay_points != null and pay_points != ''">
+				pay_points = #{pay_points},
+			</if>
+			<if test="list_img != null">
+				list_img = #{list_img},
+			</if>
+			<if test="virtual_sales != null and virtual_sales != ''">
+				virtual_sales = #{virtual_sales},
+			</if>
+			<if test="creator != null">
+				creator = #{creator},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+			<if test="is_device != null and is_device != ''">
+				is_device = #{is_device},
+			</if>
+			<if test="is_recommend != null and is_recommend != ''">
+				is_recommend = #{is_recommend},
+			</if>
+			<if test="is_popular != null and is_popular != ''">
+				is_popular = #{is_popular},
+			</if>
+			<if test="is_special != null and is_special != ''">
+				is_special = #{is_special},
+			</if>
+			<if test="bs_id != null and bs_id != ''">
+				bs_id = #{bs_id},
+			</if>
+			<if test="is_paid_tax != null and is_paid_tax != ''">
+				is_paid_tax = #{is_paid_tax},
+			</if>
+			<if test="goods_storage_alarm != null and goods_storage_alarm != ''">
+				goods_storage_alarm = #{goods_storage_alarm},
+			</if>
+			<if test="goods_freight != null and goods_freight != ''">
+				goods_freight = #{goods_freight},
+			</if>
+			<if test="is_fcode != null and is_fcode != ''">
+				is_fcode = #{is_fcode},
+			</if>
+			<if test="is_appoint != null and is_appoint != ''">
+				is_appoint = #{is_appoint},
+			</if>
+			<if test="is_presell != null and is_presell != ''">
+				is_presell = #{is_presell},
+			</if>
+			<if test="is_own_shop != null and is_own_shop != ''">
+				is_own_shop = #{is_own_shop},
+			</if>
+			<if test="is_offer_shop != null and is_offer_shop != ''">
+				is_offer_shop = #{is_offer_shop},
+			</if>
+			<if test="areaid != null and areaid != ''">
+				areaid = #{areaid},
+			</if>
+			<if test="house_id != null and house_id != ''">
+				house_id = #{house_id},
+			</if>
+			<if test="bs_category_id != null">
+				bs_category_id = #{bs_category_id},
+			</if>
+			<if test="is_freight_tpl != null and is_freight_tpl != ''">
+				is_freight_tpl = #{is_freight_tpl},
+			</if>
+			<if test="freight_tpl_id != null and freight_tpl_id != ''">
+				freight_tpl_id = #{freight_tpl_id},
+			</if>
+			<if test="fright_tpl_name != null and fright_tpl_name != ''">
+				fright_tpl_name = #{fright_tpl_name},
+			</if>
+		</set>
+		where goods_id = #{goods_id}
+	</update>
+	<delete id="delete" parameterType="pd">
+		delete from t_goods where 1=1
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.goods_sn != null">
+			and goods_sn = #{pd.goods_sn}
+		</if>
+		<if test="pd.goods_name != null">
+			and goods_name = #{pd.goods_name}
+		</if>
+		<if test="pd.goods_tags != null">
+			and goods_tags = #{pd.goods_tags}
+		</if>
+		<if test="pd.goods_spec != null">
+			and goods_spec = #{pd.goods_spec}
+		</if>
+		<if test="pd.brand_id != null and pd.brand_id != ''">
+			and brand_id = #{pd.brand_id}
+		</if>
+		<if test="pd.category1_id != null and pd.category1_id != ''">
+			and category1_id = #{pd.category1_id}
+		</if>
+		<if test="pd.category2_id != null and pd.category2_id != ''">
+			and category2_id = #{pd.category2_id}
+		</if>
+		<if test="pd.category3_id != null and pd.category3_id != ''">
+			and category3_id = #{pd.category3_id}
+		</if>
+		<if test="pd.category_id != null and pd.category_id != ''">
+			and category_id = #{pd.category_id}
+		</if>
+		<if test="pd.goods_desc != null">
+			and goods_desc = #{pd.goods_desc}
+		</if>
+		<if test="pd.is_alumb_desc != null">
+			and is_alumb_desc = #{pd.is_alumb_desc}
+		</if>
+		<if test="pd.goods_summary != null">
+			and goods_summary = #{pd.goods_summary}
+		</if>
+		<if test="pd.goods_weight != null">
+			and goods_weight = #{pd.goods_weight}
+		</if>
+		<if test="pd.market_price != null">
+			and market_price = #{pd.market_price}
+		</if>
+		<if test="pd.shop_price != null">
+			and shop_price = #{pd.shop_price}
+		</if>
+		<if test="pd.goods_stock != null">
+			and goods_stock = #{pd.goods_stock}
+		</if>
+		<if test="pd.is_virtual != null and pd.is_virtual != ''">
+			and is_virtual = #{pd.is_virtual}
+		</if>
+		<if test="pd.is_gift != null and pd.is_gift != ''">
+			and is_gift = #{pd.is_gift}
+		</if>
+		<if test="pd.is_delete != null">
+			and is_delete = #{pd.is_delete}
+		</if>
+		<if test="pd.is_on_sale != null and pd.is_on_sale != ''">
+			and is_on_sale = #{pd.is_on_sale}
+		</if>
+		<if test="pd.is_free_shipping != null and pd.is_free_shipping!=''">
+			and is_free_shipping = #{pd.is_free_shipping}
+		</if>
+		<if test="pd.click_count != null and pd.click_count != ''">
+			and click_count = #{pd.click_count}
+		</if>
+		<if test="pd.share_count != null and pd.share_count != ''">
+			and share_count = #{pd.share_count}
+		</if>
+		<if test="pd.goods_type_id != null and pd.goods_type_id != ''">
+			and goods_type_id = #{pd.goods_type_id}
+		</if>
+		<if test="pd.rebate_type != null and pd.rebate_type != ''">
+			and rebate_type = #{pd.rebate_type}
+		</if>
+		<if test="pd.seller_note != null">
+			and seller_note = #{pd.seller_note}
+		</if>
+		<if test="pd.give_points != null and pd.give_points != ''">
+			and give_points = #{pd.give_points}
+		</if>
+		<if test="pd.pay_points != null and pd.pay_points != ''">
+			and pay_points = #{pd.pay_points}
+		</if>
+		<if test="pd.list_img != null">
+			and list_img = #{pd.list_img}
+		</if>
+		<if test="pd.virtual_sales != null and pd.virtual_sales != ''">
+			and virtual_sales = #{pd.virtual_sales}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.is_device != null and pd.is_device != ''">
+			and is_device = #{pd.is_device}
+		</if>
+		<if test="pd.is_recommend != null and pd.is_recommend != ''">
+			and is_recommend = #{pd.is_recommend}
+		</if>
+		<if test="pd.bs_id != null and pd.bs_id != ''">
+			and bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.house_id != null and pd.house_id != ''">
+			and house_id = #{pd.house_id}
+		</if>
+	</delete>
+	<!-- 查看商城设置 -->
+	<select id="selectGoodsSetting" parameterType="pd" resultType="pd">
+		select * from t_goods_setting
+	</select>
+	<update id="updateGoodsSetting" parameterType="pd">
+		update
+		t_goods_setting set setting_value = #{setting_value}
+		where setting_code
+		= #{setting_code}
+	</update>
+	<resultMap type="com.easaa.goods.entity.data.ProductData" id="goodsDetail">
+		<id property="id" column="goods_id" />
+		<result property="goods_sn" column="goods_sn" />
+		<result property="goods_name" column="goods_name" />
+		<result property="goods_tags" column="goods_tags" />
+		<result property="goods_desc" column="goods_desc" />
+		<result property="shop_price" column="shop_price" />
+		<result property="market_price" column="market_price" />
+		<result property="goods_stock" column="goods_stock" />
+		<result property="list_img" column="list_img" />
+		<result property="virtual_sales" column="virtual_sales" />
+		<result property="brand_name" column="brand_name" />
+		<result property="sku_id" column="sku_id" />
+		<result property="category1_id" column="category1_id" />
+		<result property="category2_id" column="category2_id" />
+		<result property="category3_id" column="category3_id" />
+		<result property="category_id" column="category_id" />
+		<result property="bs_category_id" column="bs_category_id" />
+		<result property="is_gift" column="is_gift" />
+		<result property="is_virtual" column="is_virtual" />
+		<result property="is_offer_shop" column="is_offer_shop" />
+		<result property="is_own_shop" column="is_own_shop" />
+		<result property="goods_freight" column="goods_freight" />
+		<result property="goods_storage_alarm" column="goods_storage_alarm" />
+		<result property="house_id" column="house_id" />
+		<result property="category1_name" column="category1_name" />
+		<result property="category2_name" column="category2_name" />
+		<result property="category3_name" column="category3_name" />
+		<result property="goods_summary" column="goods_summary" />
+		<result property="is_goods_like" column="is_goods_like" />
+		<result property="is_special" column="is_special" />
+		<result property="is_popular" column="is_popular" />
+		<result property="click_count" column="click_count" />
+		<collection property="pictures" foreignColumn="picture.goods_id"
+			ofType="com.easaa.goods.entity.data.Picture">
+			<id property="albumId" column="album_id" />
+			<result column="original_img" property="originalImg" />
+			<result column="picture.goods_id" property="goodsId" />
+		</collection>
+		<collection property="stocks" foreignColumn="stock.goods_id"
+			ofType="com.easaa.goods.entity.data.StockData">
+			<id property="sku_id" column="stocks.sku_id" />
+			<result property="stock" column="stocks.stock" />
+			<result property="attr_json" column="stocks.attr_json" />
+			<result property="price" column="stocks.price" />
+			<result property="goods_id" column="stocks.goods_id" />
+			<result property="bar_code" column="stocks.bar_code" />
+			<result property="stock_alarm" column="stocks.stock_alarm" />
+		</collection>
+		<collection property="goodsAttr" foreignColumn="goodsAttr.goods_id"
+			ofType="com.easaa.goods.entity.data.GoodsAttr">
+			<id property="attrId" column="goods_attr_id" />
+			<result property="goodsId" column="goodsAttr.goods_id" />
+			<result property="attrName" column="attr_name" />
+			<result property="attrValue" column="attr_value" />
+			<result property="attrSort" column="attr_sort" />
+			<result property="isSale" column="is_sale" />
+		</collection>
+		<collection property="comments" column="goods_id" javaType="ArrayList"
+			ofType="com.easaa.goods.entity.data.CommentsData" select="selectCommentByGoodsId" />
+	</resultMap>
+	<resultMap type="com.easaa.goods.entity.data.CommentsData"
+		id="commentMap">
+		<id property="commentId" column="comment_id" />
+		<result property="goodsId" column="comment_goods_id" />
+		<result property="content" column="content" />
+		<result property="commentType" column="comment_type" />
+		<result property="createTime" column="create_time" />
+		<result property="star" column="star" />
+		<result property="userName" column="user_name" />
+		<result property="userPhoto" column="user_photo" />
+		<result property="commentImgs" column="comment_img" />
+	</resultMap>
+	<select id="selectItemEntity" resultMap="goodsDetail"
+		parameterType="pd">
+		SELECT
+		t1.goods_id,
+		t1.goods_sn,
+		t1.goods_name,
+		t1.goods_desc,
+		t1.goods_tags,
+		t1.shop_price,
+		t1.market_price,
+		t1.goods_stock,
+		t1.list_img,
+		t1.virtual_sales,
+		t1.category1_id,
+		t1.category2_id,
+		t1.category3_id,
+		t1.category_id,
+		t1.bs_category_id,
+		t1.is_gift,
+		t1.is_virtual,
+		t1.is_offer_shop,
+		t1.goods_freight,
+		t1.goods_storage_alarm,
+		t1.house_id,
+		t1.goods_summary,
+		t2.brand_name,
+		t1.is_popular,
+		t1.is_special,
+		t1.click_count,
+		(
+		SELECT
+		sku_id
+		FROM
+		t_goods_sku
+		WHERE
+		goods_id = #{goods_id}
+		AND attr_json = "-1"
+		) AS
+		'sku_id',
+		t10.sku_id AS 'stocks.sku_id',
+		t10.stock AS 'stocks.stock',
+		t10.attr_json AS 'stocks.attr_json',
+		t10.price AS 'stocks.price',
+		t10.goods_id AS 'stocks.goods_id',
+		t10.bar_code AS 'stocks.bar_code',
+		t10.stock_alarm AS 'stocks.stock_alarm',
+		t3.original_img,
+		t3.album_id,
+		t3.goods_id AS 'picture.goods_id',
+		t9.category_name AS
+		'category1_name',
+		t7.category_name AS 'category2_name',
+		t8.category_name AS 'category3_name',
+		t4.category_name,
+		t5.goods_id AS
+		'goodsAttr.goods_id',
+		t5.goods_attr_id,
+		t5.attr_name,
+		t5.attr_value,
+		t5.attr_sort,
+		t5.is_sale,
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		t_goods_collect
+		WHERE
+		goods_id = #{goods_id}
+		AND user_id = #{user_id}
+		) AS 'is_goods_like'
+		FROM
+		t_goods t1
+		LEFT JOIN t_goods_brand t2 ON
+		t1.brand_id = t2.brand_id
+		LEFT JOIN t_goods_album t3 ON t1.goods_id =
+		t3.goods_id
+		LEFT JOIN
+		t_goods_category t4 ON t1.category_id =
+		t4.category_id
+		LEFT JOIN
+		t_goods_category t9 ON t1.category1_id =
+		t9.category_id
+		LEFT JOIN
+		t_goods_category t7 ON t1.category2_id =
+		t7.category_id
+		LEFT JOIN
+		t_goods_category t8 ON t1.category3_id =
+		t8.category_id
+		LEFT JOIN
+		t_goods_attr t5 ON t1.goods_id = t5.goods_id
+		LEFT JOIN t_goods_sku t10
+		on t1.goods_id = t10.goods_id
+		where 1 = 1
+		and
+		t1.is_delete = 0
+		<if test="is_on_sale!=null and is_on_sale!=''">
+			and t1.is_on_sale = #{is_on_sale}
+		</if>
+		<if test="goods_id != null and goods_id != ''">
+			and t1.goods_id = #{goods_id}
+		</if>
+	</select>
+	<!-- 服务商品详情的sql语句 在商品详情中引用到此语句 -->
+	<select id="selectCommentByGoodsId" resultMap="commentMap"
+		parameterType="String">
+		select t1.comment_id ,t1.goods_id as
+		'comment_goods_id',t1.content,t1.star,t1.create_time,t1.comment_img,
+		t2.user_name,t2.nick_name,ifnull(t2.headimgurl,t2.head_portrait) as
+		'user_photo'
+		from t_goods_comment t1 left join t_user t2 on t1.user_id
+		= t2.user_id
+		where comment_type = 1 and goods_id = #{goods_id}
+	</select>
+	<!-- 查询pc端商品列表 -->
+	<select id="selectByPcPage" parameterType="pageExt" resultType="pd">
+		select * from t_goods where is_delete = 0 and is_on_sale = 1
+		<if test="pd.order_type == null or pd.order_type == 'multiple'">
+			order by is_recommend desc
+		</if>
+		<if test="pd.order_type != null and pd.order_type == 'sale_num'">
+			order by virtual_sales desc
+		</if>
+		<if test="pd.order_type != null and pd.order_type == 'price_order'">
+			order by shop_price desc
+		</if>
+	</select>
+</mapper>

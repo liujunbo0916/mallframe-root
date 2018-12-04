@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.topic.dao.TopicGoodsMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.gtopic_id != null">
+			and gtopic_id = #{pd.gtopic_id}
+		</if>
+		<if test="pd.topic_id != null">
+			and topic_id = #{pd.topic_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.goods_name != null">
+			and goods_name = #{pd.goods_name}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_topic_goods where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_topic_goods where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_topic_goods where gtopic_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_topic_goods (topic_id,goods_id,goods_name)
+		values (#{topic_id},#{goods_id},#{goods_name})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_topic_goods <set>
+		<if test="topic_id != null">
+			topic_id = #{topic_id},
+		</if>
+		<if test="goods_id != null">
+			goods_id = #{goods_id},
+		</if>
+		<if test="goods_name != null">
+			goods_name = #{goods_name},
+		</if>
+		</set>
+		where gtopic_id = #{gtopic_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_topic_goods where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.VenueMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.venue_id != null">
+			and venue_id = #{pd.venue_id}
+		</if>
+		<if test="pd.venue_name != null">
+			and venue_name = #{pd.venue_name}
+		</if>
+		<if test="pd.venue_address != null">
+			and venue_address = #{pd.venue_address}
+		</if>
+		<if test="pd.venue_traffic != null">
+			and venue_traffic = #{pd.venue_traffic}
+		</if>
+		<if test="pd.venue_notice != null">
+			and venue_notice = #{pd.venue_notice}
+		</if>
+		<if test="pd.venue_pic != null">
+			and venue_pic = #{pd.venue_pic}
+		</if>
+		<if test="pd.venue_longitude != null">
+			and venue_longitude = #{pd.venue_longitude}
+		</if>
+		<if test="pd.venue_opentime != null">
+			and venue_opentime = #{pd.venue_opentime}
+		</if>
+		<if test="pd.venue_conphone != null">
+			and venue_conphone = #{pd.venue_conphone}
+		</if>
+		<if test="pd.venue_pics != null">
+			and venue_pics = #{pd.venue_pics}
+		</if>
+		<if test="pd.venue_price != null">
+			and venue_price = #{pd.venue_price}
+		</if>
+		<if test="pd.venue_desc != null">
+			and venue_desc = #{pd.venue_desc}
+		</if>
+		<if test="pd.venue_stutas != null">
+			and venue_stutas = #{pd.venue_stutas}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course_venue where 1=1
+		<include refid="condition"></include>
+		order by
+		<if test="pd.venue_sort != null and pd.venue_sort!='' and pd.venue_sort == 0">
+			venue_sort ASC,
+		</if>
+		<if test="pd.venue_sort != null and pd.venue_sort!='' and pd.venue_sort == 1 ">
+			venue_sort DESC,
+		</if>
+			create_time DESC
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_course_venue where 1=1
+		<include refid="condition"></include>
+		order by
+		<if test="pd.venue_sort != null and pd.venue_sort!='' and pd.venue_sort == 0">
+			venue_sort ASC,
+		</if>
+		<if test="pd.venue_sort != null and pd.venue_sort!='' and pd.venue_sort == 1 ">
+			venue_sort DESC,
+		</if>
+			create_time DESC
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_course_venue where venue_id = #{venue_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_ythd_course_venue
+		(venue_name,venue_address,venue_traffic,venue_notice,venue_pic,venue_longitude,venue_latitude,venue_opentime,venue_conphone,venue_pics,venue_price,venue_desc,venue_limittime,venue_stutas,create_time,venue_sort)
+		values
+		(#{venue_name},#{venue_address},#{venue_traffic},#{venue_notice},
+		#{venue_pic},#{venue_longitude},#{venue_latitude},
+		#{venue_opentime},#{venue_conphone},#{venue_pics},#{venue_price},#{venue_desc},#{venue_limittime},#{venue_stutas},#{create_time},#{venue_sort})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_course_venue
+		<set>
+			<if test="venue_name != null">
+				venue_name = #{venue_name},
+			</if>
+			<if test="venue_address != null">
+				venue_address = #{venue_address},
+			</if>
+			<if test="venue_traffic != null">
+				venue_traffic = #{venue_traffic},
+			</if>
+			<if test="venue_notice != null">
+				venue_notice = #{venue_notice},
+			</if>
+			<if test="venue_pic != null">
+				venue_pic = #{venue_pic},
+			</if>
+			<if test="venue_longitude != null">
+				venue_longitude = #{venue_longitude},
+			</if>
+			<if test="venue_latitude != null">
+				venue_latitude = #{venue_latitude},
+			</if>
+			<if test="venue_opentime != null">
+				venue_opentime = #{venue_opentime},
+			</if>
+			<if test="venue_conphone != null">
+				venue_conphone = #{venue_conphone},
+			</if>
+			<if test="venue_desc != null">
+				venue_desc = #{venue_desc},
+			</if>
+			<if test="venue_price != null and venue_price != ''">
+				venue_price = #{venue_price},
+			</if>
+			<if test="venue_pics != null">
+				venue_pics = #{venue_pics},
+			</if>
+			<if test="venue_limittime != null">
+				venue_limittime = #{venue_limittime},
+			</if>
+			<if test="venue_stutas != null">
+				venue_stutas = #{venue_stutas},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+			<if test="venue_sort != null">
+				venue_sort = #{venue_sort},
+			</if>
+		</set>
+		where venue_id = #{venue_id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from
+		t_ythd_course_venue where venue_id = #{pd.venue_id}
+	</delete>
+</mapper>

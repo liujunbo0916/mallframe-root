@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.rebate.dao.RebateConfigMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	<!-- 
+		就一条记录,系统初始化的时候必须填写,记录不能被删除,不能新增,只能修改
+	
+	 -->
+	
+	<select id="selectConfig" resultType="pd">
+		SELECT * from t_rebate_config
+	</select>
+
+	<update id="update" parameterType="pd">
+		update t_rebate_config <set>
+		<if test="mode_type != null">
+			mode_type = #{mode_type},
+		</if>
+		<if test="is_open != null">
+			is_open = #{is_open},
+		</if>
+		<if test="rebate_1 != null">
+			rebate_1 = #{rebate_1},
+		</if>
+		<if test="rebate_2 != null">
+			rebate_2 = #{rebate_2},
+		</if>
+		<if test="rebate_3 != null">
+			rebate_3 = #{rebate_3},
+		</if>
+		<if test="points_1 != null">
+			points_1 = #{points_1},
+		</if>
+		<if test="points_2 != null">
+			points_2 = #{points_2},
+		</if>
+		<if test="points_3 != null">
+			points_3 = #{points_3},
+		</if>
+		<if test="sills_type_1 != null">
+			sills_type_1 = #{sills_type_1},
+		</if>
+		<if test="sills_value_1 != null">
+			sills_value_1 = #{sills_value_1},
+		</if>
+		<if test="sills_type_2 != null">
+			sills_type_2 = #{sills_type_2},
+		</if>
+		<if test="sills_value_2 != null">
+			sills_value_2 = #{sills_value_2},
+		</if>
+		<if test="guide_url != null">
+			guide_url = #{guide_url},
+		</if>
+		</set>
+		where id = #{id}
+	</update>
+</mapper>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsCartMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.cart_id != null">
+			and cart_id = #{pd.cart_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.goods_number != null">
+			and goods_number = #{pd.goods_number}
+		</if>
+		<if test="pd.sku_id != null">
+			and sku_id = #{pd.sku_id}
+		</if>
+		<if test="pd.carts_id != null and pd.carts_id != ''">
+		   and cart_id in ${pd.carts_id}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_cart where 1=1
+		    <include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_goods_cart where 1=1
+		   <include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *from t_goods_cart where cart_id = #{id}
+	</select>
+	<select id="selectByUserId" resultType="pd" parameterType="pd">
+		SELECT
+		t1.cart_id,
+		t1.user_id,
+		t1.sku_id,
+		t1.goods_number,
+		t1.goods_id,
+		t1.goods_sn,
+		t1.goods_name,
+		t2.price as sku_price,
+		t1.shop_price,
+		t1.goods_tags,
+		t2.stock as sku_stock,
+		t1.list_img
+		FROM
+		(
+		SELECT
+		a.cart_id,
+		a.user_id,
+		a.sku_id,
+		a.goods_number,
+		a.goods_id,
+		b.goods_sn,
+		b.goods_name,
+		b.goods_tags,
+		b.shop_price,
+		b.goods_stock,
+		b.list_img
+		FROM
+		t_goods_cart a
+		LEFT JOIN t_goods b ON a.goods_id = b.goods_id
+		WHERE
+		a.user_id = #{user_id}
+		) t1
+		LEFT JOIN t_goods_sku t2 ON t1.sku_id = t2.sku_id
+	</select>
+
+	<select id="selectByUserCartId" resultType="pd" parameterType="pd">
+		SELECT
+		a.cart_id,a.user_id,a.sku_id,a.goods_number,a.goods_id,b.goods_sn,b.goods_name,b.goods_tags,g.price,g.attr_json,b.goods_stock,b.list_img,
+		b.is_free_shipping,b.goods_freight
+		from t_goods_cart a LEFT JOIN t_goods b on a.goods_id = b.goods_id
+		left join t_goods_sku g on a.sku_id = g.sku_id
+		WHERE a.cart_id in
+		<foreach item="item" index="index" collection="cart_ids" open="("
+			separator="," close=")">
+			#{item}
+		</foreach>
+		and a.user_id = #{user_id}
+	</select>
+	
+	<!-- 根据库存查询一个伪造的购物车 -->
+	<select id="selectForgeBySkuId" resultType="pd" parameterType="pd">
+	    SELECT
+		a.sku_id,a.price,a.goods_id,a.stock,a.attr_json,b.goods_sn,b.goods_name,b.goods_tags,b.goods_stock,
+		b.list_img,b.is_free_shipping,b.goods_freight
+		from t_goods_sku a left join t_goods b on a.goods_id = b.goods_id
+		where sku_id = #{sku_id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_cart
+		(user_id,goods_id,goods_number,sku_id,create_time)
+		values
+		(#{user_id},#{goods_id},#{goods_number},#{sku_id},#{create_time})
+		<selectKey resultType="java.lang.String" order="AFTER" keyProperty="cart_id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_cart
+		<set>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="goods_id != null">
+				goods_id = #{goods_id},
+			</if>
+			<if test="goods_number != null">
+				goods_number = #{goods_number},
+			</if>
+			<if test="sku_id != null">
+				sku_id = #{sku_id},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where cart_id = #{cart_id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_cart where 1=1
+		<include refid="condition"></include>
+	</delete>
+
+	<delete id="deleteBatch" parameterType="Integer">
+		delete from t_goods_cart where cart_id in
+		<foreach item="cart_id" collection="array" open="(" separator=","
+			close=")">
+			#{cart_id}
+		</foreach>
+	</delete>
+</mapper>

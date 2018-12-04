@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.CourseHourMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.course_id != null">
+			and course_id = #{pd.course_id}
+		</if>
+		<if test="pd.hour_tv_address != null">
+			and hour_tv_address = #{pd.hour_tv_address}
+		</if>
+		<if test="pd.hour_venue != null">
+			and hour_venue = #{pd.hour_venue}
+		</if>
+		<if test="pd.hour_venue_address != null">
+			and hour_venue_address = #{pd.hour_venue_address}
+		</if>
+		<if test="pd.hour_need != null">
+			and hour_need = #{pd.hour_need}
+		</if>
+		<if test="pd.venue_id != null">
+			and venue_id = #{pd.venue_id}
+		</if>
+		<if test="pd.hour_date != null">
+			and hour_date = #{pd.hour_date}
+		</if>
+		<if test="pd.venue_place_id != null">
+			and venue_place_id = #{pd.venue_place_id}
+		</if>
+		<if test="pd.hour_venue_listings != null">
+			and hour_venue_listings = #{pd.hour_venue_listings}
+		</if>
+		<if test="pd.hour_status != null">
+			and hour_status = #{pd.hour_status}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course_hour where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_course_hour where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		select *
+		from t_ythd_course_hour where id = #{id}
+	</select>
+	<select id="selectByALL" resultType="pd" parameterType="pd">
+		select
+		t1.course_id,t1.hour_name,t1.hour_venue_address,t1.hour_date from
+		t_ythd_course_hour t1
+		LEFT JOIN t_ythd_course t2 ON
+		t1.course_id=t2.id
+		where t2.id= #{id}
+	</select>
+	<!--课程表开始 -->
+	<select id="selectCourseForms" resultType="pd" parameterType="pd">
+		SELECT
+		tch.*
+		FROM
+		t_ythd_course_hour tch
+		LEFT JOIN t_ythd_course_order tco
+		ON tco.order_course_id = tch.course_id
+		WHERE 1=1
+		AND
+		tco.order_pay_status=2
+		AND tco.order_status = 0
+		<if test="user_id != null and user_id != ''">
+			AND tco.user_id = #{user_id}
+		</if>
+		<if test="hour_date != null and hour_date != ''">
+			AND tch.hour_date = #{hour_date}
+		</if>
+		ORDER BY tch.hour_date
+	</select>
+	<!--课程表结束 -->
+	<select id="selectAllListPage" resultType="pd" parameterType="page">
+		SELECT
+		tch.*, tc.category_id,
+		tgc.category_name,
+		tc.course_name,
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		t_ythd_device_venue
+		WHERE
+		dv_venue_id = tch.venue_id
+		AND dv_category_id = tc.category_id
+		) AS have_num,
+		(
+		SELECT
+		venue_conphone
+		FROM
+		t_ythd_course_venue
+		WHERE
+		venue_id = tch.venue_id
+		) AS hour_venue_phone
+		FROM
+		t_ythd_course_hour tch
+		LEFT JOIN t_ythd_course tc ON tch.course_id = tc.id
+		LEFT JOIN t_goods_category tgc ON tgc.category_id = tc.category_id
+		WHERE
+		1 = 1
+		AND tch.hour_need = 1
+		<if test="pd.hour_status!=null and pd.hour_status!='' ">
+			AND tch.hour_status=#{pd.hour_status}
+		</if>
+		<if test="pd.hour_name!=null and pd.hour_name!='' ">
+			AND tch.hour_name like CONCAT(CONCAT('%',
+			#{pd.hour_name}),'%')
+		</if>
+		<if test="pd.hour_venue!=null and pd.hour_venue!='' ">
+			AND tch.hour_venue like CONCAT(CONCAT('%', #{pd.hour_venue}),'%')
+		</if>
+		ORDER BY
+		tch.hour_date,
+		hour_min_time
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_course_hour
+		(
+		course_id,hour_name,hour_tv_address,hour_venue,hour_venue_address,hour_need,venue_id,hour_create_time,
+		hour_date,hour_venue_listings,venue_place_id,hour_start_end_time,hour_equip_number,hour_min_time,hour_max_time,venue_place_name,hour_status,hour_venue_time
+		)
+		values (
+		#{course_id},#{hour_name},#{hour_tv_address},#{hour_venue},#{hour_venue_address},#{hour_need},#{venue_id},#{hour_create_time},
+		#{hour_date},#{hour_venue_listings},#{venue_place_id},#{hour_start_end_time},#{hour_equip_number},#{hour_min_time},#{hour_max_time},#{venue_place_name},#{hour_status},#{hour_venue_time}
+		)
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="hour_id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_course_hour
+		<set>
+			<if test="course_id != null and course_id != ''">
+				course_id = #{course_id},
+			</if>
+			<if test="hour_name != null and hour_name != ''">
+				hour_name = #{hour_name},
+			</if>
+			<if test="hour_tv_address != null and hour_tv_address != ''">
+				hour_tv_address = #{hour_tv_address},
+			</if>
+			<if test="hour_venue != null and hour_venue != ''">
+				hour_venue = #{hour_venue},
+			</if>
+			<if test="hour_venue_address != null and hour_venue_address != ''">
+				hour_venue_address = #{hour_venue_address},
+			</if>
+			<if test="hour_need != null and hour_need != ''">
+				hour_need = #{hour_need},
+			</if>
+			<if test="venue_id != null and venue_id != ''">
+				venue_id = #{venue_id},
+			</if>
+			<if test="hour_date != null and hour_date != ''">
+				hour_date = #{hour_date},
+			</if>
+			<if test="venue_place_id != null and venue_place_id != ''">
+				venue_place_id = #{venue_place_id},
+			</if>
+			<if test="hour_venue_listings != null and hour_venue_listings != ''">
+				hour_venue_listings = #{hour_venue_listings},
+			</if>
+
+			<if test="hour_start_end_time != null and hour_start_end_time != ''">
+				hour_start_end_time = #{hour_start_end_time},
+			</if>
+			<if test="hour_equip_number != null and hour_equip_number != ''">
+				hour_equip_number = #{hour_equip_number},
+			</if>
+			<if test="hour_max_time != null and hour_max_time != ''">
+				hour_max_time = #{hour_max_time},
+			</if>
+			<if test="venue_place_name != null and venue_place_name != ''">
+				venue_place_name = #{venue_place_name},
+			</if>
+			<if test="hour_status != null and hour_status != ''">
+				hour_status = #{hour_status},
+			</if>
+			<if test="hour_venue_time != null and hour_venue_time != ''">
+				hour_venue_time = #{hour_venue_time},
+			</if>
+			<if test="hour_min_time != null and hour_min_time != ''">
+				hour_min_time = #{hour_min_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from t_ythd_course_hour
+		where id = #{pd.id}
+	</delete>
+	<select id="selectByListings" parameterType="pd" resultType="pd">
+		select * from t_ythd_course_hour where hour_date <![CDATA[=]]>
+		#{hour_date}
+		and
+		(
+		hour_venue_listings = #{hour_venue_listings}
+		or
+		hour_venue_listings like concat(#{hour_venue_listings},',%')
+		or
+		hour_venue_listings like concat('%,',#{hour_venue_listings},',%')
+		or
+		hour_venue_listings like concat('%,',#{hour_venue_listings})
+		)
+		<if test="hour_id != null and hour_id != ''">
+			and id != #{hour_id}
+		</if>
+	</select>
+
+
+</mapper>

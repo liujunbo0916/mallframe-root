@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.SellerGoodsCategoryMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+
+	<!-- 店铺绑定平台分类 列表 -->
+	<select id="bindCategoryList" parameterType="pd" resultType="pd">
+		select t1.* ,t2.category_name as class1Name,t3.category_name as
+		class2Name, t4.category_name as class3Name,t4.commis_rate
+		from
+		t_business_bind_class t1
+		left join t_goods_category t2 on t1.class_1 =
+		t2.category_id
+		left join t_goods_category t3 on t1.class_2 =
+		t3.category_id
+		left join t_goods_category t4 on t1.class_3 =
+		t4.category_id
+		where 1= 1
+		<if test="business_id != null and business_id != ''">
+			and store_id = #{business_id}
+		</if>
+		order by t1.create_time desc
+	</select>
+
+	<!-- 店铺绑定平台分类 审核列表 -->
+	<select id="bindCategoryListPage" parameterType="page"
+		resultType="pd">
+		select t1.* ,tb.bs_name,t2.category_name as
+		class1Name,t3.category_name as class2Name, t4.category_name as
+		class3Name
+		from t_business_bind_class t1
+		left join t_goods_category t2
+		on t1.class_1 = t2.category_id
+		left join t_goods_category t3 on
+		t1.class_2 = t3.category_id
+		left join t_goods_category t4 on t1.class_3
+		= t4.category_id
+		left join t_business tb on t1.store_id = tb.bs_id
+		where 1= 1
+		<if test="pd.business_id != null and pd.business_id != ''">
+			and t1.store_id = #{pd.business_id}
+		</if>
+		<if test="pd.state != null and pd.state != ''">
+			and t1.state = #{pd.state}
+		</if>
+		<if test="pd.bs_name != null and pd.bs_name != ''">
+			and tb.bs_name = #{pd.bs_name}
+		</if>
+		ORDER BY t1.state ASC,t1.create_time desc
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select *
+		from t_business_bind_class
+		where 1= 1 and bid=#{bid}
+	</select>
+
+	<!-- 删除申请 -->
+	<delete id="delApply" parameterType="pd">
+		delete from
+		t_business_bind_class where bid = #{bid}
+	</delete>
+
+	<!-- 查询是否包含所申请类目 -->
+	<select id="selectApplyCategroy" parameterType="pd" resultType="pd">
+		select * from t_business_bind_class where store_id = #{business_id}
+		<if test="category_1 != null and category_1 != ''">
+			and class_1 = #{category_1}
+		</if>
+		<if test="category_2 != null and category_2 != ''">
+			and class_2 = #{category_2}
+		</if>
+		<if test="category_3 != null and category_3 != ''">
+			and class_3 = #{category_3}
+		</if>
+	</select>
+
+	<!-- 查询是否包含所申请类目 -->
+	<select id="selectByMap" parameterType="page" resultType="pd">
+		select * from t_business_bind_class where 1=1
+		<if test="pd.store_id != null and pd.store_id != ''">
+			and store_id = #{pd.store_id}
+		</if>
+		<if test="pd.class_1 != null and pd.class_1 != ''">
+			and class_1 = #{pd.class_1}
+		</if>
+		<if test="pd.class_2 != null and pd.class_2 != ''">
+			and class_2 = #{pd.class_2}
+		</if>
+		<if test="pd.class_3 != null and pd.class_3 != ''">
+			and class_3 = #{pd.class_3}
+		</if>
+		<if test="pd.state != null and pd.state != ''">
+			and state = #{pd.state}
+		</if>
+	</select>
+
+	<!-- 申请类目 -->
+	<insert id="insertBindCategory" parameterType="pd">
+		insert into
+		t_business_bind_class(store_id,commis_rate,class_1,class_2,class_3,state,create_time,remark)
+		values(#{business_id},#{commis_rate},#{category_1},#{category_2},#{category_3},#{state},#{create_time},#{remark})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_business_bind_class
+		<set>
+			<if test="commis_rate !=null and commis_rate !=''">
+				commis_rate = #{commis_rate},
+			</if>
+			<if test="class_1 !=null and class_1 !=''">
+				class_1 = #{class_1},
+			</if>
+			<if test="class_2 !=null and class_2 !=''">
+				class_2 = #{class_2},
+			</if>
+			<if test="class_3 !=null and class_3 !=''">
+				class_3 = #{class_3},
+			</if>
+			<if test="state !=null and state !=''">
+				state = #{state},
+			</if>
+			<if test="remark !=null">
+				remark = #{remark},
+			</if>
+		</set>
+		where 1=1 and bid=#{bid}
+	</update>
+	
+</mapper>

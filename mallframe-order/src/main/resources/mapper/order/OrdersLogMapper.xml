@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.OrdersLogMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.log_id != null">
+			and log_id = #{pd.log_id}
+		</if>
+		<if test="pd.order_id != null">
+			and order_id = #{pd.order_id}
+		</if>
+		<if test="pd.order_status != null">
+			and order_status = #{pd.order_status}
+		</if>
+		<if test="pd.shipping_status != null">
+			and shipping_status = #{pd.shipping_status}
+		</if>
+		<if test="pd.pay_status != null">
+			and pay_status = #{pd.pay_status}
+		</if>
+		<if test="pd.auto_note != null">
+			and auto_note = #{pd.auto_note}
+		</if>
+		<if test="pd.log_note != null">
+			and log_note = #{pd.log_note}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_orders_log where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_orders_log where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_orders_log where log_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_orders_log (order_id,order_status,shipping_status,pay_status,auto_note,log_note,creator,create_time)
+		values (#{order_id},#{order_status},#{shipping_status},#{pay_status},#{auto_note},#{log_note},#{creator},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_orders_log <set>
+		<if test="order_id != null">
+			order_id = #{order_id},
+		</if>
+		<if test="order_status != null">
+			order_status = #{order_status},
+		</if>
+		<if test="shipping_status != null">
+			shipping_status = #{shipping_status},
+		</if>
+		<if test="pay_status != null">
+			pay_status = #{pay_status},
+		</if>
+		<if test="auto_note != null">
+			auto_note = #{auto_note},
+		</if>
+		<if test="log_note != null">
+			log_note = #{log_note},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		</set>
+		where log_id = #{log_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_orders_log where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

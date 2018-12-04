@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.SysConfigMapper">
+	<select id="getByCondition" parameterType="pd" resultType="pd">
+		select * from t_upm_setting where 1= 1
+		<if test="CFG_GROUP != null and CFG_GROUP != ''">
+			and CFG_GROUP = #{CFG_GROUP}
+		</if>
+	</select>
+	<update id="updateByCondition" parameterType="pd">
+		update
+		t_upm_setting set CFG_VALUE = #{CFG_VALUE}
+		where CFG_GROUP =
+		#{CFG_GROUP}
+	</update>
+	<!-- 前端APP使用 -->
+	<select id="selectVersionList" parameterType="pd" resultType="pd">
+		select * from t_app_version
+		where 1=1
+		and v_type= #{v_type}
+		order by
+		v_time desc
+		limit 1
+	</select>
+	<select id="getVersionListByPage" parameterType="page"
+		resultType="pd">
+		select * from t_app_version where 1=1
+		<if test="pd.id != null and pd.id != ''">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.v_type != null and pd.v_type != ''">
+			and v_type = #{pd.v_type}
+		</if>
+		<if test="pd.v_version != null and pd.v_version != ''">
+			and v_version = #{pd.v_version}
+		</if>
+		<if test="pd.v_content != null and pd.v_content != ''">
+			and v_content = #{pd.v_content}
+		</if>
+		<if test="pd.v_time != null and pd.v_time != ''">
+			and v_time = #{pd.v_time}
+		</if>
+		order by v_time desc
+	</select>
+	<insert id="insertVersion" parameterType="pd">
+		insert into
+		t_app_version(v_type,v_version,v_content,v_time)
+		values(#{v_type},#{v_version},#{v_content},#{v_time})
+	</insert>
+
+	<update id="updateVersion" parameterType="pd">
+		update t_app_version
+		<set>
+			<if test="v_type != null and v_type != ''">
+				v_type = #{v_type},
+			</if>
+			<if test="v_version != null and v_version != ''">
+				v_version = #{v_version},
+			</if>
+			<if test="v_content != null and v_content != ''">
+				v_content = #{v_content},
+			</if>
+			<if test="v_time != null and v_time != ''">
+				v_time = #{v_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<select id="selectAllSmsTpl" parameterType="pd" resultType="pd">
+		select * from t_sys_sms_tpl where 1=1 
+			<if test="id != null and id != ''">
+				and id = #{id}
+			</if>
+			<if test="tpl_title != null and tpl_title != ''">
+				and tpl_title = #{tpl_title}
+			</if>
+			<if test="tpl_content != null and tpl_content != ''">
+				and tpl_content = #{tpl_content}
+			</if>
+			<if test="v_content != null and v_content != ''">
+				and v_content = #{v_content}
+			</if>
+	</select>
+	
+	<insert id="insertSmsTpl" parameterType="pd">
+	 	insert into
+		t_sys_sms_tpl(tpl_title,tpl_content,tpl_var)
+		values(#{tpl_title},#{tpl_content},#{tpl_var})
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="updateSmsTpl" parameterType="pd">
+		update t_sys_sms_tpl
+		<set>
+			<if test="tpl_title != null and tpl_title != ''">
+				tpl_title = #{tpl_title},
+			</if>
+			<if test="tpl_content != null and tpl_content != ''">
+				tpl_content = #{tpl_content},
+			</if>
+			<if test="tpl_var != null and tpl_var != ''">
+				tpl_var = #{tpl_var},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="deleteSmsTpl" parameterType="pd">
+		delete from t_sys_sms_tpl where id=#{id}
+	</delete>
+	
+</mapper>

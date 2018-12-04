@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.UserMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.phone != null and pd.phone!=''">
+			and phone = #{pd.phone}
+		</if>
+		<if test="pd.user_name != null">
+			and user_name = #{pd.user_name}
+		</if>
+		<if test="pd.password != null">
+			and password = #{pd.password}
+		</if>
+		<if test="pd.fake_id != null">
+			and fake_id = #{pd.fake_id}
+		</if>
+		<if test="pd.nick_name != null">
+			and nick_name = #{pd.nick_name}
+		</if>
+		<if test="pd.register_channel != null">
+			and register_channel = #{pd.register_channel}
+		</if>
+		<if test="pd.register_time != null">
+			and register_time = #{pd.register_time}
+		</if>
+		<if test="pd.parent_id != null">
+			and parent_id = #{pd.parent_id}
+		</if>
+		<if test="pd.user_money != null">
+			and user_money = #{pd.user_money}
+		</if>
+		<if test="pd.user_points != null">
+			and user_points = #{pd.user_points}
+		</if>
+		<if test="pd.is_validated != null">
+			and is_validated = #{pd.is_validated}
+		</if>
+		<if test="pd.sex != null">
+			and sex = #{pd.sex}
+		</if>
+		<if test="pd.birthday != null">
+			and birthday = #{pd.birthday}
+		</if>
+		<if test="pd.session_id != null">
+			and session_id = #{pd.session_id}
+		</if>
+		<if test="pd.head_portrait != null">
+			and head_portrait = #{pd.head_portrait}
+		</if>
+		<if test="pd.recommend_code != null">
+			and recommend_code = #{pd.recommend_code}
+		</if>
+		<if test="pd.open_id != null">
+			and open_id = #{pd.open_id}
+		</if>
+		<if test="pd.status!= null">
+			and status = #{pd.status}
+		</if>
+		<if test="pd.is_loginer!= null">
+			and is_loginer = #{pd.is_loginer}
+		</if>
+		<if test="pd.user_type!= null">
+			and user_type = #{pd.user_type}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_user where 1=1
+		<include refid="condition"></include>
+		order by register_time desc
+	</select>
+	
+	<select id="selectByAllPage" resultType="pd" parameterType="page">
+		select * from t_user where 1=1
+		<if test="pd.nick_name != null and pd.nick_name != ''"> and nick_name like
+			CONCAT('%',#{pd.nick_name},'%')  </if>
+		<if test="pd.phone!= null and pd.phone!= ''"> and phone like CONCAT('%',#{pd.phone},'%')
+		</if>
+		<if test="pd.user_type!= null and pd.user_type!= ''"> and user_type=#{pd.user_type}
+		</if>
+		<choose>
+			<when test="pd.start_create_time != null and pd.start_create_time != ''">
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		               and  (date_format(register_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		                    and date_format(register_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		               )
+		             ]]>
+					</when>
+					<otherwise>
+		             <![CDATA[
+		              and date_format(register_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		             ]]>
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		                    and date_format(register_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		             ]]>
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+		order by register_time desc
+	</select>
+	
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_user where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByuserid" resultType="pd" parameterType="pd">
+		select * from t_user where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<!-- 获得用户信息 -->
+	<select id="getUserInfo" resultType="pd" parameterType="pd">
+		select *
+		from t_user where 1=1 and user_name = #{user_name} and password =
+		#{password}
+	</select>
+	<select id="getUserInfoById" resultType="pd" parameterType="Integer">
+		SELECT
+		t1.user_id,
+		t1.phone,
+		t1.user_name,
+		t1.nick_name,
+		t1.head_portrait,
+		t1.recommend_code,
+		t1.withdraw_password,
+		t1.user_type,
+		t1.is_commenter,
+		t1.user_type,
+		t1.is_loginer,
+		t1.is_buyer,
+		t1.extension_juri,
+		t2.user_money,
+		t2.frozen_money,
+		t2.user_points,
+		t2.frozen_points,
+		t2.tea_hoursubsidy,
+		t2.u_commission,
+		(select count(*) from t_goods_activity_cash_record where user_id=t1.user_id and user_status = 0 ) as cash_num
+		FROM
+		t_user t1
+		LEFT JOIN t_user_account t2 ON t1.user_id=t2.user_id
+		WHERE
+		1 = 1
+		AND t1.user_id= #{user_id}
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_user where user_id = #{user_id}
+	</select>
+     
+	<select id="selectByOpenId" resultType="pd" parameterType="String">
+		SELECT * from t_user where open_id = #{open_id}
+	</select>
+    <select id="selectByUserName" resultType="pd" parameterType="java.lang.String">
+        SELECT * from t_user where user_name = #{user_name}
+    </select>
+    <select id="selectByUnionId" resultType="pd" parameterType="String">
+		SELECT * from t_user where unionid = #{unionid}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_user
+		(phone,user_name,password,fake_id,nick_name,register_channel,register_time,parent_id,user_money,user_points,is_validated,session_id,recommend_code,subscribe,headimgurl,head_portrait,subscribe_time,open_id,unionid,user_type,is_buyer,is_loginer,is_commenter)
+		values
+		(#{phone},#{user_name},#{password},#{fake_id},#{nick_name},#{register_channel},#{register_time},#{parent_id},#{user_money},#{user_points},#{is_validated},#{IME},#{recommend_code},#{subscribe},#{headimgurl},#{head_portrait},#{subscribe_time},#{open_id},#{unionid},#{user_type},1,1,1)
+		<selectKey resultType="java.lang.Integer" keyProperty="user_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_user
+		<set>
+			<if test="phone != null">
+				phone = #{phone},
+			</if>
+			<if test="user_name != null">
+				user_name = #{user_name},
+			</if>
+			<if test="password != null">
+				password = #{password},
+			</if>
+			<if test="fake_id != null">
+				fake_id = #{fake_id},
+			</if>
+			<if test="nick_name != null">
+				nick_name = #{nick_name},
+			</if>
+			<if test="register_channel != null">
+				register_channel = #{register_channel},
+			</if>
+			<if test="register_time != null">
+				register_time = #{register_time},
+			</if>
+			<if test="parent_id != null">
+				parent_id = #{parent_id},
+			</if>
+			<if test="user_money != null">
+				user_money = #{user_money},
+			</if>
+			<if test="user_points != null">
+				user_points = #{user_points},
+			</if>
+			<if test="is_validated != null">
+				is_validated = #{is_validated},
+			</if>
+			<if test="sex != null">
+				sex = #{sex},
+			</if>
+			<if test="birthday != null">
+				birthday = #{birthday},
+			</if>
+			<if test="address_id != null">
+				address_id = #{address_id},
+			</if>
+			<if test="session_id != null">
+				session_id = #{session_id},
+			</if>
+			<if test="head_portrait != null">
+				head_portrait = #{head_portrait},
+			</if>
+			<if test="user_1 != null">
+				user_1 = #{user_1},
+			</if>
+			<if test="user_2 != null">
+				user_2 = #{user_2},
+			</if>
+			<if test="user_3 != null">
+				user_3 = #{user_3},
+			</if>
+			<if test="recommend_code != null">
+				recommend_code = #{recommend_code},
+			</if>
+			<if test="child_1_count != null">
+				child_1_count = #{child_1_count},
+			</if>
+			<if test="child_2_count != null">
+				child_2_count = #{child_2_count},
+			</if>
+			<if test="child_3_count != null">
+				child_3_count = #{child_3_count},
+			</if>
+			<if test="subscribe != null">
+				subscribe = #{subscribe},
+			</if>
+			<if test="headimgurl != null">
+				headimgurl = #{headimgurl},
+			</if>
+			<if test="subscribe_time != null">
+				subscribe_time = #{subscribe_time},
+			</if>
+			<if test="open_id != null">
+				open_id = #{open_id},
+			</if>
+			<if test="is_commenter != null">
+				is_commenter = #{is_commenter},
+			</if>
+			<if test="user_type != null">
+				user_type = #{user_type},
+			</if>
+			<if test="is_loginer != null">
+				is_loginer = #{is_loginer},
+			</if>
+			<if test="is_buyer != null">
+				is_buyer = #{is_buyer},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="withdraw_password != null and withdraw_password != ''">
+				withdraw_password = #{withdraw_password},
+			</if>
+		</set>
+		where user_id = #{user_id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_user where 1=1
+		<include refid="condition"></include>
+	</delete>
+
+	<select id="selectByRecCode" resultType="pd" parameterType="String">
+		select * from t_user tu where tu.recommend_code = #{recommend_code}
+	</select>
+	<!-- 用户间的关联关系 -->
+	<insert id="insertRelation" parameterType="pd">
+		insert into
+		t_user_relation (rec_user_id,child_user_id,rec_type,create_time)
+		values (#{rec_user_id},#{child_user_id},#{rec_type},#{create_time})
+	</insert>
+	
+	<select id="selectRelationByCondition" parameterType="pd" resultType="pd">
+	   select * from t_user_relation
+	   where 1= 1
+	   <if test="child_user_id != null and child_user_id != ''">
+	      and child_user_id = #{child_user_id}
+	   </if>
+	   <if test="rec_user_id != null and rec_user_id != ''">
+	      and rec_user_id = #{rec_user_id}
+	   </if>
+	</select>
+	
+	
+	<!-- 查询指定用户的下级会员 ;依据rec_type的值判断级别 -->
+	<select id="selectChildsByPage" resultType="pd" parameterType="page">
+		SELECT
+		tu.user_id,tu.nick_name,tu.head_portrait,tu.user_name,tr.rec_type FROM
+		t_user_relation AS tr
+		LEFT JOIN t_user AS tu ON tr.child_user_id =
+		tu.user_id
+		WHERE 1=1
+		<if test="pd.phone != null">
+			and tu.phone = #{pd.phone}
+		</if>
+		<if test="pd.user_name != null">
+			and tu.user_name = #{pd.user_name}
+		</if>
+		<if test="pd.nick_name != null">
+			and tu.nick_name = #{pd.nick_name}
+		</if>
+		<if test="pd.sex != null">
+			and tu.sex = #{pd.sex}
+		</if>
+		<if test="pd.rec_type != null">
+			and tr.rec_type = #{pd.rec_type}
+		</if>
+		<if test="pd.rec_user_id != null">
+			and tr.rec_user_id = #{pd.rec_user_id}
+		</if>
+	</select>
+	<!-- 根据用户id和ime号判断用户是否换了设备登陆系统 -->
+	<select id="selectLoginStatus" parameterType="pd" resultType="pd">
+		select * from t_ythd_user_status where user_id = #{user_id}
+		order by
+		create_time desc
+		limit 1
+	</select>
+	<insert id="insertLoginStatus" parameterType="pd">
+		insert into
+		t_ythd_user_status (IME,create_time,user_id)
+		value(#{IME},#{create_time},#{user_id})
+	</insert>
+	<!--t_sys_feedback 意见反馈 -->
+	<select id="selectfeedback" parameterType="pd" resultType="pd">
+		SELECT
+		t1.*,t2.nick_name,t2.head_portrait
+		FROM
+		t_sys_feedback t1
+		LEFT JOIN
+		t_user AS t2 ON t1.user_id = t2.user_id
+		where t1.user_id = #{user_id}
+		order by
+		t1.back_create_time desc
+	</select>
+
+	<insert id="insertfeedback" parameterType="pd">
+		insert into
+		t_sys_feedback (user_id,back_text,back_create_time)
+		value(#{user_id},#{back_text},#{back_create_time})
+	</insert>
+
+
+</mapper>

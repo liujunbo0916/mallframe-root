@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.template.dao.TemplateMapper">
+      <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+
+      <sql id="condition">
+          <if test="pd.template_id != null">
+              and template_id = #{pd.template_id}
+          </if>
+          <if test="pd.page_code != null">
+              and page_code = #{pd.page_code}
+          </if>
+          <if test="pd.template_type != null">
+              and template_type = #{pd.template_type}
+          </if>
+          <if test="pd.template_title != null">
+              and template_title = #{pd.template_title}
+          </if>
+          <if test="pd.template_title_img != null">
+              and template_title_img = #{pd.template_title_img}
+          </if>
+          <if test="pd.template_background_img != null">
+              and template_background_img = #{pd.template_background_img}
+          </if>
+          <if test="pd.is_show_title != null">
+              and is_show_title = #{pd.is_show_title}
+          </if>
+          <if test="pd.is_margin != null">
+              and is_margin = #{pd.is_margin}
+          </if>
+          <if test="pd.is_enable != null">
+              and is_enable = #{pd.is_enable}
+          </if>
+           <if test="pd.sort != null">
+              and sort = #{pd.sort}
+          </if>
+          <if test="pd.creator != null">
+              and creator = #{pd.creator}
+          </if>
+          <if test="pd.create_time != null">
+              and create_time = #{pd.create_time}
+          </if>
+      </sql>
+
+      <select id="selectByPage" resultType="pd"  parameterType="page">
+          select * from t_template where 1=1
+              <include refid="condition"></include>
+      </select>
+      <!-- 访问必要的字段 -->
+      <select id="selectTemplateList" resultType="pd"  parameterType="pd">
+          SELECT t.template_type,t.template_title,t.template_title_img,t.template_background_img,t.is_margin,t.is_show_title,t.template_id from t_template t where 1=1
+              <include refid="condition"></include>
+              ORDER BY t.sort
+      </select>
+      
+      <select id="selectByMap" resultType="pd"  parameterType="pd">
+          select * from t_template where 1=1
+              <include refid="condition"></include>
+      </select>
+
+      <select id="selectById" resultType="pd"  parameterType="Integer">
+          SELECT * from t_template where template_id = #{id}
+      </select>
+
+      <insert id="insert" parameterType="pd">
+          insert into t_template (page_code,template_type,template_title,template_title_img,template_background_img,is_show_title,is_margin,is_enable,sort,creator,create_time)
+          values (#{page_code},#{template_type},#{template_title},#{template_title_img},#{template_background_img},#{is_show_title},#{is_margin},#{is_enable},#{sort},#{creator},#{create_time})
+      </insert>
+
+      <update id="update" parameterType="pd">
+          update t_template <set>
+          <if test="page_code != null">
+              page_code = #{page_code},
+          </if>
+          <if test="template_type != null">
+              template_type = #{template_type},
+          </if>
+          <if test="template_title != null">
+              template_title = #{template_title},
+          </if>
+          <if test="template_title_img != null">
+              template_title_img = #{template_title_img},
+          </if>
+          <if test="template_background_img != null">
+              template_background_img = #{template_background_img},
+          </if>
+          <if test="is_show_title != null">
+              is_show_title = #{is_show_title},
+          </if>
+          <if test="is_margin != null">
+              is_margin = #{is_margin},
+          </if>
+          <if test="is_enable != null">
+              is_enable = #{is_enable},
+          </if>
+           <if test="sort != null">
+              sort = #{sort},
+          </if>
+          <if test="creator != null">
+              creator = #{creator},
+          </if>
+          <if test="create_time != null">
+              create_time = #{create_time},
+          </if>
+          </set>
+          where template_id = #{template_id}
+      </update>
+
+      <delete id="delete"   parameterType="pd">
+          delete from t_template where 1=1
+              <include refid="condition"></include>
+      </delete>
+  </mapper>

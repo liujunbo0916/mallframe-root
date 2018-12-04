@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.LinksMapper">
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.link_title != null and pd.link_title!=''">
+			and link_title = #{pd.link_title}
+		</if>
+		<if test="pd.link_url != null">
+			and link_url = #{pd.link_url}
+		</if>
+		<if test="pd.link_sort != null">
+			and link_sort = #{pd.link_sort}
+		</if>
+		<if test="pd.link_status != null">
+			and link_status = #{pd.link_status}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_sys_links
+		(link_title,link_url,link_sort,link_status,create_time)
+		values(#{link_title},#{link_url},#{link_sort},#{link_status},#{create_time})
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_sys_links where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select * from t_sys_links where 1=1
+		<include refid="condition"></include>
+	</select>
+	
+	<select id="selectById" resultType="pd" parameterType="java.lang.Integer">
+		select *
+		from t_sys_links where 1=1 and id=#{id}
+	</select>
+	<update id="update" parameterType="pd">
+		update t_sys_links
+		<set>
+			<if test="link_title != null and link_title != ''">
+				link_title = #{link_title},
+			</if>
+			<if test="link_url != ''">
+				link_url = #{link_url},
+			</if>
+			<if test="link_sort != ''">
+				link_sort = #{link_sort},
+			</if>
+			<if test="link_status != ''">
+				link_status = #{link_status},
+			</if>
+			<if test="create_time != null ">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from t_sys_links where
+		id=#{pd.id}
+	</delete>
+
+</mapper>

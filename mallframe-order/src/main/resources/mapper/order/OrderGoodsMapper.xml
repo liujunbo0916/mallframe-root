@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.OrdersGoodsMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.order_goods_id != null">
+			and order_goods_id = #{pd.order_goods_id}
+		</if>
+		<if test="pd.order_id != null">
+			and order_id = #{pd.order_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.goods_name != null">
+			and goods_name = #{pd.goods_name}
+		</if>
+		<if test="pd.goods_sn != null">
+			and goods_sn = #{pd.goods_sn}
+		</if>
+		<if test="pd.goods_count != null">
+			and goods_count = #{pd.goods_count}
+		</if>
+		<if test="pd.goods_price != null">
+			and goods_price = #{pd.goods_price}
+		</if>
+		<if test="pd.goods_sku_id != null">
+			and goods_sku_id = #{pd.goods_sku_id}
+		</if>
+		<if test="pd.is_gift != null">
+			and is_gift = #{pd.is_gift}
+		</if>
+		<if test="pd.goods_attr != null">
+			and goods_attr = #{pd.goods_attr}
+		</if>
+		<if test="pd.is_refund != null">
+			and is_refund = #{pd.is_refund}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_orders_goods where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		SELECT t1.order_goods_id,t1.order_id,t1.goods_id,
+		t1.goods_name,t1.goods_sn,t1.goods_count,t1.goods_price,t1.goods_sku_id,t1.is_gift,
+		t1.goods_attr,t1.rebate_type,t1.is_refund,t1.rebate_points,
+		t2.rebate_1,t2.rebate_2,t2.rebate_3,t2.points_1,
+		t2.points_2,t2.points_3
+		FROM t_orders_goods t1 left join t_goods_rebate t2 on t1.goods_id =
+		t2.goods_id
+		WHERE 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectGRById" resultType="pd" parameterType="pd">
+		SELECT
+		order_goods_id,
+		order_id,
+		goods_id,
+		goods_count,
+		goods_price,
+		rebate_points,
+		goods_sku_id as sku_id
+		FROM
+		t_orders_goods
+		WHERE
+		1=1
+		AND
+		order_id = #{order_id}
+		AND goods_sku_id = #{goods_sku_id}
+		AND goods_id =
+		#{goods_id}
+		AND is_refund = 0
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_orders_goods where order_goods_id = #{order_goods_id}
+	</select>
+
+	<select id="selectByOrderId" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_orders_goods where order_id = #{order_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_orders_goods
+		(order_id,goods_id,goods_name,goods_sn,goods_count,goods_price,goods_sku_id,is_gift,goods_attr,rebate_type,rebate_1,rebate_2,rebate_3,points_1,points_2,points_3,rebate_points,is_refund)
+		values
+		(#{order_id},#{goods_id},#{goods_name},#{goods_sn},#{goods_count},#{goods_price},#{goods_sku_id},#{is_gift},#{goods_attr},#{rebate_type},#{rebate_1},#{rebate_2},#{rebate_3},#{points_1},#{points_2},#{points_3},#{rebate_points},0)
+		<selectKey resultType="java.lang.Integer" keyProperty="order_goods_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_orders_goods
+		<set>
+			<if test="order_id != null">
+				order_id = #{order_id},
+			</if>
+			<if test="goods_id != null">
+				goods_id = #{goods_id},
+			</if>
+			<if test="goods_name != null">
+				goods_name = #{goods_name},
+			</if>
+			<if test="goods_sn != null">
+				goods_sn = #{goods_sn},
+			</if>
+			<if test="goods_count != null">
+				goods_count = #{goods_count},
+			</if>
+			<if test="goods_price != null">
+				goods_price = #{goods_price},
+			</if>
+			<if test="goods_sku_id != null">
+				goods_sku_id = #{goods_sku_id},
+			</if>
+			<if test="is_gift != null">
+				is_gift = #{is_gift},
+			</if>
+			<if test="goods_attr != null">
+				goods_attr = #{goods_attr},
+			</if>
+			<if test="is_refund != null">
+				is_refund = #{is_refund},
+			</if>
+		</set>
+		where order_goods_id = #{order_goods_id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_orders_goods where 1=1
+		<include refid="condition"></include>
+	</delete>
+
+
+
+
+</mapper>

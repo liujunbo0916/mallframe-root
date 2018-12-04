@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.hautecouture.dao.ApplicationMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+    
+	<sql id="applicationColumns">
+		a.id AS "id",
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.applicant AS "applicant",
+		a.application_time AS "application_time",
+		a.article AS "article",
+		a.material AS "material",
+		a.custom_details AS "custom_details",
+		a.material_content AS "material_content",
+		a.byo AS "byo",
+		a.capped_price AS "capped_price",
+		a.floor_price AS "floor_price",
+		a.reviewed AS "reviewed",
+		a.auditor AS "auditor",
+		a.designer_id AS "designer_id",
+		a.audit_time AS "audit_time"
+	</sql>
+	
+	<sql id="applicationJoins">
+		left join t_designer b on b.designer_id = a.designer_id
+	</sql>
+	
+    
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT 
+			<include refid="applicationColumns"/>,
+			b.designer_name AS "designer_name"
+		FROM t_haute_couture_application a
+		<include refid="applicationJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		SELECT 
+			<include refid="applicationColumns"/>,
+			b.designer_name AS "designer_name"
+		FROM t_haute_couture_application a
+		<include refid="applicationJoins"/>
+		<where>
+			a.del_flag = #{pd.del_flag}
+			<if test="pd.application_time != null and pd.application_time != ''">
+				AND a.application_time = #{pd.application_time}
+			</if>
+			<if test="pd.article != null and pd.article != ''">
+				AND a.article LIKE 	concat('%',#{pd.article},'%')
+			</if>
+			<if test="pd.material != null and pd.material != ''">
+				AND a.material LIKE concat('%',#{pd.material},'%')
+			</if>
+			<if test="pd.byo != null and pd.byo != ''">
+				AND a.byo = #{pd.byo}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectApplicsPage" resultType="pd" parameterType="page">
+		SELECT
+			a.id,
+			a.article,
+			CASE a.byo WHEN '0' THEN '是'ELSE '否' END byo,
+			a.application_time,
+			CASE a.reviewed WHEN '0' THEN '生成订单' WHEN '1' THEN	'待审核' ELSE	'审核未通过' END reviewed,
+		 	b.designer_name
+		FROM
+			t_haute_couture_application a
+		LEFT JOIN t_designer b ON b.designer_id = a.designer_id
+		WHERE
+			a.applicant = #{pd.uid}
+		ORDER BY
+			a.application_time desc
+	</select>
+	
+	<select id="selectApplicInfo" resultType="pd" parameterType="String">
+		SELECT
+			a.id,
+			a.article,
+			a.remarks,
+			a.material,
+			a.custom_details,
+			a.material_content,
+			a.capped_price,
+			a.floor_price,
+			a.audit_time,
+			CASE a.byo WHEN '0' THEN '是'ELSE '否' END byo,
+			a.application_time,
+			CASE a.reviewed WHEN '0' THEN '生成订单' WHEN '1' THEN	'待审核' ELSE	'审核未通过' END reviewed,
+		 	b.designer_name
+		FROM
+			t_haute_couture_application a
+		LEFT JOIN t_designer b ON b.designer_id = a.designer_id
+		WHERE
+			a.id = #{id}
+	</select>
+	
+	<select id="selectByIds" resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_application a
+		<where>
+		id in 
+			<foreach item="item" index="index" collection="category_ids" open="(" separator="," close=")">
+	                #{item}
+	        </foreach>
+	    </where>
+	</select>
+	<insert id="insert" parameterType="pd">
+		INSERT INTO t_haute_couture_application(
+			create_by,
+			create_date,
+			remarks,
+			applicant,
+			application_time,
+			article,
+			material,
+			custom_details,
+			material_content,
+			byo,
+			capped_price,
+			floor_price,
+			designer_id
+		) VALUES (
+			#{create_by},
+			#{create_date},
+			#{remarks},
+			#{applicant},
+			#{application_time},
+			#{article},
+			#{material},
+			#{custom_details},
+			#{material_content},
+			#{byo},
+			#{capped_price},
+			#{floor_price},
+			#{designer_id }
+		)
+		 <selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="pd">
+		UPDATE t_haute_couture_application SET 	
+			update_by = #{updateBy},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			applicant = #{applicant},
+			application_time = #{application_time},
+			article = #{article},
+			material = #{material},
+			custom_details = #{custom_details},
+			material_content = #{material_content},
+			byo = #{byo},
+			capped_price = #{capped_price},
+			floor_price = #{floor_price}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="audit" parameterType="pd">
+		UPDATE t_haute_couture_application SET 	
+			update_by = #{updateBy},
+			update_date = #{updateDate},
+			auditor = #{auditor},
+			reviewed = #{reviewed},
+			audit_time = #{audit_time}
+		WHERE id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="deleteByPhysics" parameterType="pd">
+		DELETE FROM t_haute_couture_application
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic" parameterType="pd">
+		UPDATE t_haute_couture_application SET 
+			del_flag = #{del_flag}
+		WHERE id = #{id}
+	</update>
+	
+	<!--审核-->
+	<update id="uncheck" parameterType="pd">
+		UPDATE t_haute_couture_application SET 
+			reviewed = #{reviewed},
+			audit_time = #{audit_time},
+			auditor = #{auditor}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

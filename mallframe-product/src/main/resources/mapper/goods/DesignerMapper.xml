@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.DesignerMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.designer_id != null">
+			and designer_id = #{pd.designer_id}
+		</if>
+		<if test="pd.designer_img != null">
+			and designer_img = #{pd.designer_img}
+		</if>
+		<if test="pd.designer_name != null">
+			and designer_name = #{pd.designer_name}
+		</if>
+		<if test="pd.designer_concept != null">
+			and designer_concept = #{pd.designer_concept}
+		</if>
+		<if test="pd.designer_desc != null">
+			and designer_desc = #{pd.designer_desc}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_designer where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_designer where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_designer where designer_id = #{id}
+	</select>
+	
+	<select id="designerDetail" resultType="pd"  parameterType="Integer">
+		SELECT a.designer_id,a.designer_img,a.designer_name,a.designer_concept,a.designer_desc,b.goods_id,b.goods_sn,b.goods_name,b.goods_tags,b.shop_price,b.goods_stock,b.list_img 
+		from t_goods b ,t_designer a,t_designer_goods c where a.designer_id = c.designer_id and b.goods_id = c.goods_id and a.designer_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_designer (designer_img,designer_name,designer_concept,designer_desc,creator,create_time)
+		values (#{designer_img},#{designer_name},#{designer_concept},#{designer_desc},#{creator},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_designer <set>
+		<if test="designer_img != null">
+			designer_img = #{designer_img},
+		</if>
+		<if test="designer_name != null">
+			designer_name = #{designer_name},
+		</if>
+		<if test="designer_concept != null">
+			designer_concept = #{designer_concept},
+		</if>
+		<if test="designer_desc != null">
+			designer_desc = #{designer_desc},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		</set>
+		where designer_id = #{designer_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_designer where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.ShareMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.share_id != null">
+			and share_id = #{pd.share_id}
+		</if>
+		<if test="pd.share_type != null">
+			and share_type = #{pd.share_type}
+		</if>
+		<if test="pd.value_id != null">
+			and value_id = #{pd.value_id}
+		</if>
+		<if test="pd.share_sn != null">
+			and share_sn = #{pd.share_sn}
+		</if>
+		<if test="pd.share_url != null">
+			and share_url = #{pd.share_url}
+		</if>
+		<if test="pd.share_channel != null">
+			and share_channel = #{pd.share_channel}
+		</if>
+		<if test="pd.app_screen != null">
+			and app_screen = #{pd.app_screen}
+		</if>
+		<if test="pd.share_count != null">
+			and share_count = #{pd.share_count}
+		</if>
+		<if test="pd.view_count != null">
+			and view_count = #{pd.view_count}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.share_time != null">
+			and share_time = #{pd.share_time}
+		</if>
+		
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_share where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_share where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_share where share_id = #{id}
+	</select>
+	
+	<select id="selectByShareSn" resultType="pd"  parameterType="String">
+		SELECT * from t_share where share_sn = #{share_sn}
+	</select>
+	
+	<insert id="insert" parameterType="pd">
+		insert into t_share (share_type,value_id,share_sn,share_url,share_channel,app_screen,share_count,view_count,user_id,share_time)
+		values (#{share_type},#{value_id},#{share_sn},#{share_url},#{share_channel},#{app_screen},#{share_count},#{view_count},#{user_id},#{share_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_share <set>
+		<if test="share_type != null">
+			share_type = #{share_type},
+		</if>
+		<if test="value_id != null">
+			value_id = #{value_id},
+		</if>
+		<if test="share_sn != null">
+			share_sn = #{share_sn},
+		</if>
+		<if test="share_url != null">
+			share_url = #{share_url},
+		</if>
+		<if test="share_channel != null">
+			share_channel = #{share_channel},
+		</if>
+		<if test="app_screen != null">
+			app_screen = #{app_screen},
+		</if>
+		<if test="share_count != null">
+			share_count = #{share_count},
+		</if>
+		<if test="view_count != null">
+			view_count = #{view_count},
+		</if>
+		<if test="user_id != null">
+			user_id = #{user_id},
+		</if>
+		<if test="share_time != null">
+			share_time = #{share_time},
+		</if>
+		</set>
+		where share_id = #{share_id}
+	</update>
+	
+	<update id="updateByShareSn" parameterType="pd">
+		update t_share <set>
+		<if test="view_count != null and view_count != ''">
+			view_count = #{view_count},
+		</if>
+		</set>
+		where share_sn = #{share_sn}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_share where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessDecorationMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<!-- t_business_decoration -->
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_business_decoration
+		(decoration_name,decoration_setting,decoration_code)
+		values(#{decoration_name},#{decoration_setting},#{decoration_code})
+	</insert>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select
+		decoration_id,decoration_name,decoration_setting,decoration_code from
+		t_business_decoration where
+		decoration_id=#{decoration_id}
+	</select>
+
+	<resultMap type="com.easaa.business.entity.ReceiveDecorationCode"
+		id="bsDecorationCode">
+		<id property="decoration_id" column="decoration_id" />
+		<result property="decoration_name" column="decoration_name" />
+		<result property="decoration_setting" column="decoration_setting" />
+		<result property="decoration_code" column="decoration_code" />
+		<collection property="model" foreignColumn="decoration_code"
+			ofType="com.easaa.business.entity.ReceiveDecorationModel">
+			<id property="m_id" column="model.m_id" />
+			<result property="m_high" column="model.m_high" />
+			<result property="t_id" column="model.t_id" />
+			<result property="m_width" column="model.m_width" />
+		</collection>
+	</resultMap>
+	
+	<select id="selectByMap" parameterType="page" resultMap="bsDecorationCode">
+		select
+		tbd.*,tbdt.t_id as 'model.t_id',tbdm.m_id as
+		'model.m_id',tbdm.m_high as
+		'model.m_high',tbdm.m_width as
+		'model.m_width' from
+		t_business_decoration
+		tbd
+		LEFT JOIN
+		t_business_decoration_temp tbdt on
+		tbd.decoration_code=tbdt.decoration_code
+		LEFT JOIN
+		t_business_decoration_model tbdm on tbdt.m_id=tbdm.m_id
+		where 1=1
+		<if test="pd.decoration_setting !=null and pd.decoration_setting !=''">
+			and tbd.decoration_setting=#{pd.decoration_setting}
+		</if>
+		<if test="pd.decoration_code !=null and pd.decoration_code !=''">
+			and tbd.decoration_code=#{pd.decoration_code}
+		</if>
+	</select>
+
+	<update id="update" parameterType="pd">
+		update t_business_decoration
+		<set>
+			<if test="decoration_name !=null and decoration_name !=''">
+				decoration_name=#{decoration_name},
+			</if>
+			<if test="decoration_setting !=null and decoration_setting !=''">
+				decoration_setting=#{decoration_setting},
+			</if>
+			<if test="decoration_code !=null and decoration_code !=''">
+				decoration_code=#{decoration_code},
+			</if>
+		</set>
+		where decoration_id=#{decoration_id}
+	</update>
+	<!-- t_business_decoration_block -->
+
+	<insert id="insertDecorationBlock" parameterType="pd">
+		insert into
+		t_business_decoration_block
+		(decoration_code,bs_id,update_time,creater_name,sort)
+		values(#{decoration_code},#{bs_id},#{update_time},#{creater_name},#{sort})
+		<selectKey resultType="java.lang.Integer" keyProperty="block_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	<select id="selectByDbId" parameterType="Integer">
+		select
+		block_id,decoration_code,bs_id,update_time,creater_name,sort from
+		t_business_decoration_block where block_id=#{block_id}
+	</select>
+	<resultMap type="com.easaa.business.entity.ReceiveDecoration"
+		id="bsDecoration">
+		<id property="block_id" column="block_id" />
+		<result property="decoration_code" column="decoration_code" />
+		<result property="bs_id" column="bs_id" />
+		<result property="update_time" column="update_time" />
+		<result property="creater_name" column="creater_name" />
+		<result property="sort" column="sort" />
+		<collection property="goods" foreignColumn="block.goods_id"
+			ofType="com.easaa.business.entity.DecorationGoods">
+			<id property="id" column="goods.goods_id" />
+			<result property="t_id" column="goods.t_id" />
+			<result property="goods_sn" column="goods.goods_sn" />
+			<result property="goods_name" column="goods.goods_name" />
+			<result property="goods_tags" column="goods.goods_tags" />
+			<result property="shop_price" column="goods.shop_price" />
+			<result property="market_price" column="goods.market_price" />
+			<result property="goods_stock" column="goods.goods_stock" />
+			<result property="list_img" column="goods.list_img" />
+			<result property="virtual_sales" column="goods.virtual_sales" />
+			<result property="m_id" column="goods.m_id" />
+			<result property="m_high" column="goods.m_high" />
+			<result property="m_width" column="goods.m_width" />
+			<result property="main_title" column="goods.main_title" />
+			<result property="sub_title" column="goods.sub_title" />
+			<result property="img_url" column="goods.img_url" />
+		</collection>
+	</resultMap>
+
+	<select id="selectByDbMap" resultMap="bsDecoration"
+		parameterType="pd">
+		SELECT
+		block.block_id,
+		block.decoration_code,
+		block.bs_id,
+		block.update_time,
+		block.creater_name,
+		block.sort,
+		block.t_id AS
+		'goods.t_id',
+		tg.goods_id AS 'goods.goods_id',
+		tg.goods_sn AS
+		'goods.goods_sn',
+		tg.goods_name AS 'goods.goods_name',
+		tg.goods_tags AS
+		'goods.goods_tags',
+		tg.shop_price
+		AS 'goods.shop_price',
+		tg.market_price
+		AS 'goods.market_price',
+		tg.goods_stock AS 'goods.goods_stock',
+		tg.list_img AS 'goods.list_img',
+		tg.virtual_sales AS
+		'goods.virtual_sales',
+		tbdm.m_id AS 'goods.m_id',
+		tbdm.m_high AS
+		'goods.m_high',
+		tbdm.m_width AS 'goods.m_width',
+		block.main_title AS
+		'goods.main_title',
+		block.sub_title AS
+		'goods.sub_title',
+		block.img_url
+		AS
+		'goods.img_url'
+		FROM
+		(
+		SELECT
+		tbdb.block_id,
+		tbdb.decoration_code,
+		tbdb.bs_id,
+		tbs.bs_logo,
+		tbs.bs_name,
+		tbdb.update_time,
+		tbdb.creater_name,
+		tbdb.sort,
+		tbdg.t_id,
+		tbdg.goods_id,
+		tbdg.main_title,
+		tbdg.sub_title,
+		tbdg.img_url
+		FROM
+		t_business_decoration_block tbdb
+		LEFT
+		JOIN
+		t_business_decoration_goods
+		tbdg ON tbdb.block_id =
+		tbdg.db_id
+		LEFT
+		JOIN
+		t_business tbs ON tbdb.bs_id
+		= tbs.bs_id
+		WHERE
+		tbdb.bs_id = #{bs_id}
+		)
+		block
+		LEFT JOIN t_goods tg ON
+		tg.goods_id = block.goods_id
+		LEFT JOIN
+		t_business_decoration_temp tbdt
+		ON tbdt.t_id = block.t_id
+		LEFT JOIN
+		t_business_decoration_model tbdm ON
+		tbdm.m_id = tbdt.m_id
+		ORDER BY
+		block.sort
+	</select>
+
+	<update id="updatetbdb" parameterType="pd">
+		update t_business_decoration_block
+		<set>
+			<if test="decoration_code !=null and decoration_code !=''">
+				decoration_code=#{decoration_code},
+			</if>
+			<if test="bs_id !=null and bs_id !=''">
+				bs_id=#{bs_id},
+			</if>
+			<if test="update_time !=null and update_time !=''">
+				update_time=#{update_time},
+			</if>
+			<if test="creater_name !=null and creater_name !=''">
+				creater_name=#{creater_name},
+			</if>
+			<if test="sort !=null and sort !=''">
+				sort=#{sort},
+			</if>
+		</set>
+		where block_id=#{block_id}
+	</update>
+
+	<delete id="deleteDecorationBlock" parameterType="com.easaa.business.entity.ReceiveDecoration">
+		delete from
+		t_business_decoration_block
+		where bs_id = #{bs_id}
+	</delete>
+
+	<!-- t_business_decoration_goods -->
+	<insert id="insertDecorationGoods" parameterType="pd">
+		insert into
+		t_business_decoration_goods
+		(db_id,goods_id,t_id,caeate_time,main_title,sub_title,img_url)
+		values(#{db_id},#{goods_id},#{t_id},#{caeate_time},#{main_title},#{sub_title},#{img_url})
+	</insert>
+
+	<select id="selectDGByDBId" parameterType="Integer" resultType="pd">
+		SELECT
+		tg.goods_id,
+		tg.goods_sn,
+		tg.goods_name,
+		tg.goods_tags,
+		tg.shop_price,
+		tg.market_price,
+		tg.goods_stock,
+		tg.list_img,
+		tg.virtual_sales,
+		tbdg.img_url,
+		tbdg.main_title,
+		tbdg.sub_title,
+		tbdg.t_id
+		FROM
+		t_business_decoration_goods tbdg
+		LEFT JOIN t_goods tg ON tbdg.goods_id = tg.goods_id
+		where 1=1
+		and tbdg.dg_id=#{dg_id}
+	</select>
+
+	<select id="selectByDgMap" parameterType="pd" resultType="pd">
+		SELECT
+		tg.goods_id,
+		tg.goods_sn,
+		tg.goods_name,
+		tg.goods_tags,
+		tg.shop_price,
+		tg.market_price,
+		tg.goods_stock,
+		tg.list_img,
+		tg.virtual_sales,
+		tbdg.img_url,
+		tbdg.main_title,
+		tbdg.sub_title,
+		tbdg.t_id,
+		dm.m_width,
+		dm.m_high
+		FROM
+		t_business_decoration_goods tbdg
+		LEFT JOIN t_goods tg ON tbdg.goods_id = tg.goods_id
+		LEFT JOIN t_business_decoration_temp dt on tbdg.t_id = dt.t_id
+		LEFT JOIN t_business_decoration_model dm on dt.m_id = dm.m_id
+		where 1=1
+		and tbdg.db_id=#{db_id}
+	</select>
+	<delete id="deleteDecorationGoods" parameterType="pd">
+		delete from
+		t_business_decoration_goods
+		where db_id = #{db_id}
+	</delete>
+	<update id="updatetbdg" parameterType="pd">
+		update t_business_decoration_goods
+		<set>
+			<if test="db_id !=null and db_id !=''">
+				db_id=#{db_id},
+			</if>
+			<if test="goods_id !=null and goods_id !=''">
+				goods_id=#{goods_id},
+			</if>
+			<if test="t_id !=null and t_id !=''">
+				t_id=#{t_id},
+			</if>
+			<if test="caeate_time !=null and caeate_time !=''">
+				caeate_time=#{caeate_time},
+			</if>
+			<if test="main_title !=null and main_title !=''">
+				main_title=#{main_title},
+			</if>
+			<if test="sub_title !=null and sub_title !=''">
+				sub_title=#{sub_title},
+			</if>
+		</set>
+		where dg_id=#{dg_id}
+	</update>
+	
+	<!-- 级联删除 商家的模板数据 -->
+	<delete id="cascadeTplByBsid" parameterType="pd">
+	   delete t1,t2 from t_business_decoration_block t1 left join t_business_decoration_goods t2 on t1.block_id = t2.db_id
+	   where t1.bs_id = #{bs_id}
+	</delete>
+
+</mapper>

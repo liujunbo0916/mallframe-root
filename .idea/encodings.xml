@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-business" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-code" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-content" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-course" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-order" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-product" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-pushmsg" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-rebate" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/mallframe-upm" charset="UTF-8" />
+  </component>
+</project>

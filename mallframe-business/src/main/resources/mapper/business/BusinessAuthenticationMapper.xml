@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessAuthenticationMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<!-- 消息 -->
+	<sql id="condition">
+		<if test="pd.id!= null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.bs_id != null">
+			and bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.bs_name != null">
+			and bs_name = #{pd.bs_name}
+		</if>
+		<if test="pd.linkman != null">
+			and link_man = #{pd.linkman}
+		</if>
+		<if test="pd.link_phone != null">
+			and link_phone = #{pd.link_phone}
+		</if>
+		<if test="pd.link_mail != null">
+			and link_mail = #{pd.link_mail}
+		</if>
+		<if test="pd.datum_photo != null">
+			and datum_photo = #{pd.datum_photo}
+		</if>
+		<if test="pd.remark_note != null">
+			and remark_note = #{pd.remark_note}
+		</if>
+		<if test="pd.status != null">
+			and status = #{pd.status}
+		</if>
+	</sql>
+	
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select * from t_business_authentication where 1=1 
+		<include refid="condition"></include>
+		order by create_time desc
+	</select>
+	
+	<select id="selectByMap" parameterType="pd" resultType="pd">
+		select * from t_business_authentication where 1=1 
+		<include refid="condition"></include>
+		order by create_time desc
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select * from t_business_authentication where id=#{id}
+	</select>
+	
+	<insert id="insert" parameterType="pd">
+		insert into t_business_authentication
+		(bs_id,bs_name,link_man,link_phone,link_mail,datum_photo,status,remark_note,create_time)
+		values(#{bs_id},#{bs_name},#{link_man},#{link_phone},#{link_mail},#{datum_photo},#{status},#{remark_note},#{create_time})
+	</insert>
+	
+	<update id="update" parameterType="pd">
+		update t_business_authentication
+		<set>
+			<if test="bs_id != null">
+				bs_id = #{bs_id},
+			</if>
+			<if test="bs_name != null">
+				bs_name = #{bs_name},
+			</if>
+			<if test="link_man != null">
+				link_man = #{link_man},
+			</if>
+			<if test="link_phone != null">
+				link_phone = #{link_phone},
+			</if>
+			<if test="link_mail != null">
+				link_mail = #{link_mail},
+			</if>
+			<if test="datum_photo != null">
+				datum_photo = #{datum_photo},
+			</if>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="remark_note != null">
+				remark_note = #{remark_note},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	<delete id="delete" parameterType="page">
+		delete from t_business_authentication where id = #{pd.id}
+	</delete>
+	
+</mapper>

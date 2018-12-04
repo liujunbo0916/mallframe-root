@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.UserBankMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.bank_id != null">
+			and bank_id = #{pd.bank_id}
+		</if>
+		<if test="pd.bank_name != null">
+			and bank_name = #{pd.bank_name}
+		</if>
+		<if test="pd.bank_logo != null">
+			and bank_logo = #{pd.bank_logo}
+		</if>
+		<if test="pd.bank_icon != null">
+			and bank_icon = #{pd.bank_icon}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_user_bank where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_user_bank where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_user_bank where bank_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_user_bank (bank_name,bank_logo,bank_icon)
+		values (#{bank_name},#{bank_logo},#{bank_icon})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_user_bank <set>
+		<if test="bank_name != null">
+			bank_name = #{bank_name},
+		</if>
+		<if test="bank_logo != null">
+			bank_logo = #{bank_logo},
+		</if>
+		<if test="bank_icon != null">
+			bank_icon = #{bank_icon},
+		</if>
+		</set>
+		where bank_id = #{bank_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_user_bank where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsAttrMapper">
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+
+	<sql id="condition">
+		<if test="pd.goods_attr_id != null">
+			and goods_attr_id = #{pd.goods_attr_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.attr_id != null">
+			and attr_id = #{pd.attr_id}
+		</if>
+		<if test="pd.attr_name != null">
+			and attr_name = #{pd.attr_name}
+		</if>
+		<if test="pd.is_sale != null">
+			and is_sale = #{pd.is_sale}
+		</if>
+		<if test="pd.attr_value != null">
+			and attr_value = #{pd.attr_value}
+		</if>
+		<if test="pd.attr_sort != null">
+			and attr_sort = #{pd.attr_sort}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_attr where 1=1
+		<include refid="condition"></include>
+		order by attr_sort desc
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_goods_attr where 1=1
+		<include refid="condition"></include>
+		order by attr_sort desc
+	</select>
+
+	<select id="queryGoodsId" resultType="pd" parameterType="pd">
+		select
+		attr_value,attr_name,attr_id from t_goods_attr where goods_id =
+		#{goods_id} and is_sale = #{is_sale} ORDER BY attr_sort desc
+	</select>
+	<!-- 查询商品属性，判断是否有变更 -->
+	<select id="selectByGoodsId" resultType="goodsAttr"
+		parameterType="pd">
+		select goods_attr_id,goods_id,attr_id,attr_value,attr_name from t_goods_attr where
+		goods_id = #{goods_id} and is_sale = #{is_sale} ORDER BY attr_sort
+		desc
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_goods_attr where goods_attr_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_attr
+		(goods_id,attr_id,attr_name,is_sale,attr_value,attr_sort)
+		values
+		(#{goods_id},#{attr_id},#{attr_name},#{is_sale},#{attr_value},#{attr_sort})
+	</insert>
+
+	<insert id="insertGoodsAttr" parameterType="goodsAttr">
+		insert into
+		t_goods_attr (goods_id,attr_id,attr_name,is_sale,attr_value,attr_sort)
+		values
+		(#{goods_id},#{attr_id},#{attr_name},#{is_sale},#{attr_value},#{attr_sort})
+	</insert>
+
+	<select id="selectGoodsAttr" resultType="pd" parameterType="goodsAttr">
+		SELECT * from t_goods_attr where 1=1
+		<if test="goods_attr_id != null">
+			and goods_attr_id = #{goods_attr_id}
+		</if>
+		<if test="goods_id != null">
+			and goods_id = #{goods_id}
+		</if>
+		<if test="attr_id != null">
+			and attr_id = #{attr_id}
+		</if>
+		<if test="attr_name != null">
+			and attr_name = #{attr_name}
+		</if>
+	</select>
+
+	<update id="updateGoodsAttr" parameterType="goodsAttr">
+		update t_goods_attr
+		<set>
+			<if test="goods_id != null">
+				goods_id = #{goods_id},
+			</if>
+			<if test="attr_id != null">
+				attr_id = #{attr_id},
+			</if>
+			<if test="attr_name != null">
+				attr_name = #{attr_name},
+			</if>
+			<if test="is_sale != null">
+				is_sale = #{is_sale},
+			</if>
+			<if test="attr_value != null">
+				attr_value = #{attr_value},
+			</if>
+			<if test="attr_sort != null">
+				attr_sort = #{attr_sort},
+			</if>
+		</set>
+		where goods_attr_id = #{goods_attr_id}
+	</update>
+
+	<update id="update" parameterType="pd">
+		update t_goods_attr
+		<set>
+			<if test="goods_id != null">
+				goods_id = #{goods_id},
+			</if>
+			<if test="attr_id != null">
+				attr_id = #{attr_id},
+			</if>
+			<if test="attr_name != null">
+				attr_name = #{attr_name},
+			</if>
+			<if test="is_sale != null">
+				is_sale = #{is_sale},
+			</if>
+			<if test="attr_value != null">
+				attr_value = #{attr_value},
+			</if>
+			<if test="attr_sort != null">
+				attr_sort = #{attr_sort},
+			</if>
+		</set>
+		where goods_attr_id = #{goods_attr_id}
+	</update>
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_attr where
+		goods_id = #{goods_id}
+	</delete>
+
+	<delete id="deleteByAttrId" parameterType="pd">
+		delete from
+		t_goods_attr where attr_id = #{attr_id}
+	</delete>
+	<delete id="deleteGoodsAttr" parameterType="goodsAttr">
+		delete from
+		t_goods_attr where attr_id = #{attr_id}
+		<if test="goods_id!=null and goods_id!=''">
+		and goods_id = #{goods_id}
+		</if>
+	</delete>
+</mapper>

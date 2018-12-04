@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.easaa.mis</groupId>
+		<artifactId>mallframe-root</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>mallframe-upm</artifactId>
+	<dependencies>
+		<dependency>
+			<groupId>com.easaa.mis</groupId>
+			<artifactId>mallframe-code</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<!-- shiro -->
+		<dependency>
+			<groupId>com.caucho</groupId>
+			<artifactId>hessian</artifactId>
+			<version>4.0.7</version>
+		</dependency>
+			 <dependency>    
+	      <groupId>org.apache.shiro</groupId>    
+	      <artifactId>shiro-core</artifactId>    
+	      <version>1.2.2</version>    
+	    </dependency>    
+	    <dependency>    
+	      <groupId>org.apache.shiro</groupId>    
+	      <artifactId>shiro-web</artifactId>    
+	      <version>1.2.2</version>    
+	    </dependency>    
+	    <dependency>    
+	      <groupId>org.apache.shiro</groupId>    
+	      <artifactId>shiro-spring</artifactId>    
+	      <version>1.2.2</version>    
+	    </dependency>
+	    <dependency>
+		  <groupId>com.tencent</groupId>
+		  <artifactId>wetchatpay</artifactId>
+		  <version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ythd.alipay</groupId>
+			<artifactId>alipay</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<!-- XML 解析包 -->
+		<dependency>
+		  <groupId>org.jdom</groupId>
+		  <artifactId>jdom</artifactId>
+		  <version>1.1</version>
+		</dependency>
+		
+	</dependencies>
+
+</project>

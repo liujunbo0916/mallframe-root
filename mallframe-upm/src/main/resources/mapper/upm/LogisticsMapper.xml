@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.LogisticsMapper">
+
+	<sql id="condition_area">
+		<if test="pd.area_id != null">
+			and area_id = #{pd.area_id}
+		</if>
+		<if test="pd.area_name != null and pd.area_name != ''">
+			and area_name = #{pd.area_name}
+		</if>
+		<if test="pd.first_kg != null">
+			and first_kg = #{pd.first_kg}
+		</if>
+		<if test="pd.first_price != null">
+			and first_price = #{pd.first_price}
+		</if>
+		<if test="pd.send_time != null">
+			and send_time = #{pd.send_time}
+		</if>
+		<if test="pd.province_id != null">
+			and province_id = #{pd.province_id}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<sql id="condition_ch">
+		<if test="pd.contnu_id != null">
+			and t1.contnu_id = #{pd.contnu_id}
+		</if>
+		<if test="pd.contnu_name != null and pd.area_name != ''">
+			and t1.contnu_name = #{pd.contnu_name}
+		</if>
+		<if test="pd.area_id != null">
+			and t1.area_id = #{pd.area_id}
+		</if>
+		<if test="pd.contnu_kg != null">
+			and t1.contnu_kg = #{pd.contnu_kg}
+		</if>
+		<if test="pd.contnu_price != null">
+			and t1.contnu_price = #{pd.contnu_price}
+		</if>
+		<if test="pd.create_time != null">
+			and t1.create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<!-- 通过id查找 -->
+	<select id="selectById" parameterType="pd" resultType="pd">
+
+	</select>
+
+	<!-- 查询所有省份 -->
+	<select id="getprovince" parameterType="pd" resultType="pd">
+		select *
+		from t_region where region_type=1
+	</select>
+
+	<!-- 添加区域设置 -->
+	<insert id="insertArea" parameterType="pd">
+		insert into
+		t_goods_logistics_area
+		(area_name,province_id,first_kg,first_price,send_time,create_time
+		)
+		values(
+		#{area_name},#{province_id},#{first_kg},#{first_price},#{send_time},#{create_time}
+		)
+	</insert>
+
+	<!-- 查询区域列表 -->
+	<select id="selectArea" parameterType="page" resultType="pd">
+		select *
+		from t_goods_logistics_area
+		where 1=1
+		<include refid="condition_area"></include>
+	</select>
+
+	<!-- 查询区域省份 -->
+	<select id="selectProvince" parameterType="pd" resultType="pd">
+		select region_id,region_name from t_region where region_id
+		in(${province_id})
+	</select>
+
+	<!-- 查询区域市 -->
+	<select id="selectCity" parameterType="pd" resultType="pd">
+		select
+		region_id,parent_id,region_name
+		from t_region where parent_id
+		=#{province_id}
+	</select>
+	<!-- 添加 -->
+	<insert id="insert" parameterType="pd">
+
+	</insert>
+
+	<!-- 删除区域 -->
+	<delete id="deleteAreaById" parameterType="pd">
+		delete from
+		t_goods_logistics_area where 1=1
+		and area_id = #{area_id}
+	</delete>
+
+	<!-- 修改 区域 -->
+	<update id="updateAreaById" parameterType="pd">
+		update
+		t_goods_logistics_area
+		set
+		area_name=#{area_name},province_id=#{province_id},first_kg=#{first_kg},first_price=#{first_price},send_time=#{send_time},create_time=#{create_time}
+		where area_id = #{area_id}
+	</update>
+
+	<!-- 添加续重 -->
+	<insert id="insertContnuheavy" parameterType="pd">
+		insert into
+		t_goods_logistics_contnu
+		(contnu_name,area_id,contnu_kg,contnu_price,create_time
+		) values(
+		#{contnu_name},#{area_id},#{contnu_kg},#{contnu_price},#{create_time}
+		)
+	</insert>
+
+	<!-- 查询续重 -->
+	<select id="selectContnuheavy" parameterType="page" resultType="pd">
+		select t1.*,t2.area_name from t_goods_logistics_contnu t1
+		LEFT JOIN
+		t_goods_logistics_area t2
+		ON t1.area_id= t2.area_id where 1=1
+		<include refid="condition_ch"></include>
+	</select>
+
+	<!-- 删除续重 -->
+	<delete id="deleteContnuheavyById" parameterType="pd">
+		delete from
+		t_goods_logistics_contnu where 1=1
+		and contnu_id = #{contnu_id}
+	</delete>
+
+	<!-- 修改 续重 -->
+	<update id="updateContnuheavyById" parameterType="pd">
+		update
+		t_goods_logistics_contnu
+		set
+		contnu_name=#{contnu_name},area_id=#{area_id},contnu_kg=#{contnu_kg},contnu_price=#{contnu_price},create_time=#{create_time}
+		where contnu_id = #{contnu_id}
+	</update>
+
+	<!-- 批量删除续重 -->
+	<delete id="deleteContnuheavyAll" parameterType="pd">
+		delete from
+		t_goods_logistics_contnu where 1=1
+		and area_id = #{area_id}
+	</delete>
+	<!-- 查询省份对应的大区 -->
+	<select id="selectlogsticsByProvince" parameterType="pd" resultType="pd">
+		select * from t_goods_logistics_area  where province_id LIKE CONCAT(#{addressId},",%")
+		or province_id LIKE CONCAT("%,",#{addressId}) OR
+		province_id LIKE CONCAT("%,",#{addressId},",%")
+	</select>
+	<!-- 查询续重   按最小公斤数排序 -->
+	<select id="selectContnuByWeightDesc" parameterType="pd" resultType="pd">
+	   select * from t_goods_logistics_contnu where contnu_kg <![CDATA[<= ]]> #{goodsWeight}
+	   and area_id = #{area_id}
+	   order by contnu_kg asc
+	</select>
+	<resultMap type="com.easaa.upm.entity.LogisticsMin" id="logisticsMin">
+	   <id column="logId" property="logisticsId"/>
+	   <result column="ftpl_name" property="logisticsName"/>
+	   <result column="create_time" property="createTime"/>
+	   <result column="bs_id" property="bsId"/>
+	   <collection property="logisticsFees" ofType="com.easaa.upm.entity.LogisticsFee">
+	      <id column="id" property="feeId"/>
+	      <result column="first_num" property="feeFirstNum"/>
+	      <result column="first_fee" property="firstFee"/>
+	      <result column="follow_num" property="followNum"/>
+	      <result column="follow_fee" property="followFee"/>
+	      <result column="areasname_list" property="areaNames"/>
+	      <result column="areasid_list" property="areaIds"/>
+	      <result column="is_default" property="defaultArea"/>
+	   </collection>
+	</resultMap>
+	
+	<resultMap type="com.easaa.upm.entity.Province" id="provinceId">
+	   <id column="region_id" property="regionId"/>
+	   <result column="parent_id" property="parentId"/>
+	   <result column="region_name" property="regionName"/>
+	   <result column="region_type" property="regionType"/>
+	   <collection property="citys" ofType="com.easaa.upm.entity.City">
+	          <id column="c_region_id" property="regionId"/>
+			   <result column="c_parent_id" property="parentId"/>
+			   <result column="c_region_name" property="regionName"/>
+			   <result column="c_region_type" property="regionType"/>
+	   </collection>
+	</resultMap>
+	
+	<!-- 商家模板操作集合 -->
+	<select id="selectBusiTpl" parameterType="pd" resultMap="logisticsMin">
+	    select t1.ftpl_name,t1.create_time,t1.id as 'logId',t1.bs_id,t2.* from t_sys_freight_tpl  t1 left join t_sys_freight_fee t2 on t1.id = t2.tpl_id
+	    where bs_id = #{bs_id} 
+	    <if test="tpl_id != null and tpl_id != ''">
+	        and t1.id = #{tpl_id}
+	    </if>
+	</select>
+	<select id="selectProvinceAndCity" parameterType="pd" resultMap="provinceId">
+	     select t1.*,t2.region_id as 'c_region_id',t2.parent_id as 'c_parent_id',t2.region_name as 'c_region_name',t2.region_type as 'c_region_type' 
+	     from (select * from t_region where region_type = 1) t1 left join t_region t2 on t1.region_id = t2.parent_id
+	     where 1= 1
+	     <if test="cityCodes != null and cityCodes != ''">
+	         and t2.region_id not in ${cityCodes}
+	     </if>
+	</select>
+	<insert id="insertAreaTpl" parameterType="pd">
+	   insert into t_sys_freight_tpl (ftpl_name,create_time,bs_id)
+	   values(#{ftpl_name},#{create_time},#{bs_id})
+	   	<selectKey resultType="java.lang.String" order="AFTER" keyProperty="tpl_id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<insert id="insertAreaFee" parameterType="pd">
+	   insert into t_sys_freight_fee(tpl_id,first_num,first_fee,follow_num,follow_fee,areasname_list,areasid_list,is_default)
+	   values(#{tpl_id},#{first_num},#{first_fee},#{follow_num},#{follow_fee},#{areasname_list},#{areasid_list},#{is_default})
+	</insert>
+	<!-- 查询运费 -->
+	<select id="selectUseFee" parameterType="pd" resultType="pd">
+	    select * from t_sys_freight_fee 
+	    where  tpl_id = #{tpl_id}
+	    and (
+	          areasid_list LIKE CONCAT(CONCAT('%,',#{cityId}),',%')
+					or
+			  areasid_list LIKE CONCAT('%,',#{cityId})
+					or
+			  areasid_list LIKE CONCAT(#{cityId},',%')
+	    )
+	</select>
+	<select id="selectDefaultFee" parameterType="pd" resultType="pd">
+	    select * from t_sys_freight_fee 
+	    where  tpl_id = #{tpl_id}
+	    and   areasid_list  = '-1'
+	</select>
+	
+	
+	<update id="updateAreaTpl" parameterType="pd">
+	   update t_sys_freight_tpl
+	   <set>
+	     <if test="ftpl_name != null and ftpl_name != ''">
+	         ftpl_name = #{ftpl_name},
+	     </if>
+	   </set>
+	   where id = #{tpl_id}
+	</update>
+	<update id="updateAreaFee" parameterType="pd">
+	   update t_sys_freight_fee 
+	   <set>
+	      <if test="first_num != null and first_num != ''">
+	         first_num = #{first_num},
+	      </if>
+	       <if test="first_fee != null and first_fee != ''">
+	         first_fee = #{first_fee},
+	      </if> 
+	      <if test="follow_num != null and follow_num != ''">
+	         follow_num = #{follow_num},
+	      </if>
+	      <if test="follow_fee != null and follow_fee != ''">
+	         follow_fee = #{follow_fee},
+	      </if>
+	       <if test="areasname_list != null and areasname_list != ''">
+	         areasname_list = #{areasname_list},
+	      </if>
+	         <if test="areasid_list != null and areasid_list != ''">
+	         areasid_list = #{areasid_list},
+	      </if>
+	      <if test="is_default != null and is_default != ''">
+	         is_default = #{is_default},
+	      </if>
+	   </set>
+	   where id = #{fee_id}
+	</update>
+	<delete id="deleteTplCascade" parameterType="pd">
+	    delete t1,t2 from t_sys_freight_tpl t1 left join t_sys_freight_fee t2 on t1.id=t2.tpl_id where t1.id=#{tpl_id};
+	</delete>
+	<delete id="deleteTplFee" parameterType="pd">
+	    delete from t_sys_freight_fee where id = #{fee_id} and areasid_list != '-1'
+	</delete>
+</mapper>

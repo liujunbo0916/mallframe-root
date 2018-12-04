@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.DeviceMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<!-- 设备管理开始 -->
+	<sql id="condition">
+		<if test="pd.dv_id != null">
+			and dv_id = #{pd.dv_id}
+		</if>
+		<if test="pd.dv_venue_id != null">
+			and dv_venue_id = #{pd.dv_venue_id}
+		</if>
+		<if test="pd.dv_device_id != null">
+			and dv_device_id = #{pd.dv_device_id}
+		</if>
+		<if test="pd.dv_category_id != null">
+			and dv_category_id = #{pd.dv_category_id}
+		</if>
+		<if test="pd.dv_status != null">
+			and dv_status = #{pd.dv_status}
+		</if>
+		<if test="pd.dv_time != null">
+			and dv_time = #{pd.dv_time}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_device_venue where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectDeviceListByPage" resultType="pd"
+		parameterType="page">
+		SELECT
+		tdv.*, tgc.category_name,
+		tg.goods_sn,
+		tg.list_img,
+		tg.is_on_sale,
+		tcv.venue_address,
+		tcv.venue_name
+		FROM
+		t_ythd_device_venue tdv
+		LEFT JOIN
+		t_goods tg ON tdv.dv_device_id = tg.goods_id
+		LEFT JOIN t_goods_category
+		tgc ON tdv.dv_category_id = tgc.category_id
+		LEFT JOIN
+		t_ythd_course_venue tcv ON tdv.dv_venue_id = tcv.venue_id
+		WHERE
+		1 = 1
+		AND tg.is_delete = 0
+		<if test="pd.goods_sn != null">
+			and tg.goods_sn = #{pd.goods_sn}
+		</if>
+		<if test="pd.dv_category_id != null">
+			and tdv.dv_category_id = #{pd.dv_category_id}
+		</if>
+		<if test="pd.dv_status != null">
+			and tdv.dv_status = #{pd.dv_status}
+		</if>
+		<if test="pd.appply_dv_ids != null">
+			and tdv.dv_id in (${pd.appply_dv_ids})
+		</if>
+	</select>
+
+	<select id="selectVenueDeviceList" resultType="pd"
+		parameterType="pd">
+		SELECT
+		tdv.*, tgc.category_name,
+		tg.goods_sn,
+		tg.list_img,
+		tcv.venue_address,
+		tcv.venue_name
+		FROM
+		t_ythd_device_venue tdv
+		LEFT JOIN
+		t_goods tg ON tdv.dv_device_id = tg.goods_id
+		LEFT JOIN t_goods_category
+		tgc ON tdv.dv_category_id = tgc.category_id
+		LEFT JOIN
+		t_ythd_course_venue tcv ON tdv.dv_venue_id = tcv.venue_id
+		WHERE
+		1 = 1
+		AND tg.is_on_sale = 1
+		AND tg.is_delete = 0
+		<if test="dv_status !=null and dv_status !=''">
+			AND tdv.dv_status=#{dv_status}
+		</if>
+		<if test="category_id !=null and category_id !=''">
+			AND tdv.dv_category_id=#{category_id}
+		</if>
+		<if test="venue_id !=null and venue_id !=''">
+			AND tdv.dv_venue_id=#{venue_id}
+		</if>
+		order by tdv.dv_time DESC
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_device_venue where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByDeviceSN" resultType="pd" parameterType="Integer">
+		SELECT
+		tg.goods_sn
+		FROM
+		t_ythd_device_venue tdv
+		LEFT JOIN
+		t_goods tg ON tdv.dv_device_id = tg.goods_id
+		WHERE
+		tdv.dv_id=#{dv_id}
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_device_venue where dv_id = #{dv_id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_ythd_device_venue
+		(dv_venue_id,dv_device_id,dv_category_id,dv_status,dv_time,admin_note)
+		values
+		(#{dv_venue_id},#{dv_device_id},#{dv_category_id},#{dv_status},#{dv_time},#{admin_note})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_ythd_device_venue
+		<set>
+			<if test="dv_venue_id != null">
+				dv_venue_id = #{dv_venue_id},
+			</if>
+			<if test="dv_device_id != null">
+				dv_device_id = #{dv_device_id},
+			</if>
+			<if test="dv_category_id != null">
+				dv_category_id = #{dv_category_id},
+			</if>
+			<if test="dv_status != null">
+				dv_status = #{dv_status},
+			</if>
+			<if test="dv_time != null">
+				dv_time = #{dv_time},
+			</if>
+			<if test="admin_note != null">
+				admin_note = #{admin_note},
+			</if>
+		</set>
+		where dv_id = #{dv_id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from
+		t_ythd_device_venue where dv_id = #{pd.dv_id}
+	</delete>
+	<!-- 设备管理结束 -->
+
+	<!-- 设备申请单开始 -->
+	<sql id="conditionapply">
+		<if test="pd.apply_sn != null">
+			and apply_sn = #{pd.apply_sn}
+		</if>
+		<if test="pd.apply_id != null">
+			and apply_id = #{pd.apply_id}
+		</if>
+		<if test="pd.device_category_id != null">
+			and device_category_id = #{pd.device_category_id}
+		</if>
+		<if test="pd.venue_id != null">
+			and venue_id = #{pd.venue_id}
+		</if>
+		<if test="pd.apply_num != null">
+			and apply_num = #{pd.apply_num}
+		</if>
+		<if test="pd.apply_time != null">
+			and apply_time = #{pd.apply_time}
+		</if>
+		<if test="pd.apply_status != null">
+			and apply_status = #{pd.apply_status}
+		</if>
+		<if test="pd.get_address != null">
+			and get_address = #{pd.get_address}
+		</if>
+		<if test="pd.send_address != null">
+			and send_address = #{pd.send_address}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+		<if test="pd.course_id != null">
+			and course_id = #{pd.course_id}
+		</if>
+		<if test="pd.deploy_type != null">
+			and deploy_type = #{pd.deploy_type}
+		</if>
+		<if test="pd.appply_dv_ids != null">
+			and appply_dv_ids = #{pd.appply_dv_ids}
+		</if>
+		<if test="pd.hour_id != null">
+			hour_id = #{pd.hour_id},
+		</if>
+		<if test="pd.send_phone != null">
+			send_phone = #{pd.send_phone},
+		</if>
+		<if test="pd.get_phone != null">
+			get_phone = #{pd.get_phone},
+		</if>
+		<if test="pd.user_id != null">
+			user_id = #{pd.user_id},
+		</if>
+		<if test="pd.send_time != null">
+			send_time = #{pd.send_time},
+		</if>
+		<if test="pd.send_venue_id != null">
+			send_venue_id = #{pd.send_venue_id},
+		</if>
+	</sql>
+	<select id="selectapplyByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_device_apply where 1=1
+		<include refid="conditionapply"></include>
+	</select>
+	<select id="selectApplyListByPage" resultType="pd"
+		parameterType="page">
+		SELECT
+		tda.apply_sn,
+		tda.apply_id,
+		tda.device_category_id,
+		tda.venue_id,
+		tda.apply_type,
+		tda.apply_num,
+		DATE_FORMAT(
+		tda.apply_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS apply_time,
+		tda.apply_status,
+		tda.get_address,
+		tda.get_phone,
+		tda.send_address,
+		tda.send_phone,
+		tda.admin_note,
+		tda.user_note,
+		tda.course_id,
+		tda.deploy_type,
+		tda.appply_dv_ids,
+		tda.send_venue_id,
+		tda.hour_id,
+		tda.user_id,
+		DATE_FORMAT(
+		tda.send_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS send_time,
+		tgc.category_name,
+		tcvg.venue_address AS get_venue_address,
+		tcvg.venue_name AS get_venue_name,
+		tcvg.venue_pic AS get_venue_pic,
+		tcvg.venue_longitude AS get_venue_longitude,
+		tcvg.venue_latitude AS get_venue_latitude,
+		tcvs.venue_address AS send_venue_address,
+		tcvs.venue_name AS send_venue_name,
+		tcvs.venue_pic AS send_venue_pic,
+		tcvs.venue_longitude AS send_venue_longitude,
+		tcvs.venue_latitude AS send_venue_latitude,
+		tch.hour_date,
+		tch.hour_min_time,
+		(
+		SELECT
+		COUNT(*)
+		FROM
+		t_ythd_device_venue
+		WHERE
+		dv_venue_id = tda.venue_id
+		AND dv_category_id = tda.device_category_id
+		) AS have_num
+		FROM
+		t_ythd_device_apply tda
+		LEFT JOIN t_goods_category tgc ON tda.device_category_id = tgc.category_id
+		LEFT JOIN t_ythd_course_venue tcvg ON tda.venue_id = tcvg.venue_id
+		LEFT JOIN t_ythd_course_venue tcvs ON tda.send_venue_id =
+		tcvs.venue_id
+		LEFT JOIN t_ythd_course_hour tch ON tda.hour_id = tch.id
+		WHERE
+		1 = 1
+		<if test="pd.venue_name != null">
+			and tcv.venue_name = #{pd.venue_name}
+		</if>
+		<if test="pd.apply_sn != null">
+			and tda.apply_sn = #{pd.apply_sn}
+		</if>
+		<if test="pd.apply_status != null and pd.apply_status =='5'">
+			and tda.apply_status in (2,3,4)
+		</if>
+		<if test="pd.apply_status != null and pd.apply_status !='5'">
+			and tda.apply_status = #{pd.apply_status}
+		</if>
+		<if test="pd.user_id != null and pd.user_id !=''">
+			and tda.user_id = #{pd.user_id}
+		</if>
+		order by tda.apply_time DESC
+	</select>
+	<select id="selectapplyByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_device_apply where 1=1
+		<include refid="conditionapply"></include>
+	</select>
+
+	<select id="selectapplyById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_device_apply where apply_id = #{apply_id}
+	</select>
+
+	<insert id="insertapply" keyProperty="apply_id" parameterType="pd">
+		insert into
+		t_ythd_device_apply
+		(apply_sn,device_category_id,venue_id,apply_num,apply_time,apply_status,get_address,send_address,admin_note,course_id,deploy_type,appply_dv_ids,hour_id,send_phone,get_phone,user_id,send_time,user_note,send_venue_id)
+		values
+		(#{apply_sn},#{device_category_id},#{venue_id},#{apply_num},#{apply_time},#{apply_status},#{get_address},#{send_address},#{admin_note},#{course_id},#{deploy_type},#{appply_dv_ids},#{hour_id},#{send_phone},#{get_phone},0,#{send_time},#{user_note},#{send_venue_id})
+	</insert>
+
+	<update id="updateapply" parameterType="pd">
+		update t_ythd_device_apply
+		<set>
+		<if test="apply_sn != null">
+				apply_sn = #{apply_sn},
+			</if>
+			<if test="device_category_id != null">
+				device_category_id = #{device_category_id},
+			</if>
+			<if test="venue_id != null">
+				venue_id = #{venue_id},
+			</if>
+			<if test="apply_num != null">
+				apply_num = #{apply_num},
+			</if>
+			<if test="apply_time != null">
+				apply_time = #{apply_time},
+			</if>
+			<if test="apply_status != null">
+				apply_status = #{apply_status},
+			</if>
+			<if test="get_address != null">
+				get_address = #{get_address},
+			</if>
+			<if test="send_address != null">
+				send_address = #{send_address},
+			</if>
+			<if test="admin_note != null">
+				admin_note = #{admin_note},
+			</if>
+			<if test="course_id != null">
+				course_id = #{course_id},
+			</if>
+			<if test="deploy_type != null">
+				deploy_type = #{deploy_type},
+			</if>
+			<if test="appply_dv_ids != null">
+				appply_dv_ids = #{appply_dv_ids},
+			</if>
+			<if test="hour_id != null">
+				hour_id = #{hour_id},
+			</if>
+			<if test="get_phone != null">
+				get_phone = #{get_phone},
+			</if>
+			<if test="send_phone != null">
+				send_phone = #{send_phone},
+			</if>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="send_time != null">
+				send_time = #{send_time},
+			</if>
+			<if test="user_note != null">
+				user_note = #{user_note},
+			</if>
+			<if test="send_venue_id != null">
+				send_venue_id = #{send_venue_id},
+			</if>
+		</set>
+		where apply_id = #{apply_id}
+	</update>
+	<delete id="deleteapply" parameterType="page">
+		delete from
+		t_ythd_device_apply where apply_id = #{pd.apply_id}
+	</delete>
+
+	<!-- 设备申请单结束 -->
+</mapper>

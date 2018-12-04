@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.LogMapper">
+	<resultMap type="log" id="logList">
+		<result column="create_by" property="createBy"/>
+		<result column="create_date" property="createDate"/>
+		<result column="remote_addr" property="remoteAddr"/>
+		<result column="user_agent" property="userAgent"/>
+		<result column="request_uri" property="requestUri"/>
+		<result column="title" property="title"/>
+		<result column="method" property="method"/>
+		<association property="user" javaType="Admin">
+			<result column="name" property="NAME"/>
+			<result column="username" property="USERNAME"/>
+		</association>
+	</resultMap>
+
+	<!-- 家长列表的查询条件 -->
+	<sql id="condition">
+		<where>
+			<if test="pd!=null">
+				<if test="pd.type!=null and pd.type!=''">
+					and log.type = #{pd.type}
+				</if>
+				<if test="pd.title!=null and pd.title!=''">
+					and log.title like CONCAT(CONCAT('%', #{pd.title}),'%')
+				</if>
+				<if test="pd.create_by!=null and pd.create_by!=''">
+					and log.create_by like CONCAT(CONCAT('%', #{pd.create_by}),'%')
+				</if>
+				<if test="pd.user_agent!=null and pd.user_agent!=''">
+					and log.user_agent like CONCAT(CONCAT('%', #{pd.user_agent}),'%')
+				</if>
+				<if test="pd.request_uri!=null and pd.request_uri!=''">
+					and log.request_uri like CONCAT(CONCAT('%', #{pd.request_uri}),'%')
+				</if>
+				<if test="pd.method!=null and pd.method!=''">
+					and log.method like CONCAT(CONCAT('%', #{pd.method}),'%')
+				</if>
+				<if test="pd.params!=null and pd.params!=''">
+					and log.params like CONCAT(CONCAT('%', #{pd.params}),'%')
+				</if>
+				<if test="pd.exception!=null and pd.exception!=''">
+					and log.exception like CONCAT(CONCAT('%', #{pd.exception}),'%')
+				</if>
+				<if test="pd.remote_addr!=null and pd.remote_addr!=''">
+					and log.remote_addr like CONCAT(CONCAT('%', #{pd.remote_addr}),'%')
+				</if>
+				<if test="pd.startTime!=null and pd.startTime!=''">
+					and log.create_date <![CDATA[>=]]> #{pd.startTime}
+				</if>
+				<if test="pd.endTime!=null and pd.endTime!=''">
+					and log.create_date <![CDATA[<=]]> #{pd.endTime}
+				</if>
+			</if>
+		</where>
+	</sql>
+    
+    <select id="selectByPage" parameterType="page" resultMap="logList">
+    	select id,title,create_date,remote_addr,type,request_uri,method,username,name
+    	from t_upm_log log
+    	inner join t_upm_admin user on user.USER_ID=log.create_by
+    	<include refid="condition"></include>
+    </select>
+    
+    <insert id="insert" parameterType="log">
+    	insert into t_upm_log values(#{id},#{type},#{title},#{createBy},#{createDate},#{remoteAddr},#{userAgent},#{requestUri},#{method},#{params},#{exception})
+    </insert>
+</mapper>

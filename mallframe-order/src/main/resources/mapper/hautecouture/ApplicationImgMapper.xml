@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.hautecouture.dao.ApplicationImgMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+    
+	<sql id="applicationColumns">
+		a.p_id AS "id",
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.path AS "path",
+		a.name AS "name",
+		a.size AS "size",
+		a.hz AS "hz",
+		a.aplc_id AS "aplc_id",
+		a.material_id AS "material_id",
+		a.catagory AS "catagory"
+	</sql>
+	
+	<sql id="applicationJoins">
+	</sql>
+	
+    
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_picture a
+		<include refid="applicationJoins"/>
+		WHERE a.p_id = #{p_id}
+	</select>
+	
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_picture a
+		<include refid="applicationJoins"/>
+		<where>
+			a.del_flag = #{pd.del_flag}
+			<if test="pd.application_time != null and pd.application_time != ''">
+				AND a.application_time = #{pd.application_time}
+			</if>
+			<if test="pd.article != null and pd.article != ''">
+				AND a.article LIKE 	concat('%',#{pd.article},'%')
+			</if>
+			<if test="pd.material != null and pd.material != ''">
+				AND a.material LIKE concat('%',#{pd.material},'%')
+			</if>
+			<if test="pd.byo != null and pd.byo != ''">
+				AND a.byo = #{pd.byo}
+			</if>
+		</where>
+	</select>
+	<select id="getImagesById" resultType="pd" parameterType="java.lang.String">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_picture a
+		<include refid="applicationJoins"/>
+		<where>
+		a.aplc_id = #{aplc_id}
+	    </where>
+	</select>
+	<select id="getDesigns" resultType="pd" parameterType="pd">
+		SELECT 
+			catagory,
+			path
+		FROM t_haute_couture_picture 
+		where
+		a.aplc_id = #{aplc_id}
+		<if test="catagory != null and catagory != ''">
+		and 
+		a.catagory = #{catagory}
+		</if>
+	</select>
+	<insert id="insert" parameterType="pd">
+		INSERT INTO t_haute_couture_application(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			applicant,
+			application_time,
+			article,
+			material,
+			custom_details,
+			material_content,
+			byo,
+			capped_price,
+			floor_price,
+			reviewed
+		) VALUES (
+			#{createBy},
+			#{createDate},
+			#{updateBy},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{applicant},
+			#{application_time},
+			#{article},
+			#{material},
+			#{custom_details},
+			#{material_content},
+			#{byo},
+			#{capped_price},
+			#{floor_price},
+			#{reviewed}
+		)
+		 <selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="pd">
+		UPDATE t_haute_couture_application SET 	
+			update_by = #{updateBy},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			applicant = #{applicant},
+			application_time = #{application_time},
+			article = #{article},
+			material = #{material},
+			custom_details = #{custom_details},
+			material_content = #{material_content},
+			byo = #{byo},
+			capped_price = #{capped_price},
+			floor_price = #{floor_price}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_haute_couture_application
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_haute_couture_application SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

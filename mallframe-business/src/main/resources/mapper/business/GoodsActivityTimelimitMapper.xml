@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.ActivityTimeLimitMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select t1.*,t2.bs_name,t2.bs_avatar,t2.bs_banner,t2.bs_logo
+		from
+		t_goods_activity_timelimit t1 left join t_business t2 on t1.bs_id =
+		t2.bs_id
+		where 1= 1
+		<if test="pd.currentTime != null and pd.currentTime != ''">
+			and timelimit_start_time &lt; #{pd.currentTime} and
+			timelimit_end_time
+			&gt; #{pd.currentTime}
+		</if>
+		<!-- 未开始 -->
+		<if test="pd.activity_status == 0">
+			<if test="pd.currentTime != null and pd.currentTime != ''">
+		       <![CDATA[  and timelimit_start_time > #{pd.currentTime}  ]]>
+			</if>
+		</if>
+		<!-- 已结束 -->
+		<if test="pd.activity_status == 2">
+			<if test="pd.currentTime != null and pd.currentTime != ''">
+		       <![CDATA[  and timelimit_end_time < #{pd.currentTime}  ]]>
+			</if>
+		</if>
+		<!-- 进行中 -->
+		<if test="pd.activity_status == 1">
+			<if test="pd.currentTime != null and pd.currentTime != ''">
+		       <![CDATA[ and timelimit_start_time <  #{pd.currentTime} and timelimit_end_time > #{pd.currentTime}]]>
+			</if>
+		</if>
+		<if test="pd.start_create_time != null and pd.start_create_time != ''">
+	      <![CDATA[ and  DATE_FORMAT(t1.create_time,'%Y-%m-%d')  >= #{pd.start_create_time} ]]>
+		</if>
+		<if test="pd.end_create_time != null and pd.end_create_time != ''">
+	      <![CDATA[ and DATE_FORMAT(t1.create_time,'%Y-%m-%d')  < #{pd.end_create_time} ]]>
+		</if>
+		<if test="pd.keywords != null and pd.keywords != ''">
+			and (
+			t1.timelimit_name like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			or t1.activity_code like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			or t2.bs_name like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			or t2.bs_seller_name like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.bs_id != null and pd.bs_id != ''">
+			and t1.bs_id=#{pd.bs_id}
+		</if>
+		order by t1.create_time desc
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select t1.*,t2.bs_name,t2.bs_avatar,t2.bs_banner,t2.bs_logo
+		from
+		t_goods_activity_timelimit t1 left join t_business t2 on t1.bs_id =
+		t2.bs_id
+		where 1= 1
+		<if test="pd.currentTime != null and pd.currentTime != ''">
+			and timelimit_start_time &lt; #{pd.currentTime} and
+			timelimit_end_time
+			&gt; #{pd.currentTime}
+		</if>
+		<if test="pd.timelimit_name != null and pd.timelimit_name != ''">
+			and activity_code like
+			CONCAT(CONCAT('%',#{pd.activity_code}),'%')
+		</if>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="java.lang.Integer">
+		select *
+		from
+		t_goods_activity_timelimit
+		where 1=1
+		and id = #{id}
+	</select>
+	<select id="selectLimitProList" parameterType="java.lang.Integer"
+		resultType="pd">
+		SELECT
+		t1.*,t5.bs_id,t5.bs_name,t5.bs_logo,t4.goods_id,t4.list_img,t3.stock,t3.attr_json,t2.timelimit_buy_min
+		FROM
+		t_goods_activity_timelimit_pro t1
+		LEFT JOIN
+		t_goods_activity_timelimit t2 ON t1.limit_id = t2.id
+		LEFT JOIN
+		t_goods_sku t3 ON t1.stock_id = t3.sku_id
+		LEFT JOIN t_goods t4 ON
+		t4.goods_id= t3.goods_id
+		LEFT JOIN t_business t5 ON t5.bs_id= t2.bs_id
+		where 1=1
+		and t1.limit_id=#{id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_activity_timelimit
+		(activity_code,bs_id,timelimit_name,timelimit_title,timelimit_start_time,timelimit_end_time,timelimit_buy_min,status,remark,create_time)
+		values(#{activity_code},#{bs_id},#{timelimit_name},#{timelimit_title},#{timelimit_start_time},#{timelimit_end_time},#{timelimit_buy_min},#{status},#{remark},#{create_time})
+		<selectKey resultType="java.lang.String" order="AFTER"
+			keyProperty="id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_goods_activity_timelimit
+		<set>
+			<if test="status != null and status != ''">
+				status = #{status},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from
+		t_goods_activity_timelimit where id = #{pd.id}
+	</delete>
+
+	<insert id="insertLimitGoods" parameterType="pd">
+		insert into
+		t_goods_activity_timelimit_pro
+		(limit_id,stock_id,goods_name,goods_price,discount_price,discount,min_num,create_time)
+		values(#{limit_id},#{stock_id},#{goods_name},#{goods_price},#{discount_price},#{discount},#{min_num},#{create_time})
+	</insert>
+
+	<update id="updateLimitGoods" parameterType="pd">
+		update t_goods_activity_timelimit_pro
+		<set>
+			<if test="discount_price != null and discount_price != ''">
+				discount_price = #{discount_price},
+			</if>
+			<if test="min_num != null and min_num != ''">
+				min_num = #{min_num},
+			</if>
+			<if test="discount != null and discount != ''">
+				discount = #{discount},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="deleteLimitGoods" parameterType="pd">
+		delete from
+		t_goods_activity_timelimit_pro where 1=1
+		<if test="limit_id !=null and limit_id !=''">
+			and limit_id = #{limit_id}
+		</if>
+		<if test="id !=null and id !=''">
+			and id = #{id}
+		</if>
+	</delete>
+
+	<select id="selectLimitGoodsByID" parameterType="java.lang.Integer"
+		resultType="pd">
+		select * from
+		t_goods_activity_timelimit_pro where id =
+		#{id}
+	</select>
+	<select id="selectLimitGoodsByMap" parameterType="pd"
+		resultType="pd">
+		select t1.* from
+		t_goods_activity_timelimit_pro t1 LEFT JOIN
+		t_goods_activity_timelimit t2 ON t1.limit_id=t2.id where 1=1
+		<if test="id !=null and id !=''">
+			and t1.id =#{id}
+		</if>
+		<if test="stock_id !=null and stock_id !=''">
+			and t1.stock_id =#{stock_id}
+		</if>
+		<if test="limit_id !=null and limit_id !=''">
+			and t1.limit_id =#{limit_id}
+		</if>
+		<if test="bs_id !=null and bs_id !=''">
+			and t2.bs_id =#{bs_id}
+		</if>
+	</select>
+</mapper>

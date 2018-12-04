@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.UserAccountMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.user_money != null">
+			and user_money = #{pd.user_money}
+		</if>
+		<if test="pd.frozen_money != null">
+			and frozen_money = #{pd.frozen_money}
+		</if>
+		<if test="pd.charge_money != null">
+			and charge_money = #{pd.charge_money}
+		</if>
+		<if test="pd.withdraw_money != null">
+			and withdraw_money = #{pd.withdraw_money}
+		</if>
+		<if test="pd.order_money != null">
+			and order_money = #{pd.order_money}
+		</if>
+		<if test="pd.rebate_money != null">
+			and rebate_money = #{pd.rebate_money}
+		</if>
+		<if test="pd.frozen_points != null">
+			and frozen_points = #{pd.frozen_points}
+		</if>
+		<if test="pd.user_points != null">
+			and user_points = #{pd.user_points}
+		</if>
+		<if test="pd.charge_points != null">
+			and charge_points = #{pd.charge_points}
+		</if>
+		<if test="pd.use_points != null">
+			and use_points = #{pd.use_points}
+		</if>
+		<if test="pd.order_points != null">
+			and order_points = #{pd.order_points}
+		</if>
+		<if test="pd.rebate_points != null">
+			and rebate_points = #{pd.rebate_points}
+		</if>
+		<if test="pd.share_points != null">
+			and share_points = #{pd.share_points}
+		</if>
+		<if test="pd.change_time != null">
+			and change_time = #{pd.change_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_user_account where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_user_account where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_user_account where id = #{id}
+	</select>
+	
+	<insert id="insert" parameterType="pd">
+		insert into t_user_account (user_id,user_money,frozen_money,charge_money,withdraw_money,order_money,rebate_money,frozen_points,user_points,charge_points,use_points,order_points,rebate_points,share_points,change_time)
+		values (#{user_id},#{user_money},#{frozen_money},#{charge_money},#{withdraw_money},#{order_money},#{rebate_money},#{frozen_points},#{user_points},#{charge_points},#{use_points},#{order_points},#{rebate_points},#{share_points},#{change_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_user_account <set>
+		<if test="user_id != null">
+			user_id = #{user_id},
+		</if>
+		<if test="user_money != null">
+			user_money = #{user_money},
+		</if>
+		<if test="frozen_money != null">
+			frozen_money = #{frozen_money},
+		</if>
+		<if test="charge_money != null">
+			charge_money = #{charge_money},
+		</if>
+		<if test="withdraw_money != null">
+			withdraw_money = #{withdraw_money},
+		</if>
+		<if test="order_money != null">
+			order_money = #{order_money},
+		</if>
+		<if test="rebate_money != null">
+			rebate_money = #{rebate_money},
+		</if>
+		<if test="frozen_points != null">
+			frozen_points = #{frozen_points},
+		</if>
+		<if test="user_points != null">
+			user_points = #{user_points},
+		</if>
+		<if test="charge_points != null">
+			charge_points = #{charge_points},
+		</if>
+		<if test="use_points != null">
+			use_points = #{use_points},
+		</if>
+		<if test="order_points != null">
+			order_points = #{order_points},
+		</if>
+		<if test="rebate_points != null">
+			rebate_points = #{rebate_points},
+		</if>
+		<if test="share_points != null">
+			share_points = #{share_points},
+		</if>
+		<if test="change_time != null">
+			change_time = #{change_time},
+		</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<update id="updatePoints" parameterType="pd">
+		update t_user_account <set>
+		<if test="user_id != null">
+			user_id = #{user_id},
+		</if>
+		<if test="user_money != null">
+			user_money = #{user_money},
+		</if>
+		<if test="frozen_money != null">
+			frozen_money = #{frozen_money},
+		</if>
+		<if test="charge_money != null">
+			charge_money = #{charge_money},
+		</if>
+		<if test="withdraw_money != null">
+			withdraw_money = #{withdraw_money},
+		</if>
+		<if test="order_money != null">
+			order_money = #{order_money},
+		</if>
+		<if test="rebate_money != null">
+			rebate_money = #{rebate_money},
+		</if>
+		<if test="frozen_points != null">
+			frozen_points = #{frozen_points},
+		</if>
+		<if test="user_points != null">
+			user_points = #{user_points},
+		</if>
+		<if test="charge_points != null">
+			charge_points = #{charge_points},
+		</if>
+		<if test="use_points != null">
+			use_points = #{use_points},
+		</if>
+		<if test="order_points != null">
+			order_points = #{order_points},
+		</if>
+		<if test="rebate_points != null">
+			rebate_points = #{rebate_points},
+		</if>
+		<if test="share_points != null">
+			share_points = #{share_points},
+		</if>
+		<if test="change_time != null">
+			change_time = #{change_time},
+		</if>
+		</set>
+		where user_id = #{user_id}
+	</update>
+	<delete id="delete"   parameterType="pd">
+		delete from t_user_account where 1=1
+			<include refid="condition"></include>
+	</delete>
+
+	<select id="selectByUserId" resultType="pd"  parameterType="Integer">
+		SELECT * from t_user_account where user_id = #{id}
+	</select>
+</mapper>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.UserAddressMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.address_id != null">
+			and address_id = #{pd.address_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.contact_name != null">
+			and contact_name = #{pd.contact_name}
+		</if>
+		<if test="pd.contact_phone != null">
+			and contact_phone = #{pd.contact_phone}
+		</if>
+		<if test="pd.province != null">
+			and province = #{pd.province}
+		</if>
+		<if test="pd.city != null">
+			and city = #{pd.city}
+		</if>
+		<if test="pd.area != null">
+			and area = #{pd.area}
+		</if>
+		<if test="pd.province_id != null">
+			and province_id = #{pd.province_id}
+		</if>
+		<if test="pd.city_id != null">
+			and city_id = #{pd.city_id}
+		</if>
+		<if test="pd.area_id != null">
+			and area_id = #{pd.area_id}
+		</if>
+		<if test="pd.address != null">
+			and address = #{pd.address}
+		</if>
+		<if test="pd.is_default != null">
+			and is_default = #{pd.is_default}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_user_address where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_user_address where 1=1
+		<include refid="condition"></include>
+		<if test="pd.orderby != null and pd.orderby != ''">
+			ORDER BY address_id DESC 
+		</if>
+		<if test="pd.default != null and pd.default != ''">
+		    ORDER BY is_default desc
+		</if>
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_user_address where address_id = #{id}
+	</select>
+
+	<select id="getDefaultByUid" resultType="pd" parameterType="String">
+		SELECT * from t_user_address where user_id = #{uid} and is_default = 1
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_user_address
+		(user_id,contact_name,contact_phone,province_id,province,city_id,city,area_id,area,address,is_default,zip)
+		values
+		(#{user_id},#{contact_name},#{contact_phone},#{province_id},#{province},#{city_id},#{city},#{area_id},#{area},#{address},#{is_default},#{zip})
+		<selectKey resultType="java.lang.Integer" keyProperty="address_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_user_address
+		<set>
+			<if test="contact_name != null">
+				contact_name = #{contact_name},
+			</if>
+			<if test="contact_phone != null">
+				contact_phone = #{contact_phone},
+			</if>
+			<if test="province != null">
+				province = #{province},
+			</if>
+			<if test="city != null">
+				city = #{city},
+			</if>
+			<if test="area != null">
+				area = #{area},
+			</if>
+			<if test="province_id != null">
+				province_id = #{province_id},
+			</if>
+			<if test="city_id != null">
+				city_id = #{city_id},
+			</if>
+			<if test="area_id != null">
+				area_id = #{area_id},
+			</if>
+			<if test="address != null">
+				address = #{address},
+			</if>
+			<if test="is_default != null">
+				is_default = #{is_default},
+			</if>
+			<if test="zip != null">
+				zip = #{zip},
+			</if>
+		</set>
+		where 1=1
+		<if test="address_id != null">
+			and address_id = #{address_id}
+		</if>
+		<if test="user_id != null">
+			and user_id = #{user_id}
+		</if>
+
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_user_address where 1=1
+		<include refid="condition"></include>
+	</delete>
+</mapper>

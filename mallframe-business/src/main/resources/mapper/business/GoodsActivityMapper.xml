@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.GoodsActivityMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	
+	
+	<!-- 查询商家活动截止日期 -->
+	<select id="selectBsInfoByBsId" parameterType="pd" resultType="pd">
+	   select * from t_goods_activity_bsinfo where bs_id = #{bs_id}
+	   and ac_id = #{activity_id}
+	   <if test="now !=null and now !=''">
+	   	and end_buy_time > #{now}
+	   </if>
+	</select>
+	<!-- 查询商家订单详情 -->
+	
+	<select id="selectActivityOrderByOrderNo" parameterType="pd" resultType="pd">
+	    select * from t_goods_activity_buy_order where order_no =  #{order_no}
+	</select>
+	<select id="selectById" parameterType="java.lang.Integer" resultType="pd">
+	    select * from t_goods_activity_buy_order where id =  #{id}
+	</select>
+	
+	<update id="update" parameterType="pd">
+	    update t_goods_activity_buy_order
+	    <set>
+	       <if test="pay_status != null and pay_status != ''">
+	          pay_status = #{pay_status},
+	       </if>
+	        <if test="order_no != null and order_no != ''">
+	          order_no = #{order_no},
+	       </if>
+	    </set>
+	    where id = #{id}
+	</update>
+	<insert id="insertBsInfo" parameterType="pd">
+	     insert into t_goods_activity_bsinfo(bs_id,ac_id,begin_buy_time,end_buy_time,buy_money,buy_time)
+	     values(#{bs_id},#{ac_id},#{begin_buy_time},#{end_buy_time},#{buy_money},#{buy_time})
+	</insert>
+	<update id="updateBsInfo" parameterType="pd">
+	    update t_goods_activity_bsinfo
+	    <set>
+	      <if test="end_buy_time != null and end_buy_time != ''">
+	          end_buy_time = #{end_buy_time},
+	      </if>
+	     <if test="buy_money != null and buy_money != ''">
+	          buy_money = #{buy_money},
+	      </if>
+	        <if test="buy_time != null and buy_time != ''">
+	          buy_time = #{buy_time},
+	      </if>
+	    </set>
+	    where ac_id = #{ac_id} and bs_id = #{bs_id}
+	</update>
+	
+	
+	<!-- 查询平台 开发的活动 -->
+	<select id="activityType"  parameterType="pd" resultType="pd">
+	    select * from t_goods_activity_type where  1= 1 
+	    <if test="activity_code != null and activity_code != ''">
+	       and activity_code = #{activity_code}
+	    </if>
+	     <if test="activity_disabled != null and activity_disabled != ''">
+	       and activity_disabled = #{activity_disabled}
+	    </if>
+	     <if test="activity_id != null and activity_id != ''">
+	       and id = #{activity_id}
+	    </if>
+	</select>
+	
+	<!-- 更新平台活动类型 -->
+	<update id="updateActivityType" parameterType="pd">
+	    update t_goods_activity_type 
+	    <set>
+	      <if test="activity_disabled != null and activity_disabled != ''">
+	          activity_disabled = #{activity_disabled},
+	      </if>
+	      <if test="activity_name != null and activity_name != ''">
+	          activity_name = #{activity_name},
+	      </if>
+	       <if test="activity_logo != null and activity_logo != ''">
+	          activity_logo = #{activity_logo},
+	      </if>
+	      <if test="activity_code != null and activity_code != ''">
+	          activity_code = #{activity_code},
+	      </if>
+	    </set>
+	    where id = #{id}
+	</update>
+	<!-- 活动价格列表 -->
+	<select id="priceList" parameterType="pd" resultType="pd">
+	    select a.id,a.activity_month,a.activity_price,a.activity_discount_price,a.activity_use_cash,a.activity_use_point,a.activity_discount,
+	    b.activity_name,b.activity_logo,b.activity_code
+	    from t_goods_activity_price a left join t_goods_activity_type b
+	    on a.activity_id = b.id
+	    where 1= 1
+	    <if test="activity_id != null and activity_id != ''">
+	       and b.id = #{activity_id}
+	    </if>
+	    <if test="price_id != null and price_id != ''">
+	       and a.id = #{price_id}
+	    </if>
+	    <if test="activity_month != null and activity_month != ''">
+	       and a.activity_month = #{activity_month}
+	    </if>
+	</select>
+	<!-- 更改价格体系 -->
+	<update id="updatePrice" parameterType="pd">
+	    update t_goods_activity_price 
+	    <set>
+	       <if test="activity_month != null and activity_month != ''">
+	           activity_month = #{activity_month},
+	       </if>
+	       <if test="activity_price != null and  activity_price != ''">
+	           activity_price = #{activity_price},
+	       </if>
+	       <if test="activity_discount_price != null and  activity_discount_price != ''">
+	           activity_discount_price = #{activity_discount_price},
+	       </if>
+	       <if test="activity_use_cash != null and  activity_use_cash != ''">
+	           activity_use_cash = #{activity_use_cash},
+	       </if>
+	       <if test="activity_use_point != null and  activity_use_point != ''">
+	           activity_use_point = #{activity_use_point},
+	       </if>
+	       <if test="activity_discount != null and activity_discount != ''">
+	           activity_discount = #{activity_discount},
+	       </if>
+	    </set>
+	    where id = #{id}
+	</update>
+	<!-- 增加价格体系 -->
+	<insert id="insertPrice" parameterType="pd">
+	    insert into t_goods_activity_price (activity_id,activity_name,activity_month,activity_price,activity_discount_price,activity_use_cash,activity_use_point,activity_discount)
+	    values(#{activity_id},#{activity_name},#{activity_month},#{activity_price},#{activity_discount_price},#{activity_use_cash},#{activity_use_point},#{activity_discount})
+	</insert>
+	<!-- 商家购买活动订单 -->
+	<select id="activityOrderByPage" resultType="pd" parameterType="page">
+	    select  a.*,b.bs_name,b.bs_seller_name,b.bs_avatar,b.bs_logo 
+	    from t_goods_activity_buy_order a left join t_business b on 
+	    a.bs_id = b.bs_id
+	    where 1= 1
+	    <if test="pd.order_no != null and pd.order_no != ''">
+	        and order_no like CONCAT(CONCAT('%',
+			#{pd.order_no}),'%')
+	    </if>
+	    <if test="pd.pay_status != null and pd.pay_status != ''">
+	        and pay_status = #{pd.pay_status}
+	    </if>
+	      <if test="pd.activity_id != null and pd.activity_id != ''">
+	        and activity_id = #{pd.activity_id}
+	    </if>
+	    <if test="pd.currentTime != null and pd.currentTime != ''">
+	        and start_time &lt; #{pd.currentTime} and end_time &gt; #{pd.currentTime}
+	    </if>
+	     <if test="pd.bs_id != null and pd.bs_id != ''">
+	        and a.bs_id = #{pd.bs_id}
+	    </if>
+	</select>
+	
+	<!-- 查询平台发布的活动 商家是否购买该活动  -->
+	<select id="selectActivityByBusi" resultType="pd" parameterType="pd">
+	     select t1.*,t2.end_buy_time from t_goods_activity_type t1 left join (select * from t_goods_activity_bsinfo where bs_id = #{bs_id}) t2
+	     on t1.id = t2.ac_id
+	     where activity_disabled = 0 
+	</select>
+	
+</mapper>

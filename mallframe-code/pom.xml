@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.easaa.mis</groupId>
+    <artifactId>mallframe-root</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>mallframe-code</artifactId>
+  <dependencies>
+	 <dependency> 
+    <groupId>com.google.guava</groupId> 
+    <artifactId>guava</artifactId> 
+    <version>r09</version> 
+ </dependency> 
+ <dependency>
+	   	   <groupId>cn.jpush.api</groupId>
+			<artifactId>jpush-client</artifactId>
+			<version>3.2.9</version>
+	  </dependency>
+<dependency>  
+            <groupId>com.fasterxml.jackson.core</groupId>  
+            <artifactId>jackson-core</artifactId>  
+            <version>2.6.0</version>  
+        </dependency>  
+        <dependency>  
+            <groupId>com.fasterxml.jackson.core</groupId>  
+            <artifactId>jackson-databind</artifactId>  
+            <version>2.6.0</version>  
+        </dependency>  
+        <dependency>  
+            <groupId>com.fasterxml.jackson.core</groupId>  
+            <artifactId>jackson-annotations</artifactId>  
+            <version>2.6.0</version>  
+        </dependency>  
+<!-- https://mvnrepository.com/artifact/commons-dbutils/commons-dbutils -->
+		<dependency>
+		    <groupId>commons-dbutils</groupId>
+		    <artifactId>commons-dbutils</artifactId>
+		    <version>1.5</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.zxing/core -->
+		<!-- 二维码生成工具包 -->
+		<dependency>
+		    <groupId>com.google.zxing</groupId>
+		    <artifactId>core</artifactId>
+		    <version>3.0.0</version>
+		</dependency>
+		<dependency>  
+            <groupId>com.google.zxing</groupId>  
+            <artifactId>javase</artifactId>  
+            <version>3.0.0</version>  
+        </dependency> 
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-support -->
+   <!-- https://mvnrepository.com/artifact/org.springframework/spring-context-support -->
+	  <dependency>
+         <groupId>javax.mail</groupId>
+         <artifactId>mail</artifactId>
+         <version>1.4.7</version>
+    </dependency>
+    <!-- 解决 nginx 字体 跨域无法访问 -->
+	<dependency>
+		  <groupId>com.easaa.util.corsfiter</groupId>
+		  <artifactId>cors-filter</artifactId>
+		  <version>1.0</version>
+	</dependency>
+	<dependency>
+	  <groupId>com.easaa.util.corsfiter</groupId>
+	  <artifactId>java-property-utils</artifactId>
+	  <version>1.0</version>
+	</dependency>
+	  </dependencies>
+</project>

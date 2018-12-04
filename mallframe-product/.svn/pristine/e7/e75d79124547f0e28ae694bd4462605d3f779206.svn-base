@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsTypeMapper">
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+	
+	<sql id="condition">
+		<if test="pd.type_id != null">
+			and type_id = #{pd.type_id}
+		</if>
+		<if test="pd.type_name != null">
+			and type_name = #{pd.type_name}
+		</if>
+		<if test="pd.attr_group != null">
+			and attr_group = #{pd.attr_group}
+		</if>
+		<if test="pd.is_del != null">
+			and is_del = #{pd.is_del}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.category1_id != null">
+			and category1_id = #{pd.category1_id}
+		</if>
+		<if test="pd.category2_id != null">
+			and category2_id = #{pd.category2_id}
+		</if>
+		<if test="pd.category3_id != null">
+			and category3_id = #{pd.category3_id}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_goods_type where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_goods_type where 1=1
+			<include refid="condition"></include>
+	</select>
+
+   <select id="recursion"  resultType="pd"  parameterType="pd">
+     select * from t_goods_type where category1_id = #{category1_id}
+     <if test="category2_id != null and category2_id != ''">
+         and category2_id not in (${category2_id});
+     </if>
+     <if test="category3_id != null and category3_id != ''">
+         and category3_id not in (${category3_id});
+     </if>
+   </select>
+
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_goods_type where type_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_type (type_name,attr_group,is_del,creator,create_time,brand_ids,category_id,category1_id,category2_id,category3_id)
+		values (#{type_name},#{attr_group},#{is_del},#{creator},#{create_time},#{brand_ids},#{category_id},#{category1_id},#{category2_id},#{category3_id})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_goods_type <set>
+		<if test="type_name != null">
+			type_name = #{type_name},
+		</if>
+		<if test="attr_group != null">
+			attr_group = #{attr_group},
+		</if>
+		<if test="is_del != null">
+			is_del = #{is_del},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+			<if test="brand_ids != null">
+			brand_ids = #{brand_ids},
+		</if>
+		<if test="category_id != null">
+			category_id = #{category_id},
+		</if>
+		<if test="category1_id != null">
+			category1_id = #{category1_id},
+		</if>
+		<if test="category2_id != null">
+			category2_id = #{category2_id},
+		</if>
+		<if test="category3_id != null">
+			category3_id = #{category3_id},
+		</if>
+		   
+		</set>
+		where type_id = #{type_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_goods_type where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

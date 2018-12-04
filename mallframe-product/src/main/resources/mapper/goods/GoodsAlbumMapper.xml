@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsAlbumMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.album_id != null">
+			and album_id = #{pd.album_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.original_img != null">
+			and original_img = #{pd.original_img}
+		</if>
+		<if test="pd.thumb_img != null">
+			and thumb_img = #{pd.thumb_img}
+		</if>
+		<if test="pd.img_desc != null">
+			and img_desc = #{pd.img_desc}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_goods_album where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_goods_album where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_goods_album where goods_id = #{goods_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_album (goods_id,original_img,thumb_img,img_desc,creator,create_time)
+		values (#{goods_id},#{original_img},#{thumb_img},#{img_desc},#{creator},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_album <set>
+		<if test="goods_id != null">
+			goods_id = #{goods_id},
+		</if>
+		<if test="original_img != null">
+			original_img = #{original_img},
+		</if>
+		<if test="thumb_img != null">
+			thumb_img = #{thumb_img},
+		</if>
+		<if test="img_desc != null">
+			img_desc = #{img_desc},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		</set>
+		where album_id = #{album_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_goods_album where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

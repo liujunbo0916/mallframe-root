@@ -1,0 +1,67 @@
+package com.easaa.goods.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.easaa.core.model.dao.EADao;
+import com.easaa.core.model.service.impl.EABaseService;
+import com.easaa.entity.PageData;
+import com.easaa.goods.dao.GoodsCartMapper;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+@Service	
+public class GoodsCartService extends EABaseService {
+
+	@Autowired
+	private GoodsCartMapper goodsCartMapper;
+	
+	public int deleteBatch(int [] carts_id){
+		return goodsCartMapper.deleteBatch(carts_id);
+	}
+	
+	public List<PageData> selectByUserId(PageData pd){
+		
+		return goodsCartMapper.selectByUserId(pd);
+	}
+	
+	public List<PageData> selectByUserCartId(PageData pd){
+		
+		return goodsCartMapper.selectByUserCartId(pd);
+	}
+	
+	@Override
+	public EADao getDao() {
+		// TODO Auto-generated method stub
+		return goodsCartMapper;
+	}
+
+	/**
+	 * 批量更改购物车数量
+	 * @param pd
+	 */
+	public void batchModify(PageData pd) {
+		String idsNumJson = pd.getAsString("idsNumJson");
+		JSONArray jsonArray = JSONArray.fromObject(idsNumJson);
+		for(Object t : jsonArray) {
+			JSONObject jsonObj = JSONObject.fromObject(t.toString());
+			pd = new PageData();
+			pd.put("cart_id", jsonObj.get("id"));
+			pd.put("goods_number", jsonObj.get("num"));
+			getDao().update(pd);
+		}
+	}
+	/**
+	 * 根据ids 查询
+	 */
+	public List<PageData> selectByIds(int[] carts_id){
+		return goodsCartMapper.selectByIds(carts_id);
+	}
+
+	public PageData  selectForgeBySkuId(PageData pd) {
+		return goodsCartMapper.selectForgeBySkuId(pd);
+	}
+}

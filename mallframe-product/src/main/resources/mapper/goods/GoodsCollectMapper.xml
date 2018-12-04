@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsCollectMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.collect_id != null">
+			and collect_id = #{pd.collect_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.goods_name != null">
+			and goods_name = #{pd.goods_name}
+		</if>
+		<if test="pd.course_id != null">
+			and course_id = #{pd.course_id}
+		</if>
+		<if test="pd.course_name != null">
+			and course_name = #{pd.course_name}
+		</if>
+		<if test="pd.course_tea_id != null">
+			and course_tea_id = #{pd.course_tea_id}
+		</if>
+		<if test="pd.course_tea_name != null">
+			and course_tea_name = #{pd.course_tea_name}
+		</if>
+		<if test="pd.collect_type != null">
+			and collect_type = #{pd.collect_type}
+		</if>
+		<if test="pd.collect_img != null">
+			and collect_img = #{pd.collect_img}
+		</if>
+		<if test="pd.collect_price != null">
+			and collect_price = #{pd.collect_price}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_collect where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="page">
+	 select * 
+		from t_goods_collect
+		where 1= 1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectCollect" resultType="pd" parameterType="page">
+		select t2.*,t1.create_time as collect_time 
+		from t_goods_collect t1  
+		left join  <if test="pd.collect_type ==1">t_goods t2 on t1.goods_id = t2.goods_id</if>
+		<if test="pd.collect_type ==2">t_ythd_course t2 on t1.course_id = t2.id</if> 
+		where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByUserId" resultType="pd" parameterType="pd">
+		SELECT
+		a.user_id,a.goods_id,b.goods_sn,b.goods_name,b.goods_tags,b.shop_price,b.goods_stock,b.list_img
+		from t_goods_collect a LEFT JOIN t_goods b on a.goods_id = b.goods_id
+		WHERE a.user_id = #{user_id}
+	</select>
+	
+	<select id="selectAllByIdPage" resultType="pd" parameterType="Page">
+		SELECT *
+		from t_goods_collect
+		WHERE 1=1
+		<include refid="condition"></include>
+		order by create_time DESC
+	</select>
+	
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_goods_collect where collect_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_collect
+		(user_id,goods_id,goods_name,course_id,course_name,course_tea_id,course_tea_name,collect_type,collect_img,collect_price,create_time)
+		values
+		(#{user_id},#{goods_id},#{goods_name},#{course_id},#{course_name},#{course_tea_id},#{course_tea_name},#{collect_type},#{collect_img},#{collect_price},#{create_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_collect
+		<set>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="goods_id != null">
+				goods_id = #{goods_id},
+			</if>
+			<if test="goods_name != null">
+				and goods_name = #{goods_name}
+			</if>
+			<if test="course_id != null">
+				and course_id = #{course_id}
+			</if>
+			<if test="course_name != null">
+				and course_name = #{course_name}
+			</if>
+			<if test="course_tea_id != null">
+				and course_tea_id = #{course_tea_id}
+			</if>
+			<if test="course_tea_name != null">
+				and course_tea_name = #{course_tea_name}
+			</if>
+			<if test="collect_type != null">
+				and collect_type = #{collect_type}
+			</if>
+			<if test="collect_img != null">
+				and collect_img = #{collect_img}
+			</if>
+			<if test="collect_price != null">
+				and collect_price = #{collect_price}
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where collect_id = #{collect_id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_collect where 1=1
+		<include refid="condition"></include>
+	</delete>
+</mapper>

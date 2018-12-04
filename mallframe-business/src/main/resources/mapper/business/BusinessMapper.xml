@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select t1.*,t2.bsg_name,t3.user_name from t_business t1 left join
+		t_business_grade t2 on t1.bs_grade_id = t2.bsg_id
+		left join t_user t3
+		on t1.bs_user_id = t3.user_id
+		where 1= 1
+		<if test="pd.bs_state != null and pd.bs_state != ''">
+			and t1.bs_state = #{pd.bs_state}
+		</if>
+		<if test="pd.bs_name != null and pd.bs_name != ''">
+			and t1.bs_name = #{pd.bs_name}
+		</if>
+		<if test="pd.bs_seller_name != null and pd.bs_seller_name != ''">
+			and t1.bs_seller_name like
+			concat('%',#{pd.bs_seller_name},'%')
+		</if>
+		<if test="pd.user_name != null and pd.user_name != ''">
+			and t3.user_name like concat('%',#{pd.user_name},'%')
+		</if>
+		<if test="pd.is_own_shop != null and pd.is_own_shop !=''">
+			and t1.is_own_shop = #{pd.is_own_shop}
+		</if>
+		order by bs_open_time desc
+	</select>
+	<select id="selectByMap" parameterType="page" resultType="pd">
+		select * from t_business t1 left join t_business_grade t2 on
+		t1.bs_grade_id = t2.bsg_id
+		left join t_user t3 on t1.bs_user_id =
+		t3.user_id
+		where 1 = 1
+		<if test="pd.bs_state != null and pd.bs_state !=''">
+			and t1.bs_state = #{pd.bs_state}
+		</if>
+		<if test="pd.bs_name != null and pd.bs_name !=''">
+			and t1.bs_name = #{pd.bs_name}
+		</if>
+		<if test="pd.bs_seller_name != null and pd.bs_seller_name !=''">
+			and t1.bs_seller_name like
+			concat('%',#{pd.bs_seller_name},'%')
+		</if>
+		<if test="pd.user_name != null and pd.user_name !=''">
+			and t3.user_name like concat('%',#{pd.user_name},'%')
+		</if>
+		<if test="pd.bs_id != null and pd.bs_id !=''">
+			and t1.bs_id = #{pd.bs_id}
+		</if>
+		<if test="pd.is_own_shop != null and pd.is_own_shop !=''">
+			and t1.is_own_shop = #{pd.is_own_shop}
+		</if>
+		<if test="pd.bsj_id != null and pd.bsj_id !=''">
+			and t1.bsj_id = #{pd.bsj_id}
+		</if>
+		order by bs_open_time desc
+	</select>
+
+	<select id="selectById" parameterType="Integer" resultType="pd">
+		select * from t_business t1 left join t_business_grade t2 on
+		t1.bs_grade_id = t2.bsg_id
+		left join t_user t3 on t1.bs_user_id =
+		t3.user_id
+		where 1 = 1
+		and t1.bs_id = #{bs_id}
+		order by bs_open_time desc
+	</select>
+	
+	<select id="selectByUserId" parameterType="Integer" resultType="pd">
+		select * from t_business 
+		where bs_user_id = #{bs_user_id}
+	</select>
+	
+	<insert id="insert" parameterType="pd">
+		insert into t_business
+		(bs_name,bs_parentid,bs_level,bs_grade_id,bs_user_id,bs_seller_name,bs_category_id,bs_company_name,bs_province_id,bs_province_name,bs_area_id,
+		bs_area_name,bs_address,bs_zip,bs_state,bs_closed_info,bs_open_time,bs_closed_time,bs_logo,bs_banner,bs_avatar,bs_QQ,bs_phone,bs_recommend,
+		bs_credit,bs_desccredit,bind_all_gc,is_own_shop,bs_deliverycredit,bs_qtian,bs_zhping,bs_tuihuo,bs_remark,bs_create_time,bsj_id
+		)
+		values(#{bs_name},#{bs_parentid},#{bs_level},#{bs_grade_id},#{user_id},#{bs_seller_name},#{bs_category_id},#{bs_company_name},#{bs_province_id},#{bs_province_name},#{bs_area_id},
+		#{bs_area_name},#{bs_address},#{bs_zip},#{bs_state},#{bs_closed_info},#{bs_sort},#{bs_open_time},#{bs_closed_time},#{bs_logo},#{bs_banner},#{bs_avatar},#{bs_QQ},#{bs_phone},#{bs_recommend},
+		#{bs_credit},#{bs_desccredit},#{bind_all_gc},#{is_own_shop},#{bs_servicecredit},#{bs_qtian},#{bs_zhping},#{bs_tuihuo},#{bs_remark},#{bs_create_time},#{bsj_id}
+		)
+		<selectKey resultType="java.lang.Integer" keyProperty="bs_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_business
+		<set>
+			<if test="bs_name != null">
+				bs_name = #{bs_name},
+			</if>
+			<if test="bs_parentid != null">
+				bs_parentid = #{bs_parentid},
+			</if>
+			<if test="bs_level != null">
+				bs_level = #{bs_level},
+			</if>
+			<if test="bs_grade_id != null">
+				bs_grade_id = #{bs_grade_id},
+			</if>
+			<if test="bs_user_id != null">
+				bs_user_id = #{bs_user_id},
+			</if>
+			<if test="bs_seller_name != null">
+				bs_seller_name = #{bs_seller_name},
+			</if>
+			<if test="bs_category_id != null">
+				bs_category_id = #{bs_category_id},
+			</if>
+			<if test="bs_company_name != null">
+				bs_company_name = #{bs_company_name},
+			</if>
+			<if test="bs_province_id != null and bs_province_id != ''">
+				bs_province_id = #{bs_province_id},
+			</if>
+			<if test="bs_province_name != null">
+				bs_province_name =
+				#{bs_province_name},
+			</if>
+			<if test="bs_area_id != null">
+				bs_area_id = #{bs_area_id},
+			</if>
+			<if test="bs_area_name != null">
+				bs_area_name = #{bs_area_name},
+			</if>
+			<if test="bs_address != null">
+				bs_address = #{bs_address},
+			</if>
+			<if test="bs_zip != null">
+				bs_zip =#{bs_zip},
+			</if>
+			<if test="bs_state != null">
+				bs_state =#{bs_state},
+			</if>
+			<if test="bs_closed_info != null">
+				bs_closed_info = #{bs_closed_info},
+			</if>
+			<if test="bs_sort != null">
+				bs_sort = #{bs_sort},
+			</if>
+			<if test="bs_open_time != null">
+				bs_open_time = #{bs_open_time},
+			</if>
+			<if test="bs_closed_time != null">
+				bs_closed_time =
+				#{bs_closed_time},
+			</if>
+			<if test="bs_logo != null">
+				bs_logo = #{bs_logo},
+			</if>
+			<if test="bs_banner != null">
+				bs_banner = #{bs_banner},
+			</if>
+			<if test="bs_avatar != null">
+				bs_avatar = #{bs_avatar},
+			</if>
+			<if test="bs_QQ != null">
+				bs_QQ = #{bs_QQ},
+			</if>
+			<if test="bs_phone != null">
+				bs_phone = #{bs_phone},
+			</if>
+			<if test="bs_recommend != null">
+				bs_recommend = #{bs_recommend},
+			</if>
+			<if test="bs_credit != null">
+				bs_credit = #{bs_credit},
+			</if>
+			<if test="bs_desccredit != null">
+				bs_desccredit = #{bs_desccredit},
+			</if>
+			<if test="bind_all_gc != null">
+				bind_all_gc = #{bind_all_gc},
+			</if>
+			<if test="is_own_shop != null">
+				is_own_shop = #{is_own_shop},
+			</if>
+			<if test="bs_servicecredit != null">
+				bs_servicecredit = #{bs_servicecredit},
+			</if>
+			<if test="bs_deliverycredit != null">
+				bs_deliverycredit = #{bs_deliverycredit},
+			</if>
+			<if test="bs_qtian != null">
+				bs_qtian = #{bs_qtian},
+			</if>
+			<if test="bs_zhping != null">
+				bs_zhping = #{bs_zhping},
+			</if>
+			<if test="bs_tuihuo != null">
+				bs_tuihuo =
+				#{bs_tuihuo},
+			</if>
+			<if test="bs_remark != null">
+				bs_remark = #{bs_remark},
+			</if>
+			<if test="bs_create_time != null">
+				bs_create_time = #{bs_create_time},
+			</if>
+			<if test="bsj_id != null">
+				bsj_id = #{bsj_id},
+			</if>
+			<if test="bs_introduction != null and bs_introduction != ''">
+				bs_introduction = #{bs_introduction},
+			</if>
+		</set>
+		where bs_id = #{bs_id}
+	</update>
+
+
+
+
+	<!-- 开店申请 -->
+	<sql id="condition_bsj">
+		<if test="pd.bsj_id != null">
+			and bsj_id = #{pd.bsj_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.company_name != null">
+			and company_name = #{pd.company_name}
+		</if>
+		<if test="pd.company_province_id != null">
+			and company_province_id = #{pd.company_province_id}
+		</if>
+		<if test="pd.company_province_name != null">
+			and company_province_name = #{pd.company_province_name}
+		</if>
+		<if test="pd.company_area_id != null">
+			and company_area_id = #{pd.company_area_id}
+		</if>
+		<if test="pd.company_area_name != null">
+			and company_area_name = #{pd.company_area_name}
+		</if>
+		<if test="pd.company_address != null">
+			and company_address = #{pd.company_address}
+		</if>
+		<if test="pd.company_phone != null">
+			and company_phone = #{pd.company_phone}
+		</if>
+		<if test="pd.company_employee_count != null">
+			and company_employee_count = #{pd.company_employee_count}
+		</if>
+		<if test="pd.company_registered_capital != null">
+			and company_registered_capital =
+			#{pd.company_registered_capital}
+		</if>
+		<if test="pd.contacts_name != null">
+			and contacts_name = #{pd.contacts_name}
+		</if>
+		<if test="pd.contacts_phone != null">
+			and contacts_phone = #{pd.contacts_phone}
+		</if>
+		<if test="pd.contacts_email != null">
+			and contacts_email = #{pd.contacts_email}
+		</if>
+		<if test="pd.business_licence_number != null">
+			and business_licence_number =
+			#{pd.business_licence_number}
+		</if>
+		<if test="pd.business_licence_address != null">
+			and business_licence_address =
+			#{pd.business_licence_address}
+		</if>
+		<if test="pd.business_licence_start != null">
+			and business_licence_start = #{pd.business_licence_start}
+		</if>
+		<if test="pd.business_licence_end != null">
+			and business_licence_end = #{pd.business_licence_end}
+		</if>
+		<if test="pd.business_sphere != null">
+			and business_sphere = #{pd.business_sphere}
+		</if>
+		<if test="pd.business_licence_number_electronic != null">
+			and business_licence_number_electronic =
+			#{pd.business_licence_number_electronic}
+		</if>
+		<if test="pd.bank_account_name != null">
+			and bank_account_name = #{pd.bank_account_name}
+		</if>
+		<if test="pd.bank_account_number != null">
+			and bank_account_number = #{pd.bank_account_number}
+		</if>
+		<if test="pd.bank_name != null">
+			and bank_name = #{pd.bank_name}
+		</if>
+		<if test="pd.bank_code != null">
+			and bank_code = #{pd.bank_code}
+		</if>
+		<if test="pd.bank_address != null">
+			and bank_address = #{pd.bank_address}
+		</if>
+		<if test="pd.join_state != null">
+			and join_state = #{pd.join_state}
+		</if>
+		<if test="pd.join_message != null">
+			and join_message = #{pd.join_message}
+		</if>
+		<if test="pd.join_year != null">
+			and join_year = #{pd.join_year}
+		</if>
+		<if test="pd.store_sg_id != null">
+			and store_sg_id = #{pd.store_sg_id}
+		</if>
+		<if test="pd.store_name != null">
+			and store_name = #{pd.store_name}
+		</if>
+		<if test="pd.bsg_name != null">
+			and bsg_name = #{pd.bsg_name}
+		</if>
+		<if test="pd.seller_name != null">
+			and seller_name = #{pd.seller_name}
+		</if>
+		<if test="pd.bs_bail != null">
+			and bs_bail = #{pd.bs_bail}
+		</if>
+		<if test="pd.pay_money_certificate != null">
+			and pay_money_certificate = #{pd.pay_money_certificate}
+		</if>
+		<if test="pd.pay_money_certificate_explain != null">
+			and pay_money_certificate_explain =
+			#{pd.pay_money_certificate_explain}
+		</if>
+		<if test="pd.pay_amount != null">
+			and pay_amount = #{pd.pay_amount}
+		</if>
+		<if test="pd.bs_charge_name != null">
+			and bs_charge_name = #{pd.bs_charge_name}
+		</if>
+		<if test="pd.bs_charge_phone!= null">
+			and bs_charge_phone = #{pd.bs_charge_phone}
+		</if>
+		<if test="pd.bs_charge_cardno!= null">
+			and bs_charge_cardno = #{pd.bs_charge_cardno}
+		</if>
+		<if test="pd.bs_charge_handheld_cardphoto!= null">
+			and bs_charge_handheld_cardphoto =
+			#{pd.bs_charge_handheld_cardphoto}
+		</if>
+		<if test="pd.bs_charge_front_cardphoto!= null">
+			and bs_charge_front_cardphoto =
+			#{pd.bs_charge_front_cardphoto}
+		</if>
+		<if test="pd.bs_charge_negative_cardphoto!= null">
+			and bs_charge_negative_cardphoto =
+			#{pd.bs_charge_negative_cardphoto}
+		</if>
+		<if test="pd.create_time!= null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.sc_id != null">
+			and	sc_id = #{pd.sc_id}
+		</if>
+	</sql>
+	<select id="selectStayPage" parameterType="page" resultType="pd">
+		select * from t_business_join where 1=1
+		<include refid="condition_bsj"></include>
+		order by create_time desc
+	</select>
+
+	<select id="selectStaydata" parameterType="pd" resultType="pd">
+		select * from t_business_join where 1=1
+		<if test="user_id != null and user_id != ''">
+			and user_id = #{user_id}
+		</if>
+		<if test="join_state != null and join_state != ''">
+			and join_state = #{join_state}
+		</if>
+		order by create_time desc
+	</select>
+
+	<insert id="insertBusinessJoin" parameterType="pd">
+		insert into
+		t_business_join
+		(user_id,company_name,company_province_id,company_province_name,company_area_id,company_area_name,company_address,
+		company_phone,company_employee_count,company_registered_capital,contacts_name,contacts_phone,contacts_email,
+		business_licence_number,business_licence_address,business_licence_start,business_licence_end,business_sphere,business_licence_number_electronic,
+		bank_account_name,bank_account_number,bank_name,bank_code,bank_address,join_state,join_message,join_year,store_sg_id,
+		store_name,bsg_name,seller_name,bs_bail,pay_money_certificate,pay_money_certificate_explain,pay_amount,bs_charge_name,bs_charge_phone,bs_charge_cardno,
+		bs_charge_handheld_cardphoto,bs_charge_front_cardphoto,bs_charge_negative_cardphoto,create_time,sc_id)
+		values(#{user_id},#{company_name},#{company_province_id},#{company_province_name},#{company_area_id},#{company_area_name},#{company_address}
+		,#{company_phone},#{company_employee_count},#{company_registered_capital},#{contacts_name},#{contacts_phone},#{contacts_email}
+		,#{business_licence_number},#{business_licence_address},#{business_licence_start},#{business_licence_end},#{business_sphere},#{business_licence_number_electronic}
+		,#{bank_account_name},#{bank_account_number},#{bank_name},#{bank_code},#{bank_address},#{join_state},#{join_message},#{join_year},#{store_sg_id},
+		#{store_name},#{bsg_name},#{seller_name},#{bs_bail},#{pay_money_certificate},#{pay_money_certificate_explain},#{pay_amount},#{bs_charge_name},#{bs_charge_phone},#{bs_charge_cardno},
+		#{bs_charge_handheld_cardphoto},#{bs_charge_front_cardphoto},#{bs_charge_negative_cardphoto},#{create_time},#{sc_id})
+	</insert>
+
+	<select id="selectBusinessJoinByPage" parameterType="page"
+		resultType="pd">
+		select * from t_business_join where 1=1
+		<include refid="condition_bsj"></include>
+	</select>
+	<select id="selectBusinessJoinByMap" parameterType="pd"
+		resultType="pd">
+		select * from t_business_join where 1=1
+		<include refid="condition_bsj"></include>
+	</select>
+	<select id="selectBusinessJoinByUserId" parameterType="Integer"
+		resultType="pd">
+		select * from t_business_join where user_id=#{user_id}
+	</select>
+	<select id="selectBusinessJoinById" parameterType="Integer"
+		resultType="pd">
+		select * from t_business_join where bsj_id=#{bsj_id}
+	</select>
+	<update id="updateBusinessJoin" parameterType="pd">
+		update t_business_join
+		<set>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="company_name != null">
+				company_name = #{company_name},
+			</if>
+			<if test="company_province_id != null">
+				company_province_id = #{company_province_id},
+			</if>
+			<if test="company_province_name != null">
+				company_province_name = #{company_province_name},
+			</if>
+			<if test="company_area_id != null">
+				company_area_id = #{company_area_id},
+			</if>
+			<if test="company_area_name != null">
+				company_area_name = #{company_area_name},
+			</if>
+			<if test="company_address != null">
+				company_address = #{company_address},
+			</if>
+			<if test="company_phone != null">
+				company_phone = #{company_phone},
+			</if>
+			<if test="company_employee_count != null and company_employee_count != ''">
+				company_employee_count = #{company_employee_count},
+			</if>
+			<if test="company_registered_capital != null">
+				company_registered_capital =
+				#{company_registered_capital},
+			</if>
+			<if test="contacts_name != null">
+				contacts_name = #{contacts_name},
+			</if>
+			<if test="contacts_phone != null">
+				contacts_phone = #{contacts_phone},
+			</if>
+			<if test="contacts_email != null">
+				contacts_email = #{contacts_email},
+			</if>
+			<if test="business_licence_number != null">
+				business_licence_number =
+				#{business_licence_number},
+			</if>
+			<if test="business_licence_address != null">
+				business_licence_address =
+				#{business_licence_address},
+			</if>
+			<if test="business_licence_start != null">
+				business_licence_start = #{business_licence_start},
+			</if>
+			<if test="business_licence_end != null">
+				business_licence_end = #{business_licence_end},
+			</if>
+			<if test="business_sphere != null">
+				business_sphere = #{business_sphere},
+			</if>
+			<if test="business_licence_number_electronic != null">
+				business_licence_number_electronic =
+				#{business_licence_number_electronic},
+			</if>
+			<if test="bank_account_name != null">
+				bank_account_name = #{bank_account_name},
+			</if>
+			<if test="bank_account_number != null">
+				bank_account_number = #{bank_account_number},
+			</if>
+			<if test="bank_name != null">
+				bank_name = #{bank_name},
+			</if>
+			<if test="bank_code != null">
+				bank_code = #{bank_code},
+			</if>
+			<if test="bank_address != null">
+				bank_address = #{bank_address},
+			</if>
+			<if test="join_state != null">
+				join_state = #{join_state},
+			</if>
+			<if test="join_message != null">
+				join_message = #{join_message},
+			</if>
+			<if test="join_year != null">
+				join_year = #{join_year},
+			</if>
+			<if test="store_sg_id != null">
+				store_sg_id = #{store_sg_id},
+			</if>
+			<if test="store_name != null">
+				store_name = #{store_name},
+			</if>
+			<if test="bsg_name != null">
+				bsg_name = #{bsg_name},
+			</if>
+			<if test="seller_name != null">
+				seller_name = #{seller_name},
+			</if>
+			<if test="bs_bail != null">
+				bs_bail = #{bs_bail},
+			</if>
+			<if test="pay_money_certificate != null">
+				pay_money_certificate = #{pay_money_certificate},
+			</if>
+			<if test="pay_money_certificate_explain != null">
+				pay_money_certificate_explain =
+				#{pay_money_certificate_explain},
+			</if>
+			<if test="pay_amount != null">
+				pay_amount = #{pay_amount},
+			</if>
+			<if test="bs_charge_name != null">
+				bs_charge_name = #{bs_charge_name},
+			</if>
+			<if test="bs_charge_phone!= null">
+				bs_charge_phone = #{bs_charge_phone},
+			</if>
+			<if test="bs_charge_cardno!= null">
+				bs_charge_cardno = #{bs_charge_cardno},
+			</if>
+			<if test="bs_charge_handheld_cardphoto!= null">
+				bs_charge_handheld_cardphoto =
+				#{bs_charge_handheld_cardphoto},
+			</if>
+			<if test="bs_charge_front_cardphoto!= null">
+				bs_charge_front_cardphoto =
+				#{bs_charge_front_cardphoto},
+			</if>
+			<if test="bs_charge_negative_cardphoto!= null">
+				bs_charge_negative_cardphoto =
+				#{bs_charge_negative_cardphoto},
+			</if>
+			<if test="create_time!= null">
+				create_time = #{create_time},
+			</if>
+			<if test="sc_id != null">
+				sc_id = #{sc_id},
+		</if>
+		</set>
+		where bsj_id = #{bsj_id}
+	</update>
+
+	<delete id="deleteBusinessJoin" parameterType="pd">
+		delete from
+		t_business_join where bsj_id = #{bsj_id}
+	</delete>
+</mapper>

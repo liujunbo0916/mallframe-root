@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.store.dao.StoreMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.store_id != null">
+			and store_id = #{pd.store_id}
+		</if>
+		<if test="pd.store_name != null">
+			and store_name = #{pd.store_name}
+		</if>
+		<if test="pd.address != null">
+			and address = #{pd.address}
+		</if>
+		<if test="pd.open_time != null">
+			and open_time = #{pd.open_time}
+		</if>
+		<if test="pd.traffic_info != null">
+			and traffic_info = #{pd.traffic_info}
+		</if>
+		<if test="pd.store_notice != null">
+			and store_notice = #{pd.store_notice}
+		</if>
+		<if test="pd.store_picture_url != null">
+			and store_picture_url = #{pd.store_picture_url}
+		</if>
+		<if test="pd.dimensionality != null">
+			and dimensionality = #{pd.dimensionality}
+		</if>
+		<if test="pd.longitude != null">
+			and longitude = #{pd.longitude}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_store where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_store where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_store where store_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_store (store_name,address,open_time,traffic_info,store_notice,store_picture_url,longitude,dimensionality)
+		values (#{store_name},#{address},#{open_time},#{traffic_info},#{store_notice},#{store_picture_url},#{longitude},#{dimensionality})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_store <set>
+		<if test="store_name != null">
+			store_name = #{store_name},
+		</if>
+		<if test="address != null">
+			address = #{address},
+		</if>
+		<if test="open_time != null">
+			open_time = #{open_time},
+		</if>
+		<if test="traffic_info != null">
+			traffic_info = #{traffic_info},
+		</if>
+		<if test="store_notice != null">
+			store_notice = #{store_notice},
+		</if>
+		<if test="store_picture_url != null">
+			store_picture_url = #{store_picture_url},
+		</if>
+		<if test="longitude != null">
+			longitude = #{longitude},
+		</if>
+		<if test="dimensionality != null">
+			dimensionality = #{dimensionality}
+		</if>
+		</set>
+		where store_id = #{store_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_store where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

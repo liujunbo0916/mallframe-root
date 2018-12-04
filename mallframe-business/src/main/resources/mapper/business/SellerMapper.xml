@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.SellerMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	
+	<select id="findByCondition" resultType="seller" parameterType="pd">
+	    select 
+	    user.status as 'member.status',user.user_name as 'member.userName',user.passWord as 'member.passWord',
+	    user.nick_name as 'member.nickName',user.phone as 'member.phone',user.register_time as 'member.registerTime',
+	    user.user_money as 'member.userMoney',user.user_points as 'member.userPoints',user.user_id AS 'member.userId',
+	    user.is_rebate as 'member.isRebate',user.is_buyer as 'member.isBuyer',user.is_loginer as 'member.isLoginer',
+	    user.is_commenter as 'member.isCommenter',user.user_type as 'member.userType',
+	    seller.seller_name as 'userName',seller.seller_password as 'passWord',seller.id as 'sellerId',
+	    business.bs_id as 'business.bsId',business.bs_name as 'business.bsName',business.bs_level as 'business.bsLevel',
+	    business.bs_grade_id as 'business.bsGradeId',business.bs_category_id as 'business.categoryId',business.bs_company_name as 'business.companyName',
+		business.bs_logo as 'business.bsLogo',business.bs_introduction as 'business.bsIntroduction',business.bs_phone as 'business.bsPhone'
+	    from t_seller seller inner join t_user user on seller.user_id = user.user_id
+	    inner join t_business business on seller.business_id = business.bs_id
+	    where 1 = 1
+	    <!-- 根据商家用户名查询 -->
+	    <if test="seller_name != null and seller_name != ''">
+	       and seller.seller_name = #{seller_name}
+	    </if>
+	    <!-- 根据商家登陆密码查询 -->
+	    <if test="seller_password != null and seller_password != ''">
+	       and seller.seller_password = #{seller_password}
+	    </if>
+	    <!-- 根据会员id查询 -->
+	     <if test="user_id != null and user_id != ''">
+	       and seller.user_id = #{user_id}
+	    </if>
+	    <!-- 根据商家分组id查询 -->
+	    <if test="seller_group_id != null and seller_group_id != ''">
+	       and seller.seller_group_id = #{seller_group_id}
+	    </if>
+	    <!-- 根据会员用户名查询 -->
+	    <if test="user_name != null and user_name != ''">
+	       and user.user_name = #{user_name}
+	    </if>
+	    <!-- 根据会员密码来查询 -->
+	    <if test="password != null and password != ''">
+	       and user.password = #{password}
+	    </if>
+	    <!-- 根据会员昵称查询 -->
+	    <if test="nick_name != null and nick_name != ''">
+	       and user.nick_name = #{nick_name}
+	    </if>
+	    <!-- 根据店铺名称查询 -->
+	    <if test="bs_name != null and bs_name != ''">
+	       and business.bs_name = #{bs_name}
+	    </if>
+	    <!-- 根据店铺id查询 -->
+	    <if test="bs_id != null and bs_id != ''">
+	       and business.bs_id = #{bs_id}
+	    </if>
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_seller
+		(seller_name,seller_password,seller_group_id,seller_last_login_time,user_id,business_id,is_admin,seller_quick_link)
+		values(#{seller_name},#{seller_password},#{seller_group_id},#{seller_last_login_time},#{user_id},#{business_id},#{is_admin},#{seller_quick_link})
+	</insert>
+	
+</mapper>

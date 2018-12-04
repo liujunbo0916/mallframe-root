@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsRebateMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.rebate_id != null">
+			and rebate_id = #{pd.rebate_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.rebate_1 != null">
+			and rebate_1 = #{pd.rebate_1}
+		</if>
+		<if test="pd.rebate_2 != null">
+			and rebate_2 = #{pd.rebate_2}
+		</if>
+		<if test="pd.rebate_3 != null">
+			and rebate_3 = #{pd.rebate_3}
+		</if>
+		<if test="pd.points_1 != null">
+			and points_1 = #{pd.points_1}
+		</if>
+		<if test="pd.points_2 != null">
+			and points_2 = #{pd.points_2}
+		</if>
+		<if test="pd.points_3 != null">
+			and points_3 = #{pd.points_3}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_goods_rebate where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_goods_rebate where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_goods_rebate where goods_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_rebate (goods_id,rebate_1,rebate_2,rebate_3,points_1,points_2,points_3)
+		values (#{goods_id},#{rebate_1},#{rebate_2},#{rebate_3},#{points_1},#{points_2},#{points_3})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_rebate <set>
+		<if test="goods_id != null">
+			goods_id = #{goods_id},
+		</if>
+		<if test="rebate_1 != null">
+			rebate_1 = #{rebate_1},
+		</if>
+		<if test="rebate_2 != null">
+			rebate_2 = #{rebate_2},
+		</if>
+		<if test="rebate_3 != null">
+			rebate_3 = #{rebate_3},
+		</if>
+		<if test="points_1 != null">
+			points_1 = #{points_1},
+		</if>
+		<if test="points_2 != null">
+			points_2 = #{points_2},
+		</if>
+		<if test="points_3 != null">
+			points_3 = #{points_3},
+		</if>
+		</set>
+		where rebate_id = #{rebate_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_goods_rebate where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

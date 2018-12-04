@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.SubjectMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.subject_name != null">
+			and subject_name = #{pd.subject_name}
+		</if>
+		<if test="pd.subject_logo != null">
+			and subject_logo = #{pd.subject_logo}
+		</if>
+		<if test="pd.subject_pid != null">
+			and subject_pid = #{pd.subject_pid}
+		</if>
+		<if test="pd.subject_isrecommed != null">
+			and subject_isrecommed = #{pd.subject_isrecommed}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_ythd_course_subject where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_ythd_course_subject where 1=1
+			<include refid="condition"></include>
+			order by subject_order_by desc
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_ythd_course_subject where id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_course_subject (subject_name,subject_name_py,subject_code,subject_logo,subject_isrecommed,subject_pid,subject_order_by,subject_create_time)
+		values (#{subject_name},#{subject_name_py},#{subject_code},#{subject_logo},#{subject_isrecommed},#{subject_pid},#{subject_order_by},#{subject_create_time})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_course_subject <set>
+		<if test="subject_name != null">
+			subject_name = #{subject_name},
+		</if>
+		<if test="subject_name_py != null">
+			subject_name_py = #{subject_name_py},
+		</if>
+		<if test="subject_code != null">
+			subject_code = #{subject_code},
+		</if>
+		<if test="subject_logo != null">
+			subject_logo = #{subject_logo},
+		</if>
+		<if test="subject_isrecommed != null">
+			subject_isrecommed = #{subject_isrecommed},
+		</if>
+		<if test="subject_pid != null">
+			subject_pid = #{subject_pid},
+		</if>
+		<if test="subject_order_by != null">
+			subject_order_by = #{subject_order_by},
+		</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delete"   parameterType="page">
+		delete from t_ythd_course_subject where id = #{pd.id}
+	</delete>
+</mapper>

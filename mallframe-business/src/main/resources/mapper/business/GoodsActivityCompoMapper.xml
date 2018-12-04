@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.ActivityCompoMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select t1.*,t2.bs_name,t2.bs_avatar,t2.bs_banner,t2.bs_logo
+		from
+		t_goods_activity_compo t1 left join t_business t2 on t1.bs_id =
+		t2.bs_id
+		where 1= 1
+		<if test="pd.currentTime != null and pd.currentTime != ''">
+			and start_time &lt; #{pd.currentTime} and end_time &gt;
+			#{pd.currentTime}
+		</if>
+		<if test="pd.compo_name != null and pd.compo_name != ''">
+			and compo_name like
+			CONCAT(CONCAT('%',#{pd.compo_name}),'%')
+		</if>
+		<if test="pd.start_create_time != null and pd.start_create_time != ''">
+	      <![CDATA[ and  DATE_FORMAT(t1.create_time,'%Y-%m-%d')  >= #{pd.start_create_time} ]]>
+		</if>
+		<if test="pd.end_create_time != null and pd.end_create_time != ''">
+	      <![CDATA[ and DATE_FORMAT(t1.create_time,'%Y-%m-%d')  < #{pd.end_create_time} ]]>
+		</if>
+		<if test="pd.keywords != null and pd.keywords != ''">
+			and (
+			t1.compo_name like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			or t2.bs_seller_name like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			or t2.bs_name like
+			CONCAT(CONCAT('%',#{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.bs_id != null and pd.bs_id != ''">
+			and t1.bs_id = #{pd.bs_id}
+		</if>
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="java.lang.Integer">
+		select *
+		from
+		t_goods_activity_compo
+		where 1= 1
+		and id = #{id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_activity_compo
+		(bs_id,start_time,end_time,compo_name,limit_num,compo_price,compo_postage,compo_num,compo_sales,create_time)
+		values(#{bs_id},#{start_time},#{end_time},#{compo_name},#{limit_num},#{compo_price},#{compo_postage},#{compo_num},#{compo_sales},#{create_time})
+		<selectKey resultType="java.lang.String" order="AFTER"
+			keyProperty="id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_goods_activity_compo
+		<set>
+			<if test="start_time != null and start_time != ''">
+				start_time = #{start_time},
+			</if>
+			<if test="end_time != null and end_time != ''">
+				end_time = #{end_time},
+			</if>
+			<if test="compo_name != null and compo_name != ''">
+				compo_name = #{compo_name},
+			</if>
+			<if test="limit_num != null and limit_num != ''">
+				limit_num = #{limit_num},
+			</if>
+			<if test="compo_price != null and compo_price != ''">
+				compo_price = #{compo_price},
+			</if>
+			<if test="compo_postage != null and compo_postage != ''">
+				compo_postage = #{compo_postage},
+			</if>
+			<if test="compo_num != null and compo_num != ''">
+				compo_num = #{compo_num},
+			</if>
+			<if test="compo_sales != null and compo_sales != ''">
+				compo_sales = #{compo_sales},
+			</if>
+			<if test="create_time != null and create_time != ''">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+
+	<select id="compoAllProList" resultType="pd" parameterType="java.lang.Integer">
+		SELECT
+		t2.*,t1.id as pro_id,t1.sku_id,t5.bs_name,t5.bs_logo,t4.goods_id,t4.goods_name,t4.list_img,t3.stock,t3.attr_json,t3.price
+		FROM
+		t_goods_activity_compo_pro t1
+		LEFT JOIN t_goods_activity_compo t2
+		ON t1.compo_id = t2.id
+		LEFT JOIN t_goods_sku t3 ON t1.sku_id =
+		t3.sku_id
+		LEFT JOIN t_goods t4 ON t4.goods_id= t3.goods_id
+		LEFT JOIN
+		t_business t5 ON t5.bs_id= t2.bs_id
+		where 1=1
+		and t2.id=#{id}
+	</select>
+
+	<select id="selectCompoGoodsByMap" resultType="pd"
+		parameterType="pd">
+		SELECT * FROM
+		t_goods_activity_compo_pro
+		where 1=1
+		<if test="compo_id !=null and compo_id !=''">
+			and compo_id=#{compo_id}
+		</if>
+		<if test="id !=null and id !=''">
+			and id=#{id}
+		</if>
+		<if test="sku_id !=null and sku_id !=''">
+			and sku_id=#{sku_id}
+		</if>
+	</select>
+
+	<delete id="delete" parameterType="page">
+		delete from
+		t_goods_activity_compo where id = #{pd.id}
+	</delete>
+
+	<insert id="addCompoGoods" parameterType="pd">
+		insert into
+		t_goods_activity_compo_pro
+		(compo_id,sku_id)
+		values(#{compo_id},#{sku_id})
+	</insert>
+
+	<delete id="deleteCompoGoods" parameterType="pd">
+		delete from
+		t_goods_activity_compo_pro where 1=1
+		<if test="compo_id !=null and compo_id !=''">
+			and compo_id = #{compo_id}
+		</if>
+		<if test="id !=null and id !=''">
+			and id = #{id}
+		</if>
+	</delete>
+
+</mapper>

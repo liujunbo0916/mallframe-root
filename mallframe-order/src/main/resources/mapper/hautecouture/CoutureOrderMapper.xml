@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.hautecouture.dao.CoutureOrderMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="applicationColumns">
+		a.id AS "id",
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.aplc_id AS "aplc_id",
+		a.order_sn AS "order_sn",
+		a.user_id AS "user_id",
+		a.order_money AS "order_money",
+		a.received_money AS "received_money",
+		a.design_fee AS "design_fee",
+		a.shipping_money AS "shipping_money",
+		a.shipping_fee AS "shipping_fee",
+		a.order_status AS "order_status",
+		a.pay_status AS "pay_status",
+		a.shipping_status AS "shipping_status",
+		a.pay_type AS "pay_type",
+		a.address_id AS "address_id",
+		a.mer_invoice AS "mer_invoice",
+		a.process_fee AS "process_fee",
+		a.pay_fee AS "pay_fee",
+		a.designer_id AS "designer_id",
+		a.shipping_type AS "shipping_type"
+		
+	</sql>
+	
+	<sql id="applicationJoins">
+		left join t_user_address b on b.address_id = a.address_id
+		left join t_designer c on c.designer_id = a.designer_id
+	</sql>
+	
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select 
+			<include refid="applicationColumns"/> 
+			,b.contact_name AS "contact_name",
+			b.contact_phone AS "contact_phone",
+			b.province AS "province",
+			b.city AS "city",
+			b.area AS "area",
+			b.zip AS "zip",
+			b.address AS "address",
+			c.designer_name AS "designer_name",
+			c.designer_img AS "designer_img",
+			c.designer_concept AS "designer_concept",
+			c.designer_desc AS "designer_desc"
+		from t_haute_couture_order a
+		<include refid="applicationJoins"/> 
+		<where>
+			a.del_flag = 0
+		<if test="pd.order_sn != null  and pd.order_sn != ''"> and order_sn like CONCAT('%',#{pd.order_sn},'%') </if>
+		<if test="pd.user_id != null and pd.user_id != ''"> and user_id like CONCAT('%',#{pd.user_id},'%')  </if>
+		<if test="pd.order_status != null and pd.order_status!= ''"> and order_status = #{pd.order_status} </if>
+		<if test="pd.pay_type != null and pd.pay_type!= ''"> and pay_type = #{pd.pay_type} </if>
+		</where>
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select orders.orders_id,good.goods_name,good.list_img,good.shop_price,ordergood.goods_count,orders.order_sn
+		,orders.order_status,ordergood.goods_attr from t_orders orders inner join t_orders_goods 
+		ordergood on orders.orders_id = ordergood.order_id INNER JOIN t_goods good 
+		on good.goods_id = ordergood.goods_id where 1=1
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT
+			<include refid="applicationColumns"/> ,
+			b.byo as "byo"
+		FROM
+			t_haute_couture_order a
+		LEFT JOIN t_haute_couture_application b ON b.id = a.aplc_id
+		where a.id = #{id}
+	</select>
+	
+	<select id="selectByOsn" resultType="pd"  parameterType="String">
+		SELECT
+			<include refid="applicationColumns"/> ,
+			b.byo as "byo"
+		FROM
+			t_haute_couture_order a
+		LEFT JOIN t_haute_couture_application b ON b.id = a.aplc_id
+		where a.order_sn = #{order_sn}
+	</select>
+	
+	<select id="selectOrderList" resultType="pd"  parameterType="page">
+		SELECT
+			a.id,
+			a.order_sn,
+			a.order_status,
+			a.process_fee,
+			a.design_fee,
+			b.byo,
+			b.material_content,
+			a.aplc_id
+		FROM
+			t_haute_couture_order a
+		LEFT JOIN t_haute_couture_application b ON b.id = a.aplc_id
+		where a.user_id = #{pd.uid}
+		order by a.create_date desc
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_haute_couture_order (
+			create_by,
+			create_date,
+			remarks,
+			aplc_id,
+			order_sn,
+			user_id,
+			order_money,
+			received_money,
+			design_fee,
+			shipping_money,
+			shipping_fee,
+			order_status,
+			pay_status,
+			shipping_status,
+			shipping_type,
+			pay_fee,
+			pay_type,
+			mer_invoice,
+			process_fee,
+			address_id,
+			designer_id)
+		values (
+			#{create_by},
+			#{create_date},
+			#{remarks},
+			#{aplc_id},
+			#{order_sn},
+			#{user_id},
+			#{order_money},
+			#{received_money},
+			#{design_fee},
+			#{shipping_money},
+			#{shipping_fee},
+			#{order_status},
+			#{pay_status},
+			#{shipping_status},
+			#{shipping_type},
+			#{pay_fee},
+			#{pay_type},
+			#{mer_invoice},
+			#{process_fee},
+			#{address_id},
+			#{designer_id})
+		<selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_haute_couture_order <set>
+		<if test="remarks != null">
+			remarks = #{remarks},
+		</if>
+		<if test="update_date != null">
+			update_date = #{update_date},
+		</if>
+		<if test="update_by != null">
+			update_by = #{update_by},
+		</if>
+		<if test="remarks != null">
+			remarks = #{remarks},
+		</if>
+		<if test="order_money != null">
+			order_money = #{order_money},
+		</if>
+		<if test="received_money != null">
+			received_money = #{received_money},
+		</if>
+		<if test="process_fee != null">
+			process_fee = #{process_fee},
+		</if>
+		<if test="design_fee != null">
+			design_fee = #{design_fee},
+		</if>
+		<if test="shipping_fee != null">
+			shipping_fee = #{shipping_fee},
+		</if>
+		<if test="pay_fee != null">
+			pay_fee = #{pay_fee},
+		</if>
+		<if test="order_status != null">
+			order_status = #{order_status},
+		</if>
+		<if test="shipping_status != null">
+			shipping_status = #{shipping_status},
+		</if>
+		<if test="shipping_type != null">
+			shipping_type = #{shipping_type},
+		</if>
+		<if test="pay_status != null">
+			pay_status = #{pay_status},
+		</if>
+		<if test="pay_type != null">
+			pay_type = #{pay_type},
+		</if>
+		<if test="shipping_money != null">
+			shipping_money = #{shipping_money},
+		</if>
+		<if test="pay_by_money != null">
+			pay_by_money = #{pay_by_money},
+		</if>
+		<if test="address_id != null">
+			address_id = #{address_id},
+		</if>
+		<if test="mer_invoice != null">
+			mer_invoice = #{mer_invoice},
+		</if>
+		<if test="designer_id != null">
+			designer_id = #{designer_id},
+		</if>
+		</set>
+		where id = #{id} 
+		<if test=" user_id!= null">
+		 	 and user_id = #{user_id}
+		</if>
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_haute_couture_order where 1=1
+	</delete>
+	
+	<!--物理删除-->
+	<update id="deleteByPhysics" parameterType="pd">
+		DELETE FROM t_haute_couture_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic" parameterType="pd">
+		UPDATE t_haute_couture_order SET 
+			del_flag = #{del_flag}
+		WHERE id = #{id}
+	</update>
+</mapper>

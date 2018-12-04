@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.GoodsActivityCompoMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<resultMap type="com.easaa.order.entity.Compo" id="compoInfo">
+		<id column="id" property="compoId" />
+		<result column="bs_id" property="bsId" />
+		<result column="compo_name" property="compoName" />
+		<result column="start_time" property="compoStartTime" />
+		<result column="end_time" property="compoEndTime" />
+		<result column="limit_num" property="compoLimitNum" />
+		<result column="compo_price" property="compoPrice" />
+		<result column="compo_postage" property="compoPostage" />
+		<result column="compo_sales" property="compoSales" />
+		<collection property="pros"
+			ofType="com.easaa.order.entity.CompoPro">
+			<id column="pro_id" property="proId" />
+			<result column="goods_name" property="goodsName" />
+			<result column="sku_id" property="skuId" />
+			<result column="goods_id" property="goodsId" />
+			<result column="attr_json" property="attrJson" />
+			<result column="goods_price" property="goodsPrice" />
+			<result column="goods_sales" property="goodsSales" />
+			<result column="stock" property="stock" />
+			<result column="list_img" property="goodsImg" />
+			<result column="goods_freight" property="goodsFreight" />
+			<result column="bs_id" property="goodsBsId" />
+		</collection>
+	</resultMap>
+	<select id="selectCompoByPage" resultMap="compoInfo"
+		parameterType="page">
+		select * from t_goods_activity_compo where bs_id =
+		#{pd.bs_id}
+		order by create_time desc
+	</select>
+
+	<select id="selectCompoPorlistByPage" resultMap="compoInfo"
+		parameterType="page">
+		select
+		t1.id,t1.bs_id,t1.compo_name,t1.start_time,t1.end_time,t1.limit_num,t1.compo_price,t1.compo_postage,t1.compo_sales,
+		t3.price as
+		'goods_price',t3.goods_id,t4.list_img,t4.goods_name,t4.goods_freight,t4.bs_id,t3.stock,t3.sku_id,t3.attr_json,t4.virtual_sales
+		as 'goods_sales',
+		t2.id as 'pro_id'
+		from (select * from
+		t_goods_activity_compo where 1=1
+		<if test="pd.type !=null and pd.type == 1 ">
+			and end_time > #{pd.currentTime} and #{pd.currentTime} >
+			start_time
+		</if>
+		) t1 left join t_goods_activity_compo_pro t2
+		on t1.id = t2.compo_id
+		left join t_goods_sku t3 on t2.sku_id = t3.sku_id
+		left join t_goods t4
+		on t3.goods_id = t4.goods_id
+	</select>
+
+	<select id="selectCompoPorlist" resultMap="compoInfo"
+		parameterType="page">
+		select
+		t1.id,t1.bs_id,t1.compo_name,t1.start_time,t1.end_time,t1.limit_num,t1.compo_price,t1.compo_postage,t1.compo_sales,
+		t3.price as
+		'goods_price',t3.goods_id,t4.list_img,t4.goods_name,t4.goods_freight,t4.bs_id,t3.stock,t3.sku_id,t3.attr_json,t4.virtual_sales
+		as 'goods_sales',
+		t2.id as 'pro_id'
+		from (select * from
+		t_goods_activity_compo where 1=1
+		<if test="pd.type !=null and pd.type == 1 ">
+			and end_time > #{pd.currentTime} and #{pd.currentTime} >
+			start_time
+		</if>
+		) t1 left join t_goods_activity_compo_pro t2
+		on t1.id = t2.compo_id
+		left join t_goods_sku t3 on t2.sku_id = t3.sku_id
+		left join t_goods t4
+		on t3.goods_id = t4.goods_id
+	</select>
+
+
+	<select id="selectCompoPorlistByGoodsId" resultMap="compoInfo"
+		parameterType="Page">
+		SELECT
+		t1.id,
+		t1.bs_id,
+		t1.compo_name,
+		t1.start_time,
+		t1.end_time,
+		t1.limit_num,
+		t1.compo_price,
+		t1.compo_postage,
+		t1.compo_sales,
+		t3.price AS 'goods_price',
+		t3.goods_id,
+		t4.list_img,
+		t4.goods_name,t4.goods_freight,t4.bs_id,
+		t3.stock,
+		t3.sku_id,
+		t3.attr_json,
+		t4.virtual_sales AS 'goods_sales',
+		t2.id AS 'pro_id'
+		FROM
+		(
+		SELECT
+		*
+		FROM
+		t_goods_activity_compo
+		where 1=1
+		<if test="pd.type !=null and pd.type == 1 ">
+			and end_time > #{pd.currentTime} and #{pd.currentTime} >
+			start_time
+		</if>
+		) t1
+		LEFT JOIN t_goods_activity_compo_pro t2 ON t1.id = t2.compo_id
+		LEFT JOIN t_goods_sku t3 ON t2.sku_id = t3.sku_id
+		LEFT JOIN t_goods t4 ON t3.goods_id = t4.goods_id
+		WHERE
+		t1.id = (
+		SELECT
+		t1.id
+		FROM
+		(
+		SELECT
+		*
+		FROM
+		t_goods_activity_compo
+		) t1
+		LEFT JOIN t_goods_activity_compo_pro t2 ON t1.id = t2.compo_id
+		LEFT
+		JOIN t_goods_sku t3 ON t2.sku_id = t3.sku_id
+		LEFT JOIN t_goods t4 ON
+		t3.goods_id = t4.goods_id
+		WHERE
+		t4.goods_id = #{pd.goods_id}
+		)
+	</select>
+
+
+	<select id="selectCompoInfo" resultMap="compoInfo"
+		parameterType="pd">
+		select
+		t1.id,t1.bs_id,t1.compo_name,t1.start_time,t1.end_time,t1.limit_num,t1.compo_price,t1.compo_postage,t1.compo_sales,
+		t3.price as
+		'goods_price',t3.goods_id,t4.list_img,t4.goods_name,t4.goods_freight,t4.bs_id,t3.stock,t3.sku_id,t3.attr_json,t4.virtual_sales
+		as 'goods_sales',
+		t2.id as 'pro_id'
+		from (select * from
+		t_goods_activity_compo where id = #{compo_id} 
+		<if test="type !=null and type == 1 ">
+			and end_time > #{currentTime} and #{currentTime} >
+			start_time
+		</if>) t1 left
+		join
+		t_goods_activity_compo_pro t2
+		on t1.id = t2.compo_id
+		left join
+		t_goods_sku t3 on t2.sku_id = t3.sku_id
+		left join t_goods t4 on
+		t3.goods_id = t4.goods_id
+	</select>
+
+	<select id="selectProByCondition" parameterType="pd" resultType="pd">
+		select * from t_goods_activity_compo_pro
+		where 1= 1
+		<if test="sku_id != null and sku_id != ''">
+			and sku_id = #{sku_id}
+		</if>
+		<if test="compo_id != null and compo_id != ''">
+			and compo_id = #{compo_id}
+		</if>
+	</select>
+	<insert id="insertPro" parameterType="pd">
+		insert into
+		t_goods_activity_compo_pro (sku_id,compo_id)
+		values(#{sku_id},#{compo_id})
+	</insert>
+
+	<insert id="addCompo" parameterType="pd">
+		insert into t_goods_activity_compo
+		(bs_id,start_time,end_time,compo_name,limit_num,compo_price,compo_postage,compo_num,compo_sales,create_time)
+		values(#{bs_id},#{start_time},#{end_time},#{compo_name},#{limit_num},#{compo_price},#{compo_postage},#{compo_num},#{compo_sales},#{create_time})
+		<selectKey resultType="java.lang.String" order="AFTER"
+			keyProperty="compo_id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<update id="updateCompo" parameterType="pd">
+		update t_goods_activity_compo
+		<set>
+			<if test="start_time != null and start_time != ''">
+				start_time = #{start_time},
+			</if>
+			<if test="end_time != null and end_time != ''">
+				end_time = #{end_time},
+			</if>
+			<if test="compo_name != null and compo_name != ''">
+				compo_name = #{compo_name},
+			</if>
+			<if test="limit_num != null and limit_num != ''">
+				limit_num = #{limit_num},
+			</if>
+			<if test="compo_price != null and compo_price != ''">
+				compo_price = #{compo_price},
+			</if>
+			<if test="compo_postage != null and compo_postage != ''">
+				compo_postage = #{compo_postage},
+			</if>
+			<if test="compo_num != null and compo_num != ''">
+				compo_num = #{compo_num},
+			</if>
+			<if test="compo_sales != null and compo_sales != ''">
+				compo_sales = #{compo_sales},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delCompoPro" parameterType="pd">
+		delete from
+		t_goods_activity_compo_pro where id = #{pro_id}
+	</delete>
+	<delete id="delCompo" parameterType="pd">
+		DELETE t1,t2 from
+		t_goods_activity_compo t1 LEFT JOIN
+		t_goods_activity_compo_pro t2 ON
+		t1.id=t2.compo_id WHERE
+		t1.id=#{compo_id}
+	</delete>
+
+
+</mapper>

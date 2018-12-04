@@ -1,0 +1,611 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.content.dao.ContentMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.CONTENT_ID != null and pd.CONTENT_ID != ''">
+			and CONTENT_ID = #{pd.CONTENT_ID}
+		</if>
+		<if test="pd.CATEGORY_CODE != null and pd.CATEGORY_CODE != ''">
+			and CATEGORY_CODE = #{pd.CATEGORY_CODE}
+		</if>
+		<if test="pd.SUBJECT_CODE != null and pd.SUBJECT_CODE != ''">
+			and SUBJECT_CODE = #{pd.SUBJECT_CODE}
+		</if>
+		<if test="pd.TITLE != null and pd.TITLE != ''">
+			and TITLE = #{pd.TITLE}
+		</if>
+		<if test="pd.SORT_TITLE != null and pd.SORT_TITLE != ''">
+			and SORT_TITLE = #{pd.SORT_TITLE}
+		</if>
+		<if test="pd.LINK != null and pd.LINK != ''">
+			and LINK = #{pd.LINK}
+		</if>
+		<if test="pd.ABSTRACT != null and pd.ABSTRACT != ''">
+			and ABSTRACT = #{pd.ABSTRACT}
+		</if>
+		<if test="pd.AUTHOR != null and pd.AUTHOR != ''">
+			and AUTHOR = #{pd.AUTHOR}
+		</if>
+		<if test="pd.TAGS != null and pd.TAGS != ''">
+			and TAGS = #{pd.TAGS}
+		</if>
+		<if test="pd.ORGIN != null and pd.ORGIN != '' ">
+			and ORGIN = #{pd.ORGIN}
+		</if>
+		<if test="pd.TOPLV != null and pd.TOPLV != ''">
+			and TOPLV = #{pd.TOPLV}
+		</if>
+		<if test="pd.CLICKS != null and pd.CLICKS != ''">
+			and CLICKS = #{pd.CLICKS}
+		</if>
+		<if test="pd.exclude_id != null and pd.exclude_id != ''">
+			and CONTENT_ID = #{pd.exclude_id}
+		</if>
+		<if test="pd.SUBJECT_ID != null and pd.SUBJECT_ID != ''">
+			and SUBJECT_ID = #{pd.SUBJECT_ID}
+		</if>
+		<if test="pd.CTYPE != null and pd.CTYPE != ''">
+			and CTYPE = #{pd.CTYPE}
+		</if>
+		<if test="pd.STATE != null and pd.STATE != ''">
+			and STATE = #{pd.STATE}
+		</if>
+	</sql>
+
+	 <select id="selectAllByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_content where 1=1  and STATE != 0
+		<include refid="condition"></include>
+		order by PUTTIME desc
+	 </select>
+	<select id="selectByPage" parameterType="page" resultType="pd">
+		select
+		tc.*,tcc.CATEGORY_NAME
+		from
+		t_ythd_content tc
+		LEFT JOIN
+		t_ythd_content_category tcc
+		ON
+		tcc.CATEGORY_CODE = tc.CATEGORY_CODE
+		where 1=1 and STATE != 0
+		<if test="pd.keywords!= null and pd.keywords != ''"><!-- 关键词检索 -->
+			and
+			(
+			tc.TITLE LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			tc.TAGS
+			LIKE CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			tc.ORGIN LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			tc.SUBGROUP LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+
+			or
+			tcc.CATEGORY_NAME LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			or
+			tc.CREATOR LIKE
+			CONCAT(CONCAT('%', #{pd.keywords}),'%')
+			)
+		</if>
+		<if test="pd.CATEGORY_CODE!= null and pd.CATEGORY_CODE != ''">
+			and tc.CATEGORY_CODE = #{pd.CATEGORY_CODE}
+		</if>
+		<if test="pd.START_TIME!= null and pd.START_TIME != ''"><!-- 开始日期 -->
+			and date_format(tc.CREATETIME,'%Y-%m-%d') <![CDATA[ >= ]]>
+			#{pd.START_TIME}
+		</if>
+		<if test="pd.END_TIME!= null and pd.END_TIME != ''"><!-- 结束日期 -->
+			and date_format(tc.CREATETIME,'%Y-%m-%d')	<![CDATA[ <=]]>
+			#{pd.END_TIME}
+		</if>
+		<if test="pd.STATE!= null and pd.STATE != ''"><!-- 结束日期 -->
+			and tc.STATE=#{pd.STATE}
+		</if>
+		<if test="pd.ISHOT!= null and pd.ISHOT != ''"><!-- 结束日期 -->
+			and tc.ISHOT=#{pd.ISHOT}
+		</if>
+		<if test="pd.CTYPE!= null and pd.CTYPE != ''">
+			and tc.CTYPE=#{pd.CTYPE}
+		</if>
+		<if test="pd.CLICKS != null and pd.CLICKS != ''">
+			<if test="pd.CLICKS == 0">
+				order by CLICKS desc
+			</if>
+			<if test="pd.CLICKS == 1">
+				order by CLICKS
+			</if>
+		</if>
+		<if test="pd.CLICKS == null or pd.CLICKS == ''">
+			order by PUTTIME desc
+		</if>
+	</select>
+	<select id="selectHomelist" resultType="pd" parameterType="pd">
+		SELECT
+		t1.CONTENT_ID,
+		t1.TITLE,
+		t1.SORT_TITLE,
+		t1.ABSTRACT,
+		t1.LINK,
+		t1.AUTHOR,
+		t1.T_IMG,
+		t1.C_IMG,
+		t1.S_IMG,
+		t1.STATE,
+		DATE_FORMAT(
+		t1.PUTTIME,'%Y-%m-%d %T') AS PUTTIME,
+		(select
+		COUNT(*) from
+		t_ythd_content_thumbsup
+		t2 where
+		t1.CONTENT_ID=t2.content_id) as
+		content_total_praise,
+		(select
+		COUNT(*)
+		from t_ythd_content_comment t3
+		where
+		t1.CONTENT_ID=t3.content_id) as
+		content_total_comment
+		FROM
+		t_ythd_content t1
+		where t1.STATE=1 and SUBJECT_CODE is null
+		<if test="PUBLISHER_ID != null and PUBLISHER_ID!=''">
+			and t1.PUBLISHER_ID=#{PUBLISHER_ID}
+		</if>
+		<if test="CATEGORY_CODE != null and CATEGORY_CODE!=''">
+			and CATEGORY_CODE= #{CATEGORY_CODE}
+		</if>
+		<if test="CTYPE != null and CTYPE != ''">
+			and CTYPE= #{CTYPE}
+		</if>
+		<if test="orderby != null and orderby==1">
+			ORDER by t1.CLICKS DESC
+		</if>
+		<if test="orderby != null and orderby==0">
+			ORDER by t1.CREATETIME DESC
+		</if>
+		<if test="limit != null ">
+			limit #{limit}
+		</if>
+	</select>
+	<select id="selectlistByPage" resultType="pd" parameterType="page">
+		SELECT
+		t1.CONTENT_ID,
+		t1.TITLE,
+		t1.SORT_TITLE,
+		t1.ABSTRACT,
+		t1.LINK,
+		t1.AUTHOR,
+		t1.T_IMG,
+		t1.C_IMG,
+		t1.S_IMG,
+		t1.STATE,
+		DATE_FORMAT(t1.PUTTIME,'%Y-%m-%d') AS PUTTIME,
+		(select
+		COUNT(*) from
+		t_ythd_content_thumbsup t2
+		where
+		t1.CONTENT_ID=t2.content_id) as
+		content_total_praise,
+		(select
+		COUNT(*)
+		from t_ythd_content_comment t3
+		where
+		t1.CONTENT_ID=t3.content_id) as
+		content_total_comment
+		FROM
+		t_ythd_content t1
+		where t1.STATE=1
+		<include refid="condition"></include>
+		<if test="pd.orderby != null and pd.orderby==1">
+			ORDER by t1.CLICKS DESC
+		</if>
+		<if test="pd.orderby != null and pd.orderby==0">
+			ORDER by t1.CREATETIME DESC
+		</if>
+	</select>
+	<select id="selectDetails" resultType="pd" parameterType="pd">
+		select
+		t1.CONTENT_ID,
+		t1.CATEGORY_CODE,
+		t1.TITLE,
+		t1.SORT_TITLE,
+		t1.ABSTRACT,
+		t1.LINK,
+		t1.AUTHOR,
+		t1.T_IMG,
+		t1.C_IMG,
+		t1.S_IMG,
+		t1.STATE,
+		t1.CONTENT,
+		DATE_FORMAT(t1.PUTTIME,'%Y-%m-%d %T') AS PUTTIME,
+		t1.PUBLISHER,
+		t1.PUBLISHER_ID,
+		t1.PUBLISHER_LOGO,
+		t1.PUBLISHER_EDUCATION,
+		t1.CLICKS,
+		(select count(*) from t_ythd_content_thumbsup where content_id =
+		t1.CONTENT_ID ) as thumbsup,
+		(select count(*) from
+		t_ythd_content_thumbsup where content_id = t1.CONTENT_ID and user_id =
+		#{user_id}) as is_thumbsup
+		from
+		t_ythd_content t1
+		WHERE
+		t1.STATE
+		= 1
+		and
+		CONTENT_ID=#{CONTENT_ID}
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select 
+		t2.CATEGORY_NAME,
+		t1.CONTENT_ID,
+		t1.CATEGORY_CODE,
+		t1.TITLE,
+		t1.SORT_TITLE,
+		t1.ABSTRACT,
+		t1.LINK,
+		t1.AUTHOR,
+		t1.T_IMG,
+		t1.C_IMG,
+		t1.S_IMG,
+		t1.STATE,
+		t1.CONTENT,
+		DATE_FORMAT(t1.PUTTIME,'%m月%d日') AS PC_PUTTIME,
+		DATE_FORMAT(t1.PUTTIME,'%Y-%m-%d %T') AS PUTTIME,
+		t1.PUBLISHER,
+		t1.PUBLISHER_ID,
+		t1.PUBLISHER_LOGO,
+		t1.PUBLISHER_EDUCATION
+		from t_ythd_content t1 left join t_ythd_content_category t2 
+		on t1.CATEGORY_CODE = t2.CATEGORY_CODE where 1=1
+		<include refid="condition"></include>
+		order by  t1.PUTTIME desc
+		<if test="pd.limit != null and pd.limit != ''">
+		   limit #{pd.limit}
+		</if>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="java.lang.Integer">
+		SELECT *
+		from t_ythd_content where CONTENT_ID = #{CONTENT_ID}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_content
+		(CATEGORY_CODE,TITLE,SUBJECT_CODE,SUBJECT_ID,SORT_TITLE,LINK,ABSTRACT,AUTHOR,TAGS,ORGIN,ORGINURL,TOPLV,CLICKS,TOPLVDATE,
+		SORTTIME,PUTTIME,PIGEONHOLEDATE,CTYPE,RECOMMEND,DRAFT,T_IMG,C_IMG,S_IMG,CONTENT,CATEGORY_TYPE,STATE,PUBLISHER_ID,PUBLISHER,PUBLISHER_LOGO,
+		PUBLISHER_EDUCATION,CREATETIME,CREATOR,UPDATETIME,MODIFIER,ISHOT,ISFOCUS,CHECKER,CHECKTIME,SUBGROUP,AUDIT_STATUS,
+		PUBLISH_STATUS,MODEL_TYPE)values
+		(#{CATEGORY_CODE},#{TITLE},#{SUBJECT_CODE},#{SUBJECT_ID},#{SORT_TITLE},#{LINK},#{ABSTRACT},#{AUTHOR},#{TAGS},#{ORGIN},#{ORGINURL},#{TOPLV},
+		#{CLICKS},#{TOPLVDATE},
+		#{SORTTIME},#{PUTTIME},#{PIGEONHOLEDATE},#{CTYPE},#{RECOMMEND},#{DRAFT},#{T_IMG},#{C_IMG},#{S_IMG},#{CONTENT},#{CATEGORY_TYPE},#{STATE},#{PUBLISHER_ID},#{PUBLISHER},
+		#{PUBLISHER_LOGO},
+		#{PUBLISHER_EDUCATION},#{CREATETIME},#{CREATOR},#{UPDATETIME},#{MODIFIER},#{ISHOT},#{ISFOCUS},#{CHECKER},#{CHECKTIME},#{SUBGROUP},#{AUDIT_STATUS},
+		#{PUBLISH_STATUS},#{MODEL_TYPE})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_content
+		<set>
+			<if test="CONTENT_ID != null">
+				CONTENT_ID = #{CONTENT_ID},
+			</if>
+			<if test="CATEGORY_CODE != null">
+				CATEGORY_CODE = #{CATEGORY_CODE},
+			</if>
+			<if test="TITLE != null">
+				TITLE = #{TITLE},
+			</if>
+			<if test="SUBJECT_CODE != null">
+				SUBJECT_CODE = #{SUBJECT_CODE},
+			</if>
+			<if test="SORT_TITLE != null">
+				SORT_TITLE = #{SORT_TITLE},
+			</if>
+			<if test="LINK != null">
+				LINK = #{LINK},
+			</if>
+			<if test="ABSTRACT != null">
+				ABSTRACT = #{ABSTRACT},
+			</if>
+			<if test="AUTHOR != null">
+				AUTHOR = #{AUTHOR},
+			</if>
+			<if test="TAGS != null">
+				TAGS = #{TAGS},
+			</if>
+			<if test="ORGIN != null">
+				ORGIN = #{ORGIN},
+			</if>
+			<if test="ORGINURL != null">
+				ORGINURL = #{ORGINURL},
+			</if>
+			<if test="TOPLV != null">
+				TOPLV = #{TOPLV},
+			</if>
+			<if test="CLICKS != null">
+				CLICKS = #{CLICKS},
+			</if>
+			<if test="TOPLVDATE != null">
+				TOPLVDATE = #{TOPLVDATE},
+			</if>
+			<if test="SORTTIME != null">
+				SORTTIME = #{SORTTIME},
+			</if>
+			<if test="PUTTIME != null">
+				PUTTIME = #{PUTTIME},
+			</if>
+			<if test="PIGEONHOLEDATE != null">
+				PIGEONHOLEDATE = #{PIGEONHOLEDATE},
+			</if>
+			<if test="CTYPE != null">
+				CTYPE = #{CTYPE},
+			</if>
+			<if test="RECOMMEND != null">
+				RECOMMEND = #{RECOMMEND},
+			</if>
+			<if test="DRAFT != null">
+				DRAFT = #{DRAFT},
+			</if>
+			<if test="T_IMG != null">
+				T_IMG = #{T_IMG},
+			</if>
+			<if test="C_IMG != null">
+				C_IMG = #{C_IMG},
+			</if>
+			<if test="S_IMG != null">
+				S_IMG = #{S_IMG},
+			</if>
+			<if test="CONTENT != null">
+				CONTENT = #{CONTENT},
+			</if>
+			<if test="CATEGORY_TYPE != null">
+				CATEGORY_TYPE = #{CATEGORY_TYPE},
+			</if>
+			<if test="STATE != null">
+				STATE = #{STATE},
+			</if>
+			<if test="PUBLISHER != null">
+				PUBLISHER = #{PUBLISHER},
+			</if>
+			<if test="PUBLISHER_LOGO != null">
+				PUBLISHER_LOGO = #{PUBLISHER_LOGO},
+			</if>
+			<if test="PUBLISHER_ID != null">
+				PUBLISHER_ID = #{PUBLISHER_ID},
+			</if>
+			<if test="PUBLISHER_EDUCATION != null">
+				PUBLISHER_EDUCATION = #{PUBLISHER_EDUCATION},
+			</if>
+			<if test="UPDATETIME != null">
+				UPDATETIME = #{UPDATETIME},
+			</if>
+			<if test="MODIFIER != null">
+				MODIFIER = #{MODIFIER},
+			</if>
+			<if test="ISHOT != null">
+				ISHOT = #{ISHOT},
+			</if>
+			<if test="ISFOCUS != null">
+				ISFOCUS = #{ISFOCUS},
+			</if>
+			<if test="CHECKER != null">
+				CHECKER = #{CHECKER},
+			</if>
+			<if test="CHECKTIME != null">
+				CHECKTIME = #{CHECKTIME},
+			</if>
+			<if test="AUDIT_STATUS != null">
+				AUDIT_STATUS = #{AUDIT_STATUS},
+			</if>
+			<if test="PUBLISH_STATUS != null">
+				PUBLISH_STATUS = #{PUBLISH_STATUS},
+			</if>
+			<if test="MODEL_TYPE != null and MODEL_TYPE !=''">
+				MODEL_TYPE = #{MODEL_TYPE},
+			</if>
+			<if test="SUBJECT_ID != null and SUBJECT_ID !=''">
+				SUBJECT_ID = #{SUBJECT_ID},
+			</if>
+		</set>
+		where CONTENT_ID = #{CONTENT_ID}
+	</update>
+
+	<update id="deleteImg" parameterType="pd">
+		update t_ythd_content
+		<set>
+			<if test="T_IMG != null and T_IMG != ''">
+				T_IMG = null,
+			</if>
+			<if test="C_IMG != null and C_IMG != ''">
+				C_IMG = null,
+			</if>
+		</set>
+		where CONTENT_ID =#{CONTENT_ID}
+	</update>
+
+	<select id="selMaxLv" resultType="pd" parameterType="pd">
+		SELECT
+		MAX(TOPLV) AS maxlv
+		FROM
+		t_ythd_content
+		WHERE
+		1=1 and
+		STATE = 1
+	</select>
+	<delete id="delete" parameterType="page">
+		delete from t_ythd_content
+		where CONTENT_ID = #{pd.CONTENT_ID}
+	</delete>
+
+	<!-- 前端 新闻 （新） -->
+	<!-- 根据点击量查询 -->
+	<!-- 查询置顶新闻 -->
+	<select id="selectTopLimit" resultType="pd" parameterType="pd">
+		select C.* from t_ythd_content C
+		where C.STATE = 1 and C.ISHOT = 1
+		<if test="CTYPE != null and CTYPE != ''">
+			and CTYPE= #{CTYPE}
+		</if>
+		<if test="CATEGORY_CODE != null and CATEGORY_CODE != ''">
+		    and CATEGORY_CODE = #{CATEGORY_CODE}
+		</if>
+		<if test="exclude != null and exclude != ''">
+			and CONTENT_ID not in (${exclude})
+		</if>
+		order by TOPLV desc, PUTTIME desc
+		<if test="limit != null and limit != ''">
+			limit #{limit}
+		</if>
+	</select>
+	<!-- 查询焦点 -->
+	<select id="selectFoucsLimit" resultType="pd" parameterType="pd">
+		select * from t_ythd_content where STATE = 1 and ISFOCUS = 1
+		<if test="CTYPE != null and CTYPE != ''">
+			and CTYPE= #{CTYPE}
+		</if>
+		<if test="CATEGORY_CODE != null and CATEGORY_CODE != ''">
+		    and CATEGORY_CODE = #{CATEGORY_CODE}
+		</if>
+		<if test="exclude != null and exclude != ''">
+			and CONTENT_ID not in (${exclude})
+		</if>
+		order by TOPLV desc, PUTTIME desc
+		<if test="limit != null and limit != ''">
+			limit #{limit}
+		</if>
+	</select>
+	<select id="selectHotContent" parameterType="pd" resultType="pd">
+	    select * from t_ythd_content where
+		STATE = 1 
+		order by CLICKS desc
+		<if test="limit != null and limit != ''">
+			limit #{limit}
+		</if>
+	</select>
+	<!-- 根据发布时间新闻列表 不分页 -->
+	<select id="selectByPutime" resultType="pd" parameterType="pd">
+		select * from t_ythd_content where
+		STATE = 1 and SUBJECT_CODE is null
+		<if test="exclude != null and exclude != ''">
+			and CONTENT_ID not in (${exclude})
+		</if>
+		<if test="CATEGORY_CODE != null and CATEGORY_CODE != ''">
+		    and CATEGORY_CODE = #{CATEGORY_CODE}
+		</if>
+		<if test="CTYPE != null and CTYPE != ''">
+			and CTYPE= #{CTYPE}
+		</if>
+		order by TOPLV desc, PUTTIME desc
+		<if test="limit != null and limit != ''">
+			limit #{limit}
+		</if>
+	</select>
+	<!-- 根据发布时间查新闻列表 分页 -->
+	<select id="selectByPutimePage" resultType="pd" parameterType="pd">
+		select C.* ,(select count(*) from t_ythd_content_thumbsup t1 where
+		t1.content_id = C.CONTENT_ID) thumbsup,
+		(select count(*) from t_ythd_content_comment t2 where t2.content_id =
+		C.CONTENT_ID) comments
+		from t_ythd_content C where
+		C.STATE = 1 <!-- and C.SUBJECT_CODE is null -->
+		<if test="pd.exclude != null and pd.exclude != ''">
+			and C.CONTENT_ID not in (${pd.exclude})
+		</if>
+		<if test="pd.CATEGORY_CODE != null and pd.CATEGORY_CODE != ''">
+		    and CATEGORY_CODE = #{pd.CATEGORY_CODE}
+		</if>
+		<if test="pd.CTYPE != null and pd.CTYPE != ''">
+			and C.CTYPE= #{pd.CTYPE}
+		</if>
+		order by C.TOPLV desc, C.PUTTIME desc
+	</select>
+	<!-- 根据用户id和新闻id查询用户是否点赞 -->
+	<select id="selectThumbsup" resultType="pd" parameterType="pd">
+		select * from t_ythd_content_thumbsup where content_id = #{content_id}
+		and user_id = #{user_id}
+	</select>
+	<!-- 根据新闻id查询新闻相册 -->
+	<select id="selectContentAlbums" resultType="pd" parameterType="Integer">
+		select * from t_ythd_content_album where content_id = #{content_id}
+	</select>
+	<insert id="insertContentAlbums" parameterType="pd">
+		insert into
+		t_ythd_content_album
+		(content_id,original_img,create_time)values
+		(#{content_id},#{original_img},#{create_time})
+	</insert>
+	<update id="updateContentAlbums" parameterType="pd">
+		update t_ythd_content_album
+		<set>
+			<if test="content_id != null and content_id !=''">
+				content_id = #{content_id},
+			</if>
+			<if test="original_img != null and original_img !=''">
+				original_img = #{original_img},
+			</if>
+			<if test="create_time != null">
+				create_time = #{create_time},
+			</if>
+		</set>
+		where album_id = #{album_id}
+	</update>
+
+	<delete id="deleteContentAlbums" parameterType="pd">
+		delete from t_ythd_content_album
+		where 1=1
+		<if test="content_id != null and content_id !=''">
+			and content_id = #{content_id}
+		</if>
+		<if test="album_id != null and album_id !=''">
+			and album_id = #{album_id}
+		</if>
+	</delete>
+	<!-- 根据发布时间排序查询下一篇上一篇文章 -->
+	<select id="selectPrevOrNext" parameterType="pd" resultType="pd">
+	   SELECT * from (select
+		   UNIX_TIMESTAMP(PUTTIME) as desc_num,
+				tc.*,tcc.CATEGORY_NAME
+		    
+				from
+				t_ythd_content tc
+				LEFT JOIN
+				t_ythd_content_category tcc
+				ON
+				tcc.CATEGORY_CODE = tc.CATEGORY_CODE
+				where 1=1 and STATE != 0  AND tcc.CATEGORY_CODE = #{CATEGORY_CODE} 
+		<if test="selectType == 'ASC'">
+			order by PUTTIME ASC) t1
+			WHERE t1.desc_num 
+		    &gt;
+		</if>
+		<if test="selectType == 'DESC'">
+		    order by PUTTIME DESC) t1
+			WHERE t1.desc_num 
+		  &lt;
+		</if>
+		 (SELECT UNIX_TIMESTAMP(PUTTIME) as desc_num FROM t_ythd_content where CONTENT_ID = #{CONTENT_ID})
+		UNION  ALL SELECT * from 
+		(select
+		   UNIX_TIMESTAMP(PUTTIME) as desc_num,
+				tc.*,tcc.CATEGORY_NAME
+				from
+				t_ythd_content tc
+				LEFT JOIN
+				t_ythd_content_category tcc
+				ON
+				tcc.CATEGORY_CODE = tc.CATEGORY_CODE
+				where 1=1 and STATE != 0  AND tcc.CATEGORY_CODE = #{CATEGORY_CODE} 
+			<if test="selectType == 'ASC'">
+			order by PUTTIME ASC 
+		</if>
+		<if test="selectType == 'DESC'">
+		   order by PUTTIME DESC 
+		</if>
+		 LIMIT 1) t1
+		limit 1
+	</select>
+</mapper>

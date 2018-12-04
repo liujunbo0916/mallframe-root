@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.VenueListingsMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.listings_start_time != null">
+			and listings_start_time = #{pd.listings_start_time}
+		</if>
+		<if test="pd.listings_end_time != null">
+			and listings_end_time = #{pd.listings_end_time}
+		</if>
+		<if test="pd.listings_num != null">
+			and listings_num = #{pd.listings_num}
+		</if>
+		<if test="pd.place_id != null">
+			and place_id = #{pd.place_id}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course_listings where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_course_listings where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_course_listings where id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_ythd_course_listings
+		(listings_start_time,listings_end_time,listings_num,place_id)
+		values
+		(#{listings_start_time},#{listings_end_time},#{listings_num},#{place_id})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_course_listings
+		<set>
+			<if test="listings_start_time != null">
+				listings_start_time = #{listings_start_time},
+			</if>
+			<if test="listings_end_time != null">
+				listings_end_time = #{listings_end_time},
+			</if>
+			<if test="listings_num != null">
+				listings_num = #{listings_num},
+			</if>
+			<if test="place_id != null">
+				place_id = #{place_id},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from
+		t_ythd_course_listings where id = #{pd.id}
+	</delete>
+
+	<delete id="deleteByMap" parameterType="page">
+		delete from t_ythd_course_listings where
+		<if test="pd.place_id != null">
+			place_id=#{pd.place_id}
+		</if>
+	</delete>
+	<select id="selectByIds" resultType="pd" parameterType="pd">
+		SELECT
+		*
+		FROM t_ythd_course_listings
+		<where>
+			id in
+			<!-- <foreach item="item" index="index" collection="ids" open="(" separator="," 
+				close=")"> -->
+			${ids}
+			<!-- </foreach> -->
+		</where>
+		order by listings_start_time
+	</select>
+
+	<select id="selectIdByCId" resultType="pd" parameterType="Integer">
+		SELECT
+		group_concat(hour_venue_listings) as hour_venue_listings
+		FROM
+		t_ythd_course_hour
+		WHERE
+		course_id = #{course_id}
+	</select>
+	<select id="selectTimeByCId" resultType="pd" parameterType="pd">
+		SELECT
+		listings_start_time,
+		listings_end_time
+		FROM
+		t_ythd_course_listings
+		WHERE
+		id IN (${hour_venue_listings})
+		ORDER BY
+		listings_end_time desc 
+	</select>
+</mapper>

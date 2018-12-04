@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.hautecouture.dao.CoutureDialogMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+    
+	<sql id="applicationColumns">
+		a.id AS "id",
+		a.create_by AS "createBy",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.order_sn AS "order_sn",
+		a.parent_id AS "parent_id",
+		a.consumer AS "consumer",
+		a.service AS "service",
+		a.dialog_type AS "dialog_type",
+		a.dialog_mode AS "dialog_mode",
+		a.cors AS "cors",
+		a.dialog_time AS "dialog_time",
+		a.dialog_content AS "dialog_content"
+	</sql>
+	
+	<sql id="applicationJoins">
+	</sql>
+	
+    
+	<select id="selectById" resultType="pd"  parameterType="String">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_dialog a
+		<include refid="applicationJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_dialog a
+		<include refid="applicationJoins"/>
+		<where>
+			a.del_flag = #{pd.del_flag}
+			<if test="pd.dialog_type != null and pd.dialog_type != ''">
+				AND a.dialog_type = #{pd.dialog_type}
+			</if>
+			<if test="pd.dialog_mode != null and pd.dialog_mode != ''">
+				AND a.dialog_mode = #{pd.dialog_mode}
+			</if>
+			<if test="pd.dialog_content != null and pd.dialog_content != ''">
+				AND a.dialog_content LIKE 	concat('%',#{pd.dialog_content},'%')
+			</if>
+			<if test="pd.order_sn != null and pd.order_sn != ''">
+				AND a.order_sn LIKE 	concat('%',#{pd.order_sn},'%')
+			</if>
+		</where>
+	</select>
+	<select id="selectByIds" resultType="pd" parameterType="pd">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_dialog a
+		<where>
+		id in 
+			<foreach item="item" index="index" collection="category_ids" open="(" separator="," close=")">
+	                #{item}
+	        </foreach>
+	    </where>
+	</select>
+	<select id="selectByOrdSn" resultType="pd" parameterType="String">
+		SELECT 
+			<include refid="applicationColumns"/>
+		FROM t_haute_couture_dialog a
+		<where>
+			order_sn = #{order_sn}
+	    </where>
+	    order by dialog_time ASC
+	</select>
+	<insert id="insert" parameterType="pd">
+		INSERT INTO t_haute_couture_dialog(
+			create_by,
+			create_date,
+			dialog_time,
+			cors,
+			remarks,
+			consumer,
+			service,
+			dialog_type,
+			dialog_mode,
+			parent_id,
+			dialog_content,
+			order_sn
+		) VALUES (
+			#{create_by},
+			#{create_date},
+			#{dialog_time},
+			#{cors},
+			#{remarks},
+			#{consumer},
+			#{service},
+			#{dialog_type},
+			#{dialog_mode},
+			#{parent_id},
+			#{dialog_content},
+			#{order_sn}
+		)
+		 <selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="pd">
+		UPDATE t_haute_couture_dialog SET 	
+			update_by = #{update_by},
+			update_date = #{update_date},
+			remarks = #{remarks},
+			dialog_type = #{dialog_type},
+			dialog_time = #{dialog_time},
+			dialog_mode = #{dialog_mode},
+			dialog_content = #{dialog_content}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="deleteByPhysics" parameterType="pd">
+		DELETE FROM t_haute_couture_dialog
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic" parameterType="pd">
+		UPDATE t_haute_couture_dialog SET 
+			del_flag = #{del_flag}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

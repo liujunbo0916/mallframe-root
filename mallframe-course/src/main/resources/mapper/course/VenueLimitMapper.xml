@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.VenueLimitMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null and pd.id != ''">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.limit_type != null and pd.limit_type != ''">
+			and limit_type = #{pd.limit_type}
+		</if>
+		<if test="pd.limit_date != null and pd.limit_date!= ''">
+			and limit_date = #{pd.limit_date}
+		</if>
+		<if test="pd.limit_listings != null and pd.limit_listings!= ''">
+			and limit_listings = #{pd.limit_listings}
+		</if>
+		<if test="pd.limit_target_id != null and pd.limit_target_id != ''">
+			and limit_target_id = #{pd.limit_target_id}
+		</if>
+	</sql>
+	<delete id="delete" parameterType="page">
+		delete from
+		t_ythd_course_venue_limit
+		where limit_target_id = #{pd.limit_target_id}
+		and limit_type = #{pd.limit_type}
+		and id = #{pd.id}
+	</delete>
+	<select id="selectByListings" parameterType="pd" resultType="pd">
+		select * from t_ythd_course_venue_limit where
+		1=1
+		<if test="limit_date != null and limit_date!= ''">
+			and limit_date <![CDATA[=]]>
+			#{limit_date}
+		</if>
+		and
+		(
+		limit_listings = #{limit_listings}
+		or limit_listings like
+		concat(#{limit_listings},',%')
+		or limit_listings like
+		concat('%,',#{limit_listings},',%')
+		or limit_listings like
+		concat('%,',#{limit_listings})
+		)
+		<if test="limit_target_id != null and limit_target_id != ''">
+			and id not in (select id from t_ythd_course_venue_limit
+			where
+			limit_target_id = #{limit_target_id} and limit_type =
+			#{limit_type})
+		</if>
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_ythd_course_venue_limit
+		(limit_type,limit_date,limit_listings,limit_target_id)
+		values(#{limit_type},#{limit_date},#{limit_listings},#{limit_target_id})
+	</insert>
+
+	<select id="selectByPd" parameterType="pd" resultType="pd">
+		select * from t_ythd_course_venue_limit where 1=1
+		<if test="limit_type != null">
+			and limit_type = #{limit_type}
+		</if>
+		<if test="limit_date != null">
+			and limit_date = #{limit_date}
+		</if>
+		<if test="limit_listings != null">
+			and limit_listings = #{limit_listings}
+		</if>
+		<if test="limit_target_id != null">
+			and limit_target_id = #{limit_target_id}
+		</if>
+	</select>
+	<update id="update" parameterType="pd">
+		update t_ythd_course_venue_limit
+		<set>
+			<if test="limit_type != null">
+				limit_type = #{limit_type},
+			</if>
+			<if test="limit_date != null">
+				limit_date = #{limit_date},
+			</if>
+			<if test="limit_listings != null">
+				limit_listings = #{limit_listings},
+			</if>
+			<if test="limit_target_id != null">
+				limit_target_id = #{limit_target_id},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+</mapper>

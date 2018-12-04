@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.upm.dao.SeoMapper">
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.seo_title != null and pd.seo_title!=''">
+			and seo_title = #{pd.seo_title}
+		</if>
+		<if test="pd.seo_code != null">
+			and seo_code = #{pd.seo_code}
+		</if>
+		<if test="pd.seo_value != null">
+			and seo_value = #{pd.seo_value}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.seo_web_title != null">
+			and seo_web_title = #{pd.seo_web_title}
+		</if>
+	</sql>
+
+
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_sys_seo
+		(seo_title,seo_code,seo_value,create_time,seo_web_title,seo_description)
+		values(#{seo_title},#{seo_code},#{seo_value},#{create_time},#{seo_web_title},#{seo_description})
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_sys_seo where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectByMap" resultType="pd" parameterType="page">
+		select * from t_sys_seo where 1=1
+		<include refid="condition"></include>
+	</select>
+	
+	<select id="selectById" resultType="pd" parameterType="java.lang.Integer">
+		select *
+		from t_sys_seo where 1=1 and id=#{id}
+	</select>
+	<update id="update" parameterType="pd">
+		update t_sys_seo
+		<set>
+			<if test="seo_title != null and seo_title != ''">
+				seo_title = #{seo_title},
+			</if>
+			<if test="seo_code != ''">
+				seo_code = #{seo_code},
+			</if>
+			<if test="seo_value != ''">
+				seo_value = #{seo_value},
+			</if>
+			<if test="create_time != null ">
+				create_time = #{create_time},
+			</if>
+			<if test="seo_web_title != null">
+			   seo_web_title = #{seo_web_title},
+		    </if>
+		    <if test="seo_description != null">
+			   seo_description = #{seo_description},
+		    </if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from t_sys_seo where
+		id=#{pd.id}
+	</delete>
+
+</mapper>

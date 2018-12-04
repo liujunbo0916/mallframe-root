@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.CourseOrderMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.order_sn != null">
+			and order_sn = #{pd.order_sn}
+		</if>
+		<if test="pd.order_pay_status != null and pd.order_pay_status !=''">
+			and order_pay_status = #{pd.order_pay_status}
+		</if>
+		<if test="pd.order_course_name != null">
+			and order_course_name like
+			CONCAT('%',#{pd.order_course_name},'%')
+		</if>
+		<if test="pd.order_course_id != null">
+			and order_course_id = #{pd.order_course_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.order_status == null or pd.order_status==''">
+			and order_status in (0,1,2)
+		</if>
+		<if test="pd.order_status != null and pd.order_status !=''">
+			and order_status =#{pd.order_status}
+		</if>
+		<if test="pd.cash_id != null and pd.cash_id !=''">
+			and cash_id =#{pd.cash_id}
+		</if>
+		<if test="pd.cash_money != null and pd.cash_money !=''">
+			and cash_money =#{pd.cash_money}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course_order where 1=1
+		<include refid="condition"></include>
+		order by order_pay_status,order_status,order_time desc
+	</select>
+	<select id="selecMyCourseOrdersByPage" resultType="pd"
+		parameterType="page">
+		SELECT
+		tc.*,tco.order_pay_money,tco.order_time,tco.id as order_id
+		FROM
+		t_ythd_course tc
+		LEFT JOIN t_ythd_course_order tco ON tco.order_course_id = tc.id
+		WHERE
+		1 = 1
+		AND tc.course_status = 3
+		AND tco.order_pay_status = 2
+		AND tco.user_id = #{pd.user_id}
+		ORDER BY
+		tco.order_time DESC
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_course_order where 1=1
+		<include refid="condition"></include>
+	</select>
+
+	<select id="selectJoinByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course_order where 1=1
+		<include refid="condition"></include>
+		order by order_pay_status,order_status,order_time desc
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		select *
+		from t_ythd_course_order where id = #{id}
+	</select>
+	<select id="selectByCourseId" resultType="pd" parameterType="Integer">
+		select *
+		from t_ythd_course_order where order_course_id = #{id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_course_order
+		(
+		order_sn,order_pay_status,order_course_id,order_course_name,order_time,order_pay_money,order_pay_points,order_give_points,
+		order_conect,order_conphone,order_pay_time,user_id,order_remark,order_status,order_use_points,order_money,order_course_money,cash_id,cash_money
+		)
+		values (
+		#{order_sn},#{order_pay_status},#{order_course_id},#{order_course_name},#{order_time},#{order_pay_money},#{order_pay_points},#{order_give_points},
+		#{order_conect},#{order_conphone},#{order_pay_time},#{user_id},#{order_remark},#{order_status},#{order_use_points},#{order_money},#{order_course_money},#{cash_id},#{cash_money}
+		)
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_ythd_course_order
+		<set>
+			<if test="order_sn != null and order_sn!=''">
+				order_sn = #{order_sn},
+			</if>
+			<if test="order_pay_status != null">
+				order_pay_status = #{order_pay_status},
+			</if>
+			<if test="order_course_name != null">
+				order_course_name = #{order_course_name},
+			</if>
+			<if test="order_course_id != null">
+				order_course_id = #{order_course_id},
+			</if>
+			<if test="user_id != null">
+				user_id = #{user_id},
+			</if>
+			<if test="order_status != null">
+				order_status = #{order_status},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="page">
+		delete from
+		t_ythd_course_order
+		where id = #{pd.id}
+	</delete>
+</mapper>

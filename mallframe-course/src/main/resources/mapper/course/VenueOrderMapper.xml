@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.VenueOrderMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.ivorder_id != null">
+			and vorder_id = #{pd.vorder_id}
+		</if>
+		<if test="pd.vorder_sn != null">
+			and vorder_sn = #{pd.vorder_sn}
+		</if>
+		<if test="pd.venue_id != null">
+			and venue_id = #{pd.venue_id}
+		</if>
+		<if test="pd.venue_name != null">
+			and venue_name = #{pd.venue_name}
+		</if>
+		<if test="pd.venue_address != null">
+			and venue_address = #{pd.venue_address}
+		</if>
+		<if test="pd.venue_place_id != null">
+			and venue_place_id = #{pd.venue_place_id}
+		</if>
+		<if test="pd.venue_place_name != null">
+			and venue_place_name = #{pd.venue_place_name}
+		</if>
+		<if test="pd.vorder_money != null">
+			and vorder_money = #{pd.vorder_money}
+		</if>
+		<if test="pd.vorder_status != null">
+			and vorder_status = #{pd.vorder_status}
+		</if>
+		<if test="pd.vorder_date != null">
+			and vorder_date = #{pd.vorder_date}
+		</if>
+		<if test="pd.vorder_time != null">
+			and vorder_time = #{pd.vorder_time}
+		</if>
+		<if test="pd.vorder_pay_status != null">
+			and vorder_pay_status = #{pd.vorder_pay_status}
+		</if>
+		<if test="pd.vorder_remarks != null">
+			and vorder_remarks = #{pd.vorder_remarks}
+		</if>
+		<if test="pd.vorder_create_time!= null">
+			and vorder_create_time = #{pd.vorder_create_time}
+		</if>
+		<if test="pd.user_id!= null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.admin_note!= null">
+			and admin_note = #{pd.admin_note}
+		</if>
+		<if test="pd.contact_phone!= null">
+			and contact_phone = #{pd.contact_phone}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course_venue_order where 1=1
+		<include refid="condition"></include>
+		ORDER BY  vorder_create_time DESC
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_course_venue_order where 1=1
+		<include refid="condition"></include>
+		ORDER BY  vorder_create_time DESC
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		select *
+		from t_ythd_course_venue_order where vorder_id = #{vorder_id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_course_venue_order
+		(vorder_sn,venue_id,venue_name,venue_address,venue_place_id,venue_place_name,vorder_pay_status,vorder_status,vorder_date,vorder_time,vorder_remarks,vorder_create_time,vorder_money,user_id,admin_note,cash_id,contact_phone
+		)
+		values (#{vorder_sn},#{venue_id},#{venue_name},#{venue_address},#{venue_place_id},#{venue_place_name},#{vorder_pay_status},#{vorder_status},#{vorder_date},#{vorder_time},#{vorder_remarks},#{vorder_create_time},#{vorder_money},#{user_id},#{admin_note},#{cash_id},#{contact_phone}
+		)
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="hour_id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+	<delete id="delete" parameterType="page">
+		delete from
+		t_ythd_course_venue_order
+		where vorder_id = #{pd.vorder_id}
+	</delete>
+	
+	<update id="update" parameterType="pd">
+		update t_ythd_course_venue_order
+		<set>
+			<if test="vorder_sn != null and vorder_sn!=''">
+				 vorder_sn = #{vorder_sn},
+			</if>
+			<if test="venue_id != null">
+				 venue_id = #{venue_id},
+			</if>
+			<if test="venue_name != null">
+				 venue_name = #{venue_name},
+			</if>
+			<if test="venue_address != null">
+				 venue_address = #{venue_address},
+			</if>
+			<if test="venue_place_id != null">
+				 venue_place_id = #{venue_place_id},
+			</if>
+			<if test="venue_place_name != null">
+				 venue_place_name = #{venue_place_name},
+			</if>
+			<if test="vorder_money != null and vorder_money != ''">
+				 vorder_money = #{vorder_money},
+			</if>
+			<if test="vorder_status != null">
+				 vorder_status = #{vorder_status},
+			</if>
+			<if test="vorder_date != null">
+				 vorder_date = #{vorder_date},
+			</if>
+			<if test="vorder_time != null">
+				 vorder_time = #{vorder_time},
+			</if>
+			<if test="vorder_pay_status != null">
+				 vorder_pay_status = #{vorder_pay_status},
+			</if>
+			<if test="vorder_remarks != null">
+				 vorder_remarks = #{vorder_remarks},
+			</if>
+			<if test="vorder_create_time!= null">
+				 vorder_create_time = #{vorder_create_time},
+			</if>
+			<if test="user_id!= null">
+				 user_id = #{user_id},
+			</if>
+			<if test="admin_note!= null and admin_note!=''">
+				 admin_note = #{admin_note},
+			</if>
+			<if test="contact_phone !=null and contact_phone!=''">
+				 contact_phone = #{contact_phone},
+			</if>
+		</set>
+		where vorder_id = #{vorder_id}
+	</update>
+
+</mapper>

@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.course.dao.CourseMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.subject_id != null">
+			and subject_id = #{pd.subject_id}
+		</if>
+		<if test="pd.course_name != null">
+			and course_name like
+			CONCAT('%',#{pd.course_name},'%')
+		</if>
+		<if test="pd.course_describe != null">
+			and course_describe = #{pd.course_describe}
+		</if>
+		<if test="pd.course_speaker != null">
+			and course_speaker = #{pd.course_speaker}
+		</if>
+		<if test="pd.course_when_long != null">
+			and course_when_long = #{pd.course_when_long}
+		</if>
+		<if test="pd.course_logo != null">
+			and course_logo = #{pd.course_logo}
+		</if>
+		<if test="pd.course_buyer_total != null">
+			and course_buyer_total = #{pd.course_buyer_total}
+		</if>
+		<if test="pd.course_price != null">
+			and course_price = #{pd.course_price}
+		</if>
+		<if test="pd.course_shelf_shelves != null">
+			and course_shelf_shelves = #{pd.course_shelf_shelves}
+		</if>
+		<if test="pd.teacher_id != null">
+			and teacher_id = #{pd.teacher_id}
+		</if>
+		<if test="pd.course_examine!= null">
+			and course_examine = #{pd.course_examine}
+		</if>
+		<if test="pd.course_open_panic!= null">
+			and course_open_panic = #{pd.course_open_panic}
+		</if>
+		<if test="pd.course_recommed != null">
+			and course_recommed = #{pd.course_recommed}
+		</if>
+		<if test="pd.course_shelf_time != null">
+			and course_shelf_time = #{pd.course_shelf_time}
+		</if>
+		<if test="pd.course_shelves_time != null">
+			and course_shelves_time = #{pd.course_shelves_time}
+		</if>
+		<if test="pd.course_panic_price != null">
+			and course_panic_price = #{pd.course_panic_price}
+		</if>
+		<if test="pd.course_audition != null">
+			and course_audition = #{pd.course_audition}
+		</if>
+		<if test="pd.category_id != null">
+			and category_id = #{pd.category_id}
+		</if>
+		<if test="pd.course_endjoin_time!= null">
+			and course_endjoin_time = #{pd.course_endjoin_time}
+		</if>
+		<if test="pd.course_goods_ids != null">
+			and course_goods_ids = #{pd.course_goods_ids}
+		</if>
+		<if test="pd.course_goods_relation != null">
+			and course_goods_relation = #{pd.course_goods_relation}
+		</if>
+		<if test="pd.course_status != null and pd.course_status != '' and pd.course_status== 9">
+			and course_status in (0 ,1 , 2 , 4)
+		</if>
+		<if test="pd.course_status != null and pd.course_status != '' and pd.course_status!= 9">
+			and course_status = #{pd.course_status}
+		</if>
+		<if test="pd.course_strat_time != null and pd.course_strat_time != ''">
+			and course_strat_time = #{pd.course_strat_time}
+		</if>
+		<if test="pd.course_end_time != null and pd.course_end_time != ''">
+			and course_end_time = #{pd.course_end_time}
+		</if>
+		<if test="pd.dv_need != null">
+			and dv_need = #{pd.dv_need}
+		</if>
+		<if test="pd.course_level != null">
+			and course_level = #{pd.course_level}
+		</if>
+		<if test="pd.min_price!=null and pd.max_price!=null">
+			and shop_price
+			between #{pd.min_price} and #{pd.max_price}
+		</if>
+		<if
+			test="pd.is_buyer_total!=null and pd.is_buyer_total!='' and pd.is_buyer_total==1">
+			order by course_buyer_total DESC
+		</if>
+		<if
+			test="pd.is_course_price!=null and pd.is_course_price!='' and pd.is_course_price==0">
+			order by course_price
+		</if>
+		<if
+			test="pd.is_course_price!=null and pd.is_course_price!='' and pd.is_course_price==1">
+			order by course_price DESC
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_ythd_course where 1=1
+		<include refid="condition"></include>
+		order by course_create_time desc
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_ythd_course where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_ythd_course where id = #{id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_ythd_course
+		(
+		subject_id,course_name,course_describe,course_speaker,course_when_long,course_logo,course_buyer_total,course_price,
+		course_shelf_shelves,teacher_id,course_create_time,course_createby,course_createid,course_modify_time,course_modifyby,course_modifyid,
+		course_examine,course_open_panic,course_panic_start_time,course_panic_end_time,course_recommed,course_shelf_time,course_shelves_time,
+		course_panic_price,course_failmsg,course_audition,category_id,course_endjoin_time,
+		course_goods_ids,course_goods_relation,dv_need,dv_equip_number,course_level,course_pay_points,course_give_points,course_status,course_strat_time,course_end_time
+		)
+		values (
+		#{subject_id},#{course_name},#{course_describe},#{course_speaker},#{course_when_long},#{course_logo},0,#{course_price},
+		0,#{teacher_id},#{course_create_time},#{course_createby},#{course_createid},#{course_modify_time},#{course_modifyby},#{course_modifyid},
+		0,#{course_open_panic},#{course_panic_start_time},#{course_panic_end_time},#{course_recommed},#{course_shelf_time},
+		#{course_shelves_time},#{course_panic_price},#{course_failmsg},#{course_audition},#{category_id},#{course_endjoin_time},#{course_goods_ids},
+		#{course_goods_relation},#{dv_need},#{dv_equip_number},#{course_level},#{course_pay_points},#{course_give_points},#{course_status},#{course_strat_time},#{course_end_time}
+		)
+	</insert>
+	<insert id="copyCourse" parameterType="pd">
+		insert into t_ythd_course
+		(subject_id,course_name,course_describe,course_speaker,course_when_long,course_logo,course_buyer_total,course_price,
+		course_shelf_shelves,teacher_id,course_create_time,course_createby,course_createid,course_modify_time,course_modifyby,course_modifyid,
+		course_examine,course_open_panic,course_panic_start_time,course_panic_end_time,course_recommed,course_shelf_time,course_shelves_time,
+		course_panic_price,course_failmsg,course_audition,category_id,course_endjoin_time,
+		course_goods_ids,course_goods_relation,dv_need,dv_equip_number,course_level,course_pay_points,course_give_points,course_status,course_strat_time,course_end_time)
+		select
+		subject_id,course_name,course_describe,course_speaker,course_when_long,course_logo,0,course_price,
+		0,teacher_id,course_create_time,course_createby,course_createid,course_modify_time,course_modifyby,course_modifyid,
+		0,course_open_panic,course_panic_start_time,course_panic_end_time,course_recommed,course_shelf_time,course_shelves_time,
+		course_panic_price,course_failmsg,course_audition,category_id,course_endjoin_time,
+		course_goods_ids,course_goods_relation,dv_need,dv_equip_number,course_level,course_pay_points,course_give_points,4,course_strat_time,course_end_time
+		from
+		t_ythd_course where id = #{id}
+		<selectKey resultType="java.lang.Integer" keyProperty="id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_ythd_course
+		<set>
+			<if test="course_name != null and course_name != ''">
+				course_name = #{course_name},
+			</if>
+			<if test="course_describe != null and course_describe != ''">
+				course_describe = #{course_describe},
+			</if>
+			<if test="course_speaker != null and course_speaker != ''">
+				course_speaker = #{course_speaker},
+			</if>
+			<if test="course_when_long != null and course_when_long != ''">
+				course_when_long = #{course_when_long},
+			</if>
+			<if test="course_buyer_total != null and course_buyer_total != ''">
+				course_buyer_total = #{course_buyer_total},
+			</if>
+			<if test="course_price != null and course_price != ''">
+				course_price = #{course_price},
+			</if>
+			<if test="course_shelf_shelves != null and course_shelf_shelves != ''">
+				course_shelf_shelves = #{course_shelf_shelves},
+			</if>
+			<if test="teacher_id != null and teacher_id != ''">
+				teacher_id = #{teacher_id},
+			</if>
+			<if test="course_create_time != null">
+				course_create_time = #{course_create_time},
+			</if>
+			<if test="course_createby != null">
+				course_createby = #{course_createby},
+			</if>
+			<if test="course_createid != null">
+				course_createid = #{course_createid},
+			</if>
+			<if test="course_modify_time != null">
+				course_modify_time = #{course_modify_time},
+			</if>
+			<if test="course_modifyby != null">
+				course_modifyby = #{course_modifyby},
+			</if>
+			<if test="course_modifyid != null and course_modifyid != ''">
+				course_modifyid = #{course_modifyid},
+			</if>
+			<if test="course_examine != null and course_examine != ''">
+				course_examine = #{course_examine},
+			</if>
+			<if test="course_open_panic != null and course_open_panic != ''">
+				course_open_panic = #{course_open_panic},
+			</if>
+			<if test="course_panic_start_time != null">
+				course_panic_start_time = #{course_panic_start_time},
+			</if>
+			<if test="course_panic_end_time != null">
+				course_panic_end_time = #{course_panic_end_time},
+			</if>
+			<if test="course_recommed != null">
+				course_recommed = #{course_recommed},
+			</if>
+			<if test="course_shelf_time != null">
+				course_shelf_time = #{course_shelf_time},
+			</if>
+			<if test="course_shelves_time != null">
+				course_shelves_time = #{course_shelves_time},
+			</if>
+			<if test="course_failmsg != null and course_failmsg != ''">
+				course_failmsg = #{course_failmsg},
+			</if>
+			<if test="course_logo != null and course_logo != ''">
+				course_logo = #{course_logo},
+			</if>
+			<if test="course_panic_price != null and course_panic_price != ''">
+				course_panic_price = #{course_panic_price},
+			</if>
+			<if test="category_id != null and category_id != ''">
+				category_id = #{category_id},
+			</if>
+			<if test="course_audition != null and course_audition != ''">
+				course_audition = #{course_audition},
+			</if>
+			<if test="course_endjoin_time != null and course_endjoin_time != ''">
+				course_endjoin_time = #{course_endjoin_time},
+			</if>
+			<if test="course_goods_relation != null and course_goods_relation != ''">
+				course_goods_relation = #{course_goods_relation},
+			</if>
+			<if test="course_goods_ids != null and course_goods_ids != ''">
+				course_goods_ids = #{course_goods_ids},
+			</if>
+			<if test="dv_need != null and dv_need != ''">
+				dv_need = #{dv_need},
+			</if>
+			<if test="dv_equip_number != null and dv_equip_number != ''">
+				dv_equip_number = #{dv_equip_number},
+			</if>
+			<if test="subject_id != null and subject_id != ''">
+				subject_id = #{subject_id},
+			</if>
+			<if test="course_level != null and course_level != ''">
+				course_pay_points = #{course_pay_points},
+			</if>
+			<if test="course_level != null and course_level != ''">
+				course_level = #{course_level},
+			</if>
+			<if test="course_give_points != null and course_give_points != ''">
+				course_give_points = #{course_give_points},
+			</if>
+			<if test="course_status != null and course_status != ''">
+				course_status = #{course_status},
+			</if>
+			<if test="course_strat_time != null and course_strat_time != ''">
+				course_strat_time = #{course_strat_time},
+			</if>
+				<if test="course_end_time != null and course_end_time != ''">
+				course_end_time = #{course_end_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	<delete id="delete" parameterType="page">
+		delete from t_ythd_course
+		where id = #{pd.id}
+	</delete>
+	<select id="selectDetail" resultType="pd" parameterType="page">
+		SELECT
+		t1.id,
+		t1.subject_id,
+		t1.course_name,
+		t1.course_describe,
+		t1.course_speaker,
+		t1.course_when_long,
+		t1.course_logo,
+		t1.course_buyer_total,
+		t1.course_price,
+		t1.teacher_id,
+		t1.course_open_panic,
+		t1.course_panic_price,
+		t1.course_open_panic,
+		t1.course_goods_relation,
+		t1.course_goods_ids,
+		t1.course_buyer_total,
+		t1.course_pay_points,
+		t1.course_level,
+		t1.course_give_points,
+		t1.course_status,
+		DATE_FORMAT(
+		t1.course_panic_start_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS
+		course_panic_start_time,
+		DATE_FORMAT(
+		t1.course_panic_end_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS course_panic_end_time,
+		DATE_FORMAT(
+		t1.course_endjoin_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS course_endjoin_time,
+		t2.user_id AS t_user_id,
+		t1.course_recommed,
+		t2.teacher_real_name,
+		t2.teacher_introduce_photo,
+		t2.teacher_introduction,
+		t2.teacher_self_introduction,
+		t2.teacher_seniority,
+		t2.teacher_level,
+		(
+		SELECT
+		ROUND(AVG(comment_star))
+		FROM
+		t_ythd_teacher_comment
+		WHERE
+		tea_id =
+		t2.user_id
+		) AS comment_star
+		FROM
+		t_ythd_course t1
+		LEFT JOIN
+		t_ythd_teacher_lib t2 ON t1.teacher_id = t2.id
+		where 1=1
+		and
+		t1.id =
+		#{pd.id}
+	</select>
+
+	<select id="selectBySubjectIDPage" resultType="pd"
+		parameterType="page">
+		SELECT
+		id,
+		subject_id,
+		course_name,
+		course_when_long,
+		course_logo,
+		course_buyer_total,
+		course_price,
+		course_open_panic,
+		course_panic_price,
+		course_goods_relation,
+		course_goods_ids,
+		course_pay_points,
+		course_level,
+		course_status,
+		DATE_FORMAT(
+		course_panic_start_time,
+		'%Y-%m-%d %H:%i:%s'
+		)
+		AS
+		course_panic_start_time,
+		DATE_FORMAT(
+		course_panic_end_time,
+		'%Y-%m-%d
+		%H:%i:%s'
+		) AS course_panic_end_time,
+		DATE_FORMAT(
+		course_endjoin_time,
+		'%Y-%m-%d %H:%i:%s'
+		) AS course_endjoin_time
+		FROM
+		t_ythd_course
+		where 1=1
+		<if test="pd.subject_ids !=null and pd.subject_ids !=''">
+			and subject_id in
+			<foreach item="item" index="index" collection="pd.subject_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<if test="pd.category_ids !=null and pd.category_ids !=''">
+			and category_id in
+			<foreach item="item" index="index" collection="pd.category_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<include refid="condition"></include>
+		<if test="pd.orderby!=null and pd.orderby!=''">
+			ORDER BY course_recommed
+		</if>
+		<if test="pd.limit!=null and pd.limit!=''">
+			limit #{pd.limit}
+		</if>
+	</select>
+
+	<select id="selectBySubjectID" resultType="pd" parameterType="page">
+		SELECT
+		id,
+		subject_id,
+		course_name,
+		course_when_long,
+		course_logo,
+		course_buyer_total,
+		course_price,
+		course_panic_price,
+		course_goods_relation,
+		course_goods_ids,
+		course_pay_points,
+		course_level,
+		course_open_panic,
+		course_status,
+		DATE_FORMAT(
+		course_panic_start_time,
+		'%Y-%m-%d %T'
+		) AS
+		"course_panic_start_time",
+		DATE_FORMAT(
+		course_panic_end_time,
+		'%Y-%m-%d %T'
+		) AS
+		"course_panic_end_time",
+		DATE_FORMAT(
+		course_endjoin_time,
+		'%Y-%m-%d %T'
+		) AS
+		"course_endjoin_time"
+		FROM
+		t_ythd_course
+		where 1=1
+		<if test="pd.subject_ids !=null and pd.subject_ids !=''">
+			and subject_id in
+			<foreach item="item" index="index" collection="pd.subject_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<if test="pd.category_ids !=null and pd.category_ids !=''">
+			and category_id in
+			<foreach item="item" index="index" collection="pd.category_ids"
+				open="(" separator="," close=")">
+				'${item}'
+			</foreach>
+		</if>
+		<include refid="condition"></include>
+		<if test="pd.orderby!=null and pd.orderby!=''">
+			ORDER BY course_recommed desc
+		</if>
+		<if test="pd.limit!=null and pd.limit!=''">
+			limit #{pd.limit}
+		</if>
+	</select>
+
+</mapper>

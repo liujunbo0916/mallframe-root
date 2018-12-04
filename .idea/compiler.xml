@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="mallframe-business" />
+        <module name="mallframe-code" />
+        <module name="mallframe-content" />
+        <module name="mallframe-course" />
+        <module name="mallframe-order" />
+        <module name="mallframe-product" />
+        <module name="mallframe-rebate" />
+        <module name="mallframe-upm" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="mallframe-business" target="1.7" />
+      <module name="mallframe-code" target="1.7" />
+      <module name="mallframe-content" target="1.7" />
+      <module name="mallframe-course" target="1.7" />
+      <module name="mallframe-order" target="1.7" />
+      <module name="mallframe-product" target="1.7" />
+      <module name="mallframe-pushmsg" target="1.7" />
+      <module name="mallframe-rebate" target="1.7" />
+      <module name="mallframe-root" target="1.7" />
+      <module name="mallframe-upm" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

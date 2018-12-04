@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.CouponMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<!-- 代金券 -->
+	<sql id="condition">
+		<if test="pd.id != null and pd.id !=''">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.cash_name!= null and pd.cash_name !=''">
+			and cash_name = #{pd.cash_name}
+		</if>
+		<if test="pd.cash_money != null and pd.cash_money !=''">
+			and cash_money = #{pd.cash_money}
+		</if>
+		<if test="pd.cash_grant_num != null and pd.cash_grant_num !=''">
+			and cash_grant_num = #{pd.cash_grant_num}
+		</if>
+		<if test="pd.cash_end_time != null and pd.cash_end_time !=''">
+			and cash_end_time = #{pd.cash_end_time}
+		</if>
+		<if test="pd.cash_receive != null and pd.cash_receive !=''">
+			and cash_receive = #{pd.cash_receive}
+		</if>
+		<if test="pd.cash_img != null and pd.cash_img !=''">
+			and cash_img = #{pd.cash_img}
+		</if>
+		<if test="pd.cash_img != null and pd.cash_img !=''">
+			and cash_img = #{pd.cash_img}
+		</if>
+		<if
+			test="pd.cash_consumption_money != null and pd.cash_consumption_money !=''">
+			and cash_consumption_money = #{pd.cash_consumption_money}
+		</if>
+		<if test="pd.create_time != null and pd.create_time !=''">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.cash_status != null and pd.cash_status !=''">
+			and cash_status = #{pd.cash_status}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		SELECT
+		tac.id,
+		tac.cash_name,
+		tac.cash_money,
+		tac.cash_grant_num,
+		tac.cash_receive,
+		tac.cash_img,
+		tac.cash_desc,
+		tac.cash_consumption_money,
+		tac.cash_status,
+		tac.create_time,
+		DATE_FORMAT(
+		tac.cash_end_time,
+		'%Y-%m-%d %T'
+		) AS "cash_end_time",
+		DATE_FORMAT(
+		tac.cash_endget_time,
+		'%Y-%m-%d %T'
+		) AS "cash_endget_time",
+		(
+		SELECT
+		count(*)
+		FROM
+		t_goods_activity_cash_record
+		WHERE
+		cash_id = tac.id
+		)
+		AS cash_get_num
+		FROM
+		t_goods_activity_cash tac
+		WHERE
+		1 = 1
+		AND
+		tac.cash_status IN (0, 1, 2, 4)
+		ORDER BY
+		tac.create_time DESC
+	</select>
+
+	<select id="selectAllOwer" resultType="pd" parameterType="pd">
+		SELECT
+		tac.id,
+		tac.cash_name,
+		tac.cash_money,
+		tac.cash_grant_num,
+		tac.cash_receive,
+		tac.cash_img,
+		tac.cash_desc,
+		tac.cash_consumption_money,
+		tac.cash_status,
+		tac.create_time,
+		DATE_FORMAT(
+		tac.cash_end_time,
+		'%Y-%m-%d %T'
+		) AS "cash_end_time",
+		DATE_FORMAT(
+		tac.cash_endget_time,
+		'%Y-%m-%d %T'
+		) AS "cash_endget_time",
+		re.*
+		FROM (select * from t_goods_activity_cash_record where
+		user_id=#{user_id}) re
+		inner join
+		t_goods_activity_cash tac
+		on re.cash_id
+		= tac.id
+		WHERE
+		1 = 1
+		AND
+		tac.cash_status IN (0, 1, 2, 4)
+		ORDER BY
+		tac.create_time DESC
+	</select>
+
+	<select id="selectAppByPage" resultType="pd" parameterType="page">
+		SELECT
+		tac.id,
+		tac.cash_name,
+		tac.cash_money,
+		tac.cash_grant_num,
+		tac.cash_receive,
+		tac.cash_img,
+		tac.cash_desc,
+		tac.cash_consumption_money,
+		tac.cash_status,
+		tac.create_time,
+		tarc.id as record_id,
+		tarc.user_status,
+		DATE_FORMAT(
+		tac.cash_end_time,
+		'%Y-%m-%d %T'
+		) AS
+		"cash_end_time",
+		DATE_FORMAT(
+		tac.cash_endget_time,
+		'%Y-%m-%d %T'
+		) AS "cash_endget_time",
+		(
+		SELECT
+		count(*)
+		FROM
+		t_goods_activity_cash_record
+		WHERE
+		cash_id = tac.id
+		) AS
+		cash_get_num
+		FROM
+		t_goods_activity_cash tac
+		LEFT
+		JOIN
+		t_goods_activity_cash_record tarc on tac.id=tarc.cash_id
+		WHERE
+		1 = 1
+		AND
+		tarc.user_id =#{pd.user_id}
+		<if test="pd.user_status != null and pd.user_status !=''">
+			AND tarc.user_status=#{pd.user_status}
+		</if>
+		<if test="pd.cash_id != null and pd.cash_id !=''">
+			AND tarc.cash_id=#{pd.cash_id}
+		</if>
+		AND tac.cash_status IN (0, 1, 2, 4)
+		ORDER BY
+		tac.create_time DESC
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_goods_activity_cash where 1=1
+		<include refid="condition"></include>
+		ORDER BY create_time desc
+	</select>
+
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_goods_activity_cash where id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into
+		t_goods_activity_cash
+		(cash_name,cash_money,cash_grant_num,cash_end_time,cash_receive,cash_img,cash_desc,cash_consumption_money,create_time,cash_status,cash_endget_time)
+		values
+		(#{cash_name},#{cash_money},#{cash_grant_num},#{cash_end_time},#{cash_receive},#{cash_img},#{cash_desc},#{cash_consumption_money},#{create_time},#{cash_status},#{cash_endget_time})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_activity_cash
+		<set>
+			<if test="cash_name != null and cash_name !=''">
+				cash_name = #{cash_name},
+			</if>
+			<if test="cash_money != null and cash_money !=''">
+				cash_money = #{cash_money},
+			</if>
+			<if test="cash_grant_num != null and cash_grant_num !=''">
+				cash_grant_num = #{cash_grant_num},
+			</if>
+			<if test="cash_end_time != null and cash_end_time !=''">
+				cash_end_time = #{cash_end_time},
+			</if>
+			<if test="cash_receive != null and cash_receive !=''">
+				cash_receive = #{cash_receive},
+			</if>
+			<if test="cash_img != null and cash_img !=''">
+				cash_img = #{cash_img},
+			</if>
+			<if test="cash_desc != null and cash_desc !=''">
+				cash_desc = #{cash_desc},
+			</if>
+			<if test="cash_consumption_money != null and cash_consumption_money !=''">
+				cash_consumption_money = #{cash_consumption_money},
+			</if>
+			<if test="create_time != null and create_time !=''">
+				create_time = #{create_time},
+			</if>
+			<if test="cash_status != null and cash_status !=''">
+				cash_status = #{cash_status},
+			</if>
+			<if test="cash_endget_time != null and cash_status !=''">
+				cash_endget_time = #{cash_endget_time},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_activity_cash where 1=1
+		<include refid="condition"></include>
+	</delete>
+
+	<insert id="insertrecord" parameterType="pd">
+		insert into
+		t_goods_activity_cash_record (user_id,cash_id,user_status)
+		values
+		(#{user_id},#{cash_id},0)
+	</insert>
+
+	<select id="selectrecord" resultType="pd" parameterType="pd">
+		select * from t_goods_activity_cash_record
+		where 1=1
+		<if test="user_id!=null and user_id!=''">
+			and user_id=#{user_id}
+		</if>
+		<if test="cash_id!=null and cash_id!=''">
+			and cash_id=#{cash_id}
+		</if>
+	</select>
+
+	<update id="updaterecord" parameterType="pd">
+		update t_goods_activity_cash_record
+		<set>
+			<if test="user_id!=null and user_id!=''">
+				user_id= #{user_id},
+			</if>
+			<if test="cash_id != null and cash_id !=''">
+				cash_id = #{cash_id},
+			</if>
+			<if test="user_status != null and user_status !=''">
+				user_status = #{user_status},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+</mapper>

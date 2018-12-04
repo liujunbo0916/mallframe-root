@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessGradeMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<select id="selectByMap" parameterType="page" resultType="pd">
+	   select * from t_business_grade where 1= 1
+	   <if test="pd.bsg_id != null and pd.bsg_id != null">
+	      bsg_id = #{pd.bsg_id}
+	   </if>
+	</select>
+</mapper>

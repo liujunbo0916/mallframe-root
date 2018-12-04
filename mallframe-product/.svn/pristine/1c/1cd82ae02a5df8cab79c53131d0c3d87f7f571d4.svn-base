@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsCommentMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+
+	<sql id="condition">
+		<if test="pd.comment_id != null">
+			and comment_id = #{pd.comment_id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.course_id != null">
+			and course_id = #{pd.course_id}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.content != null">
+			and content = #{pd.content}
+		</if>
+		<if test="pd.star != null">
+			and star = #{pd.star}
+		</if>
+		<if test="pd.parent_id != null">
+			and parent_id = #{pd.parent_id}
+		</if>
+		<if test="pd.comment_img != null">
+			and comment_img = #{pd.comment_img}
+		</if>
+		<if test="pd.comment_type != null">
+			and comment_type = #{pd.comment_type}
+		</if>
+		<if test="pd.order_id != null">
+			and order_id = #{pd.order_id}
+		</if>
+		
+	</sql>
+	<sql id="conditionId">
+		<if test="pd.goods_id != null">
+			and goods_id = #{pd.goods_id}
+		</if>
+		<if test="pd.course_id != null">
+			and course_id = #{pd.course_id}
+		</if>
+		 <if test="pd.order_id != null and pd.order_id != ''">
+	      and  order_id = #{pd.order_id}
+	   </if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select * from t_goods_comment where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select * from t_goods_comment where 1=1
+		<include refid="condition"></include>
+	</select>
+	<select id="selectCommentListsPage" resultType="pd"
+		parameterType="pd">
+		SELECT
+		t1.comment_id,
+		t1.user_id,
+		t1.course_id,
+		t1.goods_id,
+		t3.nick_name,
+		t3.head_portrait,
+		t1.content,
+		t1.star,
+		t1.comment_type,
+		t1.comment_img,
+		t1.create_time,
+		t2.user_id as 'p_user_id',
+		t2.content as 'p_content'
+		from (select * from
+		t_goods_comment where ifnull(comment_type,0) =
+		#{pd.comment_type}
+		<include refid="conditionId"></include>
+		and (parent_id is null or parent_id = '')
+		)
+		t1 left join t_goods_comment
+		t2
+		on t1.comment_id = t2.parent_id
+		LEFT JOIN t_user t3 ON t3.user_id =
+		t1.user_id
+	</select>
+	
+	<select id="selectCommentList" resultType="pd" parameterType="pd">
+	   select t1.*,ifnull(t2.nick_name,t2.user_name) nick_name,ifnull(t2.head_portrait,t2.headimgurl) user_photo 
+	   from t_goods_comment t1 inner join t_user t2 on t1.user_id = t2.user_id 
+	   where 
+	   ifnull(t1.comment_type,1) = #{comment_type}
+	   and t1.parent_id is null
+	   <if test="goods_id != null and goods_id != ''">
+	      and  t1.goods_id = #{goods_id}
+	   </if>
+	   <if test="course_id != null and course_id != ''">
+	      and  t1.course_id = #{course_id}
+	   </if>
+	    <if test="order_id != null and order_id != ''">
+	      and  t1.order_id = #{order_id}
+	   </if>
+	</select>
+	
+	
+	
+	
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		SELECT *
+		from t_goods_comment where comment_id = #{id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_comment
+		(user_id,goods_id,course_id,create_time,content,star,parent_id,comment_img,comment_type,order_id)
+		values
+		(#{user_id},#{goods_id},#{course_id},#{create_time},#{content},#{star},#{parent_id},#{comment_img},#{comment_type},#{order_id})
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_goods_comment
+		<set>
+			<if test="user_id != null">
+				and user_id = #{user_id}
+			</if>
+			<if test="goods_id != null">
+				and goods_id = #{goods_id}
+			</if>
+			<if test="course_id != null">
+				and course_id = #{course_id}
+			</if>
+			<if test="create_time != null">
+				and create_time = #{create_time}
+			</if>
+			<if test="content != null">
+				and content = #{content}
+			</if>
+			<if test="star != null">
+				and star = #{star}
+			</if>
+			<if test="parent_id != null">
+				and parent_id = #{parent_id}
+			</if>
+			<if test="comment_img != null">
+				and comment_img = #{comment_img}
+			</if>
+			<if test="order_id != null">
+				and order_id = #{order_id}
+			</if>
+			<if test="comment_type != null">
+				and comment_type = #{comment_type}
+			</if>
+		</set>
+		where comment_id = #{comment_id }
+	</update>
+
+	<delete id="delete" parameterType="pd">
+		delete from t_goods_comment where 1=1
+		<include refid="condition"></include>
+	</delete>
+
+</mapper>

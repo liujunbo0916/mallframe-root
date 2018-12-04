@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.user.dao.UserChargeMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	<!-- 会员充值表 -->
+	<sql id="condition">
+		<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.amount != null">
+			and amount = #{pd.amount}
+		</if>
+		<if test="pd.pay_type != null">
+			and pay_type = #{pd.pay_type}
+		</if>
+		<if test="pd.pay_status != null">
+			and pay_status = #{pd.pay_status}
+		</if>
+		<if test="pd.charge_sn != null">
+			and charge_sn = #{pd.charge_sn}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.status != null">
+			and status = #{pd.status}
+		</if>
+		<if test="pd.status_by != null">
+			and status_by = #{pd.status_by}
+		</if>
+		<if test="pd.admin_id != null">
+			and admin_id = #{pd.admin_id}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_user_charge where 1=1
+			<if test="pd.id != null">
+			and id = #{pd.id}
+		</if>
+		<if test="pd.user_id != null">
+			and user_id = #{pd.user_id}
+		</if>
+		<if test="pd.amount != null">
+			and amount = #{pd.amount}
+		</if>
+		<if test="pd.pay_type != null">
+			and pay_type = #{pd.pay_type}
+		</if>
+		<if test="pd.pay_status != null">
+			and pay_status = #{pd.pay_status}
+		</if>
+		<if test="pd.charge_sn != null">
+			and charge_sn = #{pd.charge_sn}
+		</if>
+		<if test="pd.status != null">
+			and status = #{pd.status}
+		</if>
+		<if test="pd.status_by != null">
+			and status_by = #{pd.status_by}
+		</if>
+		<if test="pd.admin_id != null">
+			and admin_id = #{pd.admin_id}
+		</if>
+		<if test="pd.admin_note != null">
+			and admin_note = #{pd.admin_note}
+		</if>
+		<choose>
+			<when test="pd.start_create_time != null and pd.start_create_time != ''">
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		               and  (date_format(create_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		                    and date_format(create_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		               )
+		             ]]>
+					</when>
+					<otherwise>
+		             <![CDATA[
+		              and date_format(create_time,'%Y-%m-%d') >= #{pd.start_create_time}
+		             ]]>
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="pd.end_create_time!=null and pd.end_create_time != ''">
+		             <![CDATA[
+		                    and date_format(create_time,'%Y-%m-%d') <= #{pd.end_create_time}
+		             ]]>
+					</when>
+				</choose>
+			</otherwise>
+		</choose>
+			ORDER BY status,create_time DESC
+	</select>
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_user_charge c INNER JOIN t_user u on c.user_id = u.user_id where 1=1
+			<include refid="condition"></include>
+			ORDER BY c.status,c.create_time DESC
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_user_charge where id = #{id}
+	</select>
+     <select id="selectBySn" resultType="pd"  parameterType="java.lang.String">
+		SELECT * from t_user_charge where charge_sn = #{sn}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_user_charge (user_id,amount,pay_type,pay_status,charge_sn,create_time,status,status_by,admin_id,admin_note,give_point)
+		values (#{user_id},#{amount},#{pay_type},#{pay_status},#{charge_sn},#{create_time},#{status},#{status_by},#{admin_id},#{admin_note},#{give_point})
+			<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_user_charge <set>
+		<if test="user_id != null">
+			user_id = #{user_id},
+		</if>
+		<if test="amount != null">
+			amount = #{amount},
+		</if>
+		<if test="pay_type != null">
+			pay_type = #{pay_type},
+		</if>
+		<if test="pay_status != null">
+			pay_status = #{pay_status},
+		</if>
+		<if test="charge_sn != null and charge_sn!=''">
+			charge_sn = #{charge_sn},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		<if test="status != null">
+			status = #{status},
+		</if>
+		<if test="status_by != null">
+			status_by = #{status_by},
+		</if>
+		<if test="admin_id != null">
+			admin_id = #{admin_id},
+		</if>
+		<if test="admin_note != null">
+			admin_note = #{admin_note},
+		</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_user_charge where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

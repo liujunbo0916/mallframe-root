@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.OrdersShippingMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+	
+	<sql id="condition">
+		<if test="pd.shipping_id != null">
+			and t1.shipping_id = #{pd.shipping_id}
+		</if>
+		<if test="pd.order_id != null">
+			and t1.order_id = #{pd.order_id}
+		</if>
+		<if test="pd.order_sn != null and pd.order_sn != ''">
+			and t1.order_sn LIKE concat('%',#{pd.order_sn},'%') 
+		</if>
+		<if test="pd.ex_name != null and pd.ex_name != ''">
+			and t1.ex_name = #{pd.ex_name}
+		</if>
+		<if test="pd.ex_money != null">
+			and t1.ex_money = #{pd.ex_money}
+		</if>
+		<if test="pd.bill_no != null and pd.bill_no != ''">
+			and t1.bill_no LIKE concat('%',#{pd.bill_no},'%') 
+		</if>
+		<if test="pd.shipping_time != null">
+			and t1.shipping_time = #{pd.shipping_time}
+		</if>
+		<if test="pd.ex_content != null">
+			and t1.ex_content = #{pd.ex_content}
+		</if>
+		<if test="pd.note_admin != null">
+			and t1.note_admin = #{pd.note_admin}
+		</if>
+		<if test="pd.note_user != null">
+			and t1.note_user = #{pd.note_user}
+		</if>
+		<if test="pd.creator != null">
+			and t1.creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and t1.create_time = #{pd.create_time}
+		</if>
+		<if test="pd.conperson != null and pd.conperson != ''">
+		    and t1.conperson  LIKE concat('%',#{pd.conperson},'%')
+		</if>
+		
+		
+	</sql>
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		select t1.*,t2.order_status,t2.shipping_status 
+		from t_orders_shipping t1 left join t_orders t2 on t1.order_id = t2.order_id   where 1=1
+		<if test="pd.shipping_status != null and pd.shipping_status != ''">
+		    and t2.shipping_status = #{pd.shipping_status}
+		</if>
+			<include refid="condition"></include>
+	    order by shipping_time desc
+	</select>
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_orders_shipping t1 where 1=1
+			<include refid="condition"></include>
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_orders_shipping where shipping_id = #{id}
+	</select>
+	<insert id="insert" parameterType="pd">
+		insert into t_orders_shipping (order_id,order_sn,ex_name,ex_code,ex_money,bill_no,shipping_time,ex_content,note_admin,note_user,creator,create_time,address,conphone,conperson,bs_id)
+		values (#{order_id},#{order_sn},#{ex_name},#{ex_code},#{ex_money},#{bill_no},#{shipping_time},#{ex_content},#{note_admin},#{note_user},#{creator},#{create_time},#{address},#{conphone},#{conperson},0)
+	</insert>
+	<update id="update" parameterType="pd">
+		update t_orders_shipping <set>
+		<if test="order_id != null">
+			order_id = #{order_id},
+		</if>
+		<if test="order_sn != null">
+			order_sn = #{order_sn},
+		</if>
+		<if test="ex_name != null and ex_name != ''">
+			ex_name = #{ex_name},
+		</if>
+		<if test="ex_money != null and ex_money != ''">
+			ex_money = #{ex_money},
+		</if>
+		<if test="ex_code != null and ex_code != ''">
+			ex_code = #{ex_code},
+		</if>
+		<if test="bill_no != null and bill_no != ''">
+			bill_no = #{bill_no},
+		</if>
+		<if test="shipping_time != null">
+			shipping_time = #{shipping_time},
+		</if>
+		<if test="ex_content != null">
+			ex_content = #{ex_content},
+		</if>
+		<if test="note_admin != null">
+			note_admin = #{note_admin},
+		</if>
+		<if test="note_user != null">
+			note_user = #{note_user},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		</set>
+		where shipping_id = #{shipping_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete t1 from t_orders_shipping t1  where 1=1
+			<include refid="condition"></include>
+	</delete>
+	<select id="selectAll" parameterType="pd"  resultType="pd">
+		select ship.bill_no,orders.order_sn,orders.order_id,orders.contact_name,ship.shipping_time,orders.order_status,ship.creator from t_orders orders 
+		INNER JOIN t_orders_shipping ship on orders.order_id = ship.order_id where 1=1 
+		<if test="pd.order_sn != null  and pd.order_sn != ''"> and orders.order_sn like CONCAT('%',#{pd.order_sn},'%') </if>
+		<if test="pd.bill_no != null  and pd.bill_no != ''"> and ship.bill_no like CONCAT('%',#{pd.bill_no},'%') </if>
+		<if test="pd.contact_name!= null and pd.contact_name!= ''"> and orders.contact_name like CONCAT('%',#{pd.contact_name},'%')  </if>
+		<if test="pd.order_status != null and pd.order_status!= '请选择'"> and orders.order_status = #{pd.order_status} </if>
+	</select>
+	<select id="selectTrackByOrderId" parameterType="pd" resultType="pd">
+	     select * from t_orders_track where order_id  = #{order_id} order by accept_time desc
+	</select>
+	
+	<!-- 插入系统物流表 -->
+	<insert id="insertTrack" parameterType="pd">
+	    insert into t_orders_track(accept_time,accept_station,remark,order_id)
+	    values(#{accept_time},#{accept_station},#{remark},#{order_id})
+	</insert>
+	
+	
+	
+</mapper>

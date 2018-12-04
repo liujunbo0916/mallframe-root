@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.goods.dao.GoodsTypeAttrMapper">
+	<!-- <cache type="org.mybatis.caches.ehcache.EhcacheCache"/> -->
+	
+	<sql id="condition">
+		<if test="pd.type_attr_id != null">
+			and type_attr_id = #{pd.type_attr_id}
+		</if>
+		<if test="pd.goods_type_id != null">
+			and goods_type_id = #{pd.goods_type_id}
+		</if>
+		<if test="pd.attr_name != null">
+			and attr_name = #{pd.attr_name}
+		</if>
+		<if test="pd.attr_values != null">
+			and attr_values = #{pd.attr_values}
+		</if>
+		<if test="pd.attr_sort != null">
+			and attr_sort = #{pd.attr_sort}
+		</if>
+		<if test="pd.is_sale != null">
+			and is_sale = #{pd.is_sale}
+		</if>
+		<if test="pd.is_search != null">
+			and is_search = #{pd.is_search}
+		</if>
+		<if test="pd.is_linked != null">
+			and is_linked = #{pd.is_linked}
+		</if>
+		<if test="pd.attr_input != null">
+			and attr_input = #{pd.attr_input}
+		</if>
+		<if test="pd.creator != null">
+			and creator = #{pd.creator}
+		</if>
+		<if test="pd.create_time != null">
+			and create_time = #{pd.create_time}
+		</if>
+		<if test="pd.goods_category_id != null">
+			and goods_category_id = #{pd.goods_category_id}
+		</if>
+		<if test="pd.bs_id != null">
+			and bs_id = #{pd.bs_id}
+		</if>
+	</sql>
+
+	<select id="selectByPage" resultType="pd"  parameterType="page">
+		SELECT  a.type_attr_id,
+				a.attr_name,
+				a.attr_values,
+				a.attr_sort,
+				a.is_sale,
+				a.is_search,
+				a.is_linked,
+				a.attr_input,
+				a.creator,
+				a.create_time,
+				a.goods_type_id,
+				b.type_name 
+		FROM t_goods_type_attr AS a ,t_goods_type AS b 
+		WHERE  a.goods_type_id = b.type_id
+			<include refid="condition"></include>
+			 ORDER BY a.attr_sort desc
+	</select>
+	
+	<!-- <select id="selectByPage" resultType="pd"  parameterType="page">
+		select * from t_goods_type_attr where 1=1  
+			<include refid="condition"></include>
+	</select> -->
+
+	<select id="selectByMap" resultType="pd"  parameterType="pd">
+		select * from t_goods_type_attr where 1=1
+			<include refid="condition"></include>
+			 ORDER BY attr_sort desc
+	</select>
+
+	<select id="selectById" resultType="pd"  parameterType="Integer">
+		SELECT * from t_goods_type_attr where type_attr_id = #{id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_goods_type_attr (goods_type_id,attr_name,attr_values,attr_sort,is_sale,is_search,is_linked,attr_input,creator,create_time,goods_category_id,bs_id)
+		values (#{goods_type_id},#{attr_name},#{attr_values},#{attr_sort},#{is_sale},#{is_search},#{is_linked},#{attr_input},#{creator},#{create_time},#{goods_category_id},#{bs_id})
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_goods_type_attr <set>
+		<if test="goods_type_id != null">
+			goods_type_id = #{goods_type_id},
+		</if>
+		<if test="attr_name != null">
+			attr_name = #{attr_name},
+		</if>
+		<if test="attr_values != null">
+			attr_values = #{attr_values},
+		</if>
+		<if test="attr_sort != null">
+			attr_sort = #{attr_sort},
+		</if>
+		<if test="is_sale != null">
+			is_sale = #{is_sale},
+		</if>
+		<if test="is_search != null">
+			is_search = #{is_search},
+		</if>
+		<if test="is_linked != null">
+			is_linked = #{is_linked},
+		</if>
+		<if test="attr_input != null">
+			attr_input = #{attr_input},
+		</if>
+		<if test="creator != null">
+			creator = #{creator},
+		</if>
+		<if test="create_time != null">
+			create_time = #{create_time},
+		</if>
+		<if test="bs_id != null">
+			bs_id = #{bs_id},
+		</if>
+		<if test="goods_category_id != null">
+			goods_category_id = #{goods_category_id},
+		</if>
+		</set>
+		where type_attr_id = #{type_attr_id}
+	</update>
+
+	<delete id="delete"   parameterType="pd">
+		delete from t_goods_type_attr where 1=1
+			<include refid="condition"></include>
+	</delete>
+</mapper>

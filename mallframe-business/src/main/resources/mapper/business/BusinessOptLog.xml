@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.business.dao.BusinessOptLogMapper">
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache" />
+	<!-- 商家操作日志 -->
+	
+	<!-- 插入日志 -->
+	<insert id="insert" parameterType="pd">
+	   insert into t_seller_log (log_content,log_time,log_seller_id,log_seller_name,log_store_id,log_seller_ip,log_url,log_state)
+	   values(#{log_content},#{log_time},#{log_seller_id},#{log_seller_name},#{log_store_id},#{log_seller_ip},#{log_url},#{log_state})
+	   <selectKey resultType="java.lang.Integer" keyProperty="log_id"
+			order="AFTER">
+			SELECT @@IDENTITY
+		</selectKey>
+	</insert>
+	<update id="update" parameterType="pd">
+	   update t_seller_log  set log_state = 0 
+	   where log_id = #{log_id}
+	</update>
+	<insert id="insertExcetion" parameterType="pd">
+	    insert into t_seller_exception (log_time,exception_msg,exception_url,opter,ip)
+	    values(#{log_time},#{exception_msg},#{exception_url},#{opter},#{ip})
+	</insert>
+	<select id="selectByPage" parameterType="page" resultType="pd">
+	    select * from t_seller_log 
+	    where 1= 1
+	    <if test="pd.log_content != null and pd.log_content != ''">
+	      and  log_content like CONCAT(CONCAT('%',#{pd.log_content}),'%')
+	    </if>
+	     <if test="pd.log_seller_name != null and pd.log_seller_name != ''">
+	      and  log_seller_name like CONCAT(CONCAT('%',#{pd.log_seller_name}),'%')
+	    </if>
+	    <if test="pd.log_state != null and pd.log_state != ''">
+	      and log_state = #{pd.log_state}
+	    </if>
+	    <if test="pd.startTime != null and pd.startTime != ''">
+			<if test="pd.endTime == null or pd.endTime ==''">
+				and log_time >= #{pd.startTime}
+			</if>
+			<if test="pd.endTime != null and pd.endTime !=''">
+				and log_time >= #{pd.startTime} and
+				#{pd.endTime} >=
+				log_time
+			</if>
+		</if>
+		<if test="pd.startTime == null or pd.startTime == ''">
+			<if test="pd.endTime != null and pd.endTime !='' ">
+				and #{pd.endTime} >= log_time
+			</if>
+		</if>
+		ORDER BY
+		t_seller_log.log_time DESC
+	</select>
+	
+	<!-- 查询异常 -->
+	<select id="selectExceptionByPage" parameterType="page"
+		resultType="pd">
+		SELECT
+		*
+		FROM
+		t_seller_exception
+		where 1=1
+		<if test="pd.exception_msg != null and pd.exception_msg != ''">
+			and exception_msg like
+			CONCAT(CONCAT('%',#{pd.exception_msg}),'%')
+		</if>
+		<if test="pd.exception_url != null and pd.exception_url != ''">
+			and exception_url = #{pd.exception_url}
+		</if>
+		<if test="pd.log_id != null and pd.log_id != ''">
+			and log_id = #{pd.log_id}
+		</if>
+		<if test="pd.startTime != null and pd.startTime != ''">
+			<if test="pd.endTime == null or pd.endTime =='' ">
+				and log_time >= #{pd.startTime}
+			</if>
+			<if test="pd.endTime != null and pd.endTime !='' ">
+				and  log_time >= #{pd.startTime} 
+				and  #{pd.endTime} >= log_time
+			</if>
+		</if>
+		<if test="pd.startTime == null or pd.startTime ==''">
+			<if test="pd.endTime != null and pd.endTime !='' ">
+				and #{pd.endTime} >= log_time
+			</if>
+		</if>
+		ORDER BY
+		log_time DESC
+	</select>
+</mapper>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.easaa.order.dao.OrdersRefundMapper">
+	<sql id="condition">
+		<if test="pd.refund_id != null">
+			and t1.refund_id = #{pd.refund_id}
+		</if>
+		<if test="pd.order_id != null">
+			and t1.order_id = #{pd.order_id}
+		</if>
+		<if test="pd.refund_no != null and pd.refund_no != ''">
+			and t1.refund_no LIKE concat('%',#{pd.refund_no},'%')
+		</if>
+		<if test="pd.refund_status != null and pd.refund_status != ''">
+			and t1.refund_status = #{pd.refund_status}
+		</if>
+		<if test="pd.refund_type != null and pd.refund_type != ''">
+			and t1.refund_type = #{pd.refund_type}
+		</if>
+		<if test="pd.refund_money != null">
+			and t1.refund_money = #{pd.refund_money}
+		</if>
+		<if test="pd.refund_points != null and pd.refund_points != ''">
+			and t1.refund_points LIKE
+			concat('%',#{pd.refund_points},'%')
+		</if>
+		<if test="pd.refund_reason != null">
+			and t1.refund_reason = #{pd.refund_reason}
+		</if>
+		<if test="pd.refund_images != null">
+			and t1.refund_images = #{pd.refund_images}
+		</if>
+		<if test="pd.refund_remark != null">
+			and t1.refund_remark = #{pd.refund_remark}
+		</if>
+		<if test="pd.user_id != null">
+			and t1.user_id = #{pd.user_id}
+		</if>
+		<if test="pd.order_goods_id != null">
+			and t1.order_goods_id = #{pd.order_goods_id}
+		</if>
+	</sql>
+	<select id="selectByPage" resultType="pd" parameterType="page">
+		select
+		t1.*,
+		t2.order_status,t2.shipping_status,t2.user_name,t2.order_sn,t2.order_money,
+		t3.goods_id,t3.goods_sku_id,t3.goods_name,t3.goods_sn,t3.goods_count,t3.goods_attr,t4.list_img
+		from
+		t_orders_refund t1 left join t_orders t2 on t1.order_id =
+		t2.order_id
+		left join t_orders_goods t3 on t1.order_id = t3.order_id
+		LEFT JOIN t_goods t4 ON t3.goods_id = t4.goods_id
+		where 1=1
+		<if test="pd.shipping_status != null and pd.shipping_status != ''">
+			and t2.shipping_status = #{pd.shipping_status}
+		</if>
+		<if test="pd.order_sn != null and pd.order_sn != ''">
+			and t2.order_sn LIKE concat('%',#{pd.order_sn},'%')
+		</if>
+		<if test="pd.user_name != null and pd.user_name != ''">
+			and t2.user_name LIKE concat('%',#{pd.user_name},'%')
+		</if>
+		<include refid="condition"></include>
+		
+	</select>
+	<select id="selectByMap" resultType="pd" parameterType="pd">
+		select
+		t1.*,
+		t2.order_status,t2.shipping_status,t2.user_name,t2.order_sn,t2.order_money,
+		t3.goods_id,t3.goods_sku_id,t3.goods_name,t3.goods_sn,t3.goods_count,t3.goods_attr,t4.list_img
+		from
+		t_orders_refund t1 left join t_orders t2 on t1.order_id =
+		t2.order_id
+		left join t_orders_goods t3 on t1.order_id = t3.order_id
+		LEFT JOIN t_goods t4 ON t3.goods_id = t4.goods_id
+		where 1=1
+		<if test="pd.bs_id != null and pd.bs_id != ''">
+			and t4.bs_id=#{pd.bs_id}
+		</if>
+		<include refid="condition"></include>
+	</select>
+	<select id="selectById" resultType="pd" parameterType="Integer">
+		select
+		t1.*,
+		t2.order_status,t2.shipping_status,t2.user_name,t2.order_sn,t2.order_money,
+		t3.goods_id,t3.goods_sku_id,t3.goods_name,t3.goods_sn,t3.goods_count,t3.goods_attr,t4.list_img
+		from
+		t_orders_refund t1 left join t_orders t2 on t1.order_id =
+		t2.order_id
+		left join t_orders_goods t3 on t1.order_id = t3.order_id
+		LEFT JOIN t_goods t4 ON t3.goods_id = t4.goods_id
+		where 1=1 and
+		refund_id = #{id}
+	</select>
+
+	<select id="selectRefund" resultType="pd" parameterType="Integer">
+		select *
+		from t_orders_refund t1 where 1=1
+		and t1.order_goods_id =
+		#{order_goods_id}
+	</select>
+
+	<insert id="insert" parameterType="pd">
+		insert into t_orders_refund
+		(order_id,order_goods_id,refund_no,refund_status,refund_type,refund_points,refund_money,refund_reason,refund_images,refund_remark,creator,create_time,resive_points,user_id)
+		values
+		(#{order_id},#{order_goods_id},#{refund_no},#{refund_status},#{refund_type},#{refund_points},#{refund_money},#{refund_reason},#{refund_images},#{refund_remark},#{creator},#{create_time},#{resive_points},#{user_id})
+		<selectKey resultType="java.lang.Long" order="AFTER"
+			keyProperty="refund_id">
+			select LAST_INSERT_ID()
+		</selectKey>
+	</insert>
+
+	<update id="update" parameterType="pd">
+		update t_orders_refund
+		<set>
+			<if test="refund_status != null and refund_status != ''">
+				refund_status = #{refund_status},
+			</if>
+			<if test="refund_type != null and refund_type != ''">
+				refund_type = #{refund_type},
+			</if>
+			<if test="refund_points != null and refund_points != ''">
+				refund_points = #{refund_points},
+			</if>
+			<if test="resive_points != null and resive_points != ''">
+				resive_points = #{resive_points},
+			</if>
+			<if test="refund_money != null and refund_money != ''">
+				refund_money = #{refund_money},
+			</if>
+			<if test="refund_reason != null and refund_reason != ''">
+				refund_reason = #{refund_reason},
+			</if>
+			<if test="refund_remark != null and refund_remark != ''">
+				refund_remark = #{refund_remark},
+			</if>
+			<if test="creator != null and creator != ''">
+				creator = #{creator},
+			</if>
+		</set>
+		where refund_id = #{refund_id}
+	</update>
+
+	<insert id="insertRefundLog" parameterType="pd">
+		insert into
+		t_orders_refund_log(refund_id,log_note,action_note,creator,create_time)
+		values(#{refund_id},#{log_note},#{action_note},#{creator},#{create_time})
+	</insert>
+
+
+
+</mapper>
